@@ -24,7 +24,17 @@ const LogInScreen = (props) =>{
               placeholder='Username: '/>
           <TextInput style = {styles.inputView}value = {userName} onChangeText={setUserName}
               placeholder='Password: '/>
-          <Button title='Forgot Password ? ' onPress={checkLogin}></Button>
+          <TouchableOpacity style={styles.btnPsw} >
+              <Text style={styles.bluBtntext}>Forgot Password ?</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{marginTop: 60, width: 300, height: 45, borderRadius: 8,
+              alignSelf: "center", backgroundColor: "#2D4059", justifyContent: "center",
+              alignItems: "center" }} >
+              <Text style={{textAlign: "center", padding: "auto",
+                fontSize: 23, color: '#ffffff'}}>SIGN IN</Text>
+          </TouchableOpacity>
+          
+
            
         </View>
     )   
@@ -41,7 +51,7 @@ const styles = StyleSheet.create({
       marginTop: 15,
       fontSize: 35,
       fontWeight: "bold",
-      alignContent: "center"
+      alignSelf: "center"
   },
     inputView: {
       height: 45,
@@ -50,12 +60,21 @@ const styles = StyleSheet.create({
       borderRadius: 8,
       fontSize: 20,
       fontWeight: "bold",
-      top:10
+      marginTop:5,
+      alignSelf: 'center'
     },
     imageStyle: {
       alignSelf:"center",
       width: 50,
       height: 50
+  },
+  btnPsw:{
+    marginLeft: 240,
+    marginTop: 12
+  },
+  bluBtntext:{
+    fontSize: 17,
+    color: '#177de1'
   }
   })
 export default LogInScreen
