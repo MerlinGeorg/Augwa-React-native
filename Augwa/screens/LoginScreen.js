@@ -17,7 +17,7 @@ const LogInScreen = (props) =>{
     return(
         <View style = {marginTop=200}>
           
-          <Text style = {textTitleStyle}>Welcome To Augwa</Text>
+          <Text style = {styles.textTitleStyle}>Welcome To Augwa</Text>
           <TextInput style = {styles.inputView}value = {userName} onChangeText={setUserName}
               placeholder='Domain: '/>
           <TextInput style = {styles.inputView}value = {userName} onChangeText={setUserName}
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
       justifyContent:'space-between',
       margin: 15,
       padding: 10},
-    textTitleStyle : {
+    textTitleStyle: {
       marginTop: 15,
       fontSize: 35,
       fontWeight: "bold",
@@ -50,6 +50,7 @@ const styles = StyleSheet.create({
       borderRadius: 8,
       fontSize: 20,
       fontWeight: "bold",
+      top:10
     },
     imageStyle: {
       alignSelf:"center",
