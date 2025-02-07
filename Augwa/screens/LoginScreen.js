@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Image, View, StyleSheet, TextInput, Button, Text } from 'react-native';
-const LogInScreen = (props) =>{
+const LoginScreen = (props) =>{
     const [domain, setDomain] = useState('')
     const [userName, setUserName] = useState('') // set user name
     const [password, setPassword] = useState('')
@@ -59,4 +59,4 @@ const styles = StyleSheet.create({
       height: 50
   }
   })
-export default LogInScreen
+export default LoginScreen
