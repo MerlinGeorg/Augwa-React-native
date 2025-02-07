@@ -33,7 +33,7 @@ const LogInScreen = (props) =>{
     )   
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create({ 
     
     viewStyle: {
       alignItems: 'stretch',
