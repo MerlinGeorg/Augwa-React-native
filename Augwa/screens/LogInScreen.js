@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Image, View, StyleSheet, TextInput, Button, Text, TouchableOpacity} from 'react-native';
+import Logo from '../assets/images/app_logo.svg'
 const LogInScreen = (props) =>{
     const [domain, setDomain] = useState('')
     const [userName, setUserName] = useState('') // set user name
@@ -15,15 +16,19 @@ const LogInScreen = (props) =>{
 
     }
     return(
-        <View style = {marginTop=200}>
-          
+        <View style = {{marginTop:100}}>
+          <Logo style = {styles.logoStyle}/>
           <Text style = {styles.textTitleStyle}>Welcome To Augwa</Text>
-          <TextInput style = {styles.inputView}value = {userName} onChangeText={setUserName}
+          <View style = {{marginTop:40}}>
+          <TextInput style = {styles.inputView}value = {domain} onChangeText={setDomain}
               placeholder='Domain: '/>
           <TextInput style = {styles.inputView}value = {userName} onChangeText={setUserName}
               placeholder='Username: '/>
-          <TextInput style = {styles.inputView}value = {userName} onChangeText={setUserName}
+          <TextInput style = {styles.inputView}value = {password} onChangeText={setPassword}
               placeholder='Password: '/>
+
+          </View>
+          
           <TouchableOpacity style={styles.btnPsw} >
               <Text style={styles.bluBtntext}>Forgot Password ?</Text>
           </TouchableOpacity>
@@ -48,14 +53,19 @@ const LogInScreen = (props) =>{
 }
 
 const styles = StyleSheet.create({ 
+   logoStyle: {
+    width:100,
+    height: 100,
+    alignSelf:'center',
     
+   },
     viewStyle: {
       alignItems: 'stretch',
       justifyContent:'space-between',
       margin: 15,
       padding: 10},
     textTitleStyle: {
-      marginTop: 15,
+      marginTop: 25,
       fontSize: 35,
       fontWeight: "bold",
       alignSelf: "center"
@@ -84,7 +94,7 @@ const styles = StyleSheet.create({
     color: '#177de1'
   },
   signupView:{
-    marginTop: 60,
+    marginTop: 30,
     flexDirection: 'row',
     alignSelf:'center'
     

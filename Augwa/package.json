@@ -19,7 +19,8 @@
     "react-native": "0.76.6",
     "react-native-gesture-handler": "^2.23.0",
     "react-native-safe-area-context": "^5.2.0",
-    "react-native-svg": "15.8.0"
+    "react-native-svg": "15.8.0",
+    "expo-asset": "~11.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
