@@ -27,12 +27,19 @@ const LogInScreen = (props) =>{
           <TouchableOpacity style={styles.btnPsw} >
               <Text style={styles.bluBtntext}>Forgot Password ?</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{marginTop: 60, width: 300, height: 45, borderRadius: 8,
+          <TouchableOpacity style={{marginTop: 60, width: 340, height: 45, borderRadius: 8,
               alignSelf: "center", backgroundColor: "#2D4059", justifyContent: "center",
               alignItems: "center" }} >
               <Text style={{textAlign: "center", padding: "auto",
                 fontSize: 23, color: '#ffffff'}}>SIGN IN</Text>
           </TouchableOpacity>
+          <View style = {styles.signupView}>
+            <Text style = {{fontSize: 17, color: '5F5F5F'}}>Don't have an account?</Text>
+            <TouchableOpacity >
+              <Text style={styles.bluBtntext}>  Sign up</Text>
+            </TouchableOpacity>
+
+          </View>
           
 
            
@@ -75,6 +82,12 @@ const styles = StyleSheet.create({
   bluBtntext:{
     fontSize: 17,
     color: '#177de1'
+  },
+  signupView:{
+    marginTop: 60,
+    flexDirection: 'row',
+    alignSelf:'center'
+    
   }
   })
 export default LogInScreen
