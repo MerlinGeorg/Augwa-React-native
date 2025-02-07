@@ -15,7 +15,7 @@ const LogInScreen = (props) =>{
     }
     return(
         <View style = {marginTop=200}>
-            <Image style={styles.imageStyle} source={require('.../assets/images/app_log.svga')}></Image>
+            <Image style={styles.imageStyle} source={require('../assets/images/app_logo.svg')}></Image>
             <View  style = {styles. viewStyle}>
               <Text style = {styles.textStyle}>Please Enter Your User Name</Text>
               <TextInput style = {styles.inputView}value = {userName} onChangeText={setUserName}
