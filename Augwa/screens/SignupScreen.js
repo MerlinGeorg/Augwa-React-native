@@ -28,7 +28,7 @@ const PasswordRequirement = ({ met, text }) => (
   </View>
 );
 
-export default function SignupScreen() {
+export default function SignupScreen({navigation}) {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [inviteCode, setInviteCode] = useState("");
@@ -211,6 +211,15 @@ const usernameValidation = {
           >
             <Text style={styles.signupText}>
               {isLoading ? "SIGNING UP..." : "SIGNUP"}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            onPress={()=>navigation.navigate('login')} 
+            style={styles.signupButton}
+          >
+            <Text style={styles.signupText}>
+              LOGIN
             </Text>
           </TouchableOpacity>
         </View>
