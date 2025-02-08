@@ -10,10 +10,11 @@ export default function App() {
   const MyStack = createStackNavigator();
 
   return (
-
+    //  <SignupScreen />
     <LogInScreen />
-    // <SignupScreen />
 
+    
+     
     // <NavigationContainer>
     //   <MyStack.Screen name="signup" component={SignupScreen} />
     // </NavigationContainer>
