@@ -10,7 +10,7 @@ import {
   Platform,
   Alert,
 } from "react-native";
-import { buttonTextColor, primaryColor, textInputBorderColor } from "../assets/styles/color";
+import { buttonTextColor, errorGrey, errorRed, primaryColor, successGreen, textInputBorderColor } from "../assets/styles/color";
 import Register from "../components/Signup";
 import { FontAwesome } from "react-native-vector-icons";
 
@@ -119,7 +119,7 @@ const usernameValidation = {
               style={styles.input}
               autoCapitalize="none"
               autoCorrect={false}
-              onFocus={() => setError("")}
+              
             />
             {errors.userName && <Text style={styles.errorText}>{errors.userName}</Text>}
           </View>
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 50,
     borderWidth: 1,
-    borderColor: "#E1E1E1",
+    borderColor: textInputBorderColor,
     borderRadius: 8,
     paddingHorizontal: 15,
     backgroundColor: "#fff",
@@ -288,19 +288,19 @@ const styles = StyleSheet.create({
   requirementIcon: {
     fontSize: 14,
     marginRight: 8,
-    color: "#999", // Default gray color for X
+    color: errorGrey, // Default gray color for X
   },
   requirementText: {
     fontSize: 14,
   },
   requirementMet: {
-    color: "#4CAF50", // Green color for met requirements
+    color: successGreen, // Green color for met requirements
   },
   requirementNotMet: {
-    color: "#999", // Gray color for unmet requirements
+    color: errorGrey, // Gray color for unmet requirements
   },
   errorText: {
-    color: "red",
+    color: errorRed,
     fontSize: 12,
     marginBottom: 5,
   },
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 50,
     borderRadius: 8,
-    backgroundColor: "#2B3A55",
+    backgroundColor: primaryColor,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 10,
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   signupText: {
-    color: "#fff",
+    color: buttonTextColor,
     fontSize: 16,
     fontWeight: "600",
   },
