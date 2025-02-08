@@ -1,0 +1,8 @@
+export const primaryColor = "#2D4059"
+//export const secondaryColor = "#2D4059"
+export const buttonTextColor = "#F5F5F5"
+export const textInputBorderColor = "#D9D9D9"
+export const successGreen = "#02EE78"
+export const errorGrey = "#B8B8B8"
+export const errorRed = "red"
+export const titleBlack = "#000000"
