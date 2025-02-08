@@ -11,11 +11,8 @@ export default function App() {
 
   return (
 
-    //<LogInScreen />
-    // <SignupScreen />
-
-    //<LoginScreen />
-    <SignupScreen />
+    <LoginScreen />
+   // <SignupScreen />
     
      
     // <NavigationContainer>
