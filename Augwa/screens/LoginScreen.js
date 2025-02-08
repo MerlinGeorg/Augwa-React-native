@@ -22,14 +22,14 @@ const LoginScreen = (props) =>{
     }
     return(
       <KeyboardAvoidingView
-      style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      style={{ flex: 0.75}} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         
         <View style = {{marginTop:10}}>
           <Logo style = {styles.logoStyle}/>
           <Text style = {styles.textTitleStyle}>Welcome To Augwa</Text>
-          <ScrollView>
-          <View style = {{marginTop:20}}>
+          
+          <View style = {{marginTop:10}}>
           <TextInput style = {styles.inputView}value = {domain} onChangeText={setDomain}
               placeholder='Domain: '/>
           <TextInput style = {styles.inputView}value = {userName} onChangeText={setUserName}
@@ -37,10 +37,6 @@ const LoginScreen = (props) =>{
           <TextInput style = {styles.inputView}value = {password} onChangeText={setPassword}
               placeholder='Password: '/>
           </View>
-
-          </ScrollView>
-
-          
           <TouchableOpacity style={styles.btnPsw} >
               <Text style={styles.bluBtntext}>Forgot Password ?</Text>
           </TouchableOpacity>
