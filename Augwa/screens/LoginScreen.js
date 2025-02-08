@@ -7,7 +7,7 @@ import Logo from '../assets/images/app_logo.svg'
 import { ScrollView } from 'react-native-gesture-handler';
 import { buttonTextColor, errorGrey, errorRed, primaryColor, successGreen, textInputBorderColor } from "../assets/styles/color";
 
-const LogInScreen = (props) =>{
+const LoginScreen = (props) =>{
     const [domain, setDomain] = useState('')
     const [userName, setUserName] = useState('') // set user name
     const [password, setPassword] = useState('')
@@ -59,37 +59,6 @@ const LogInScreen = (props) =>{
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
-      
-        // <View style = {{marginTop:30}}>
-        //   <Logo style = {styles.logoStyle}/>
-        //   <Text style = {styles.textTitleStyle}>Welcome To Augwa</Text>
-        //   <View style = {{marginTop:37}}>
-        //   <TextInput style = {styles.inputView}value = {domain} onChangeText={setDomain}
-        //       placeholder='Domain: '/>
-        //   <TextInput style = {styles.inputView}value = {userName} onChangeText={setUserName}
-        //       placeholder='Username: '/>
-        //   <TextInput style = {styles.inputView}value = {password} onChangeText={setPassword}
-        //       placeholder='Password: '/>
-        //   </View>
-          
-        //   <TouchableOpacity style={styles.btnPsw} >
-        //       <Text style={styles.bluBtntext}>Forgot Password ?</Text>
-        //   </TouchableOpacity>
-        //   <TouchableOpacity style={{marginTop: 50, width: 340, height: 45, borderRadius: 8,
-        //       alignSelf: "center", backgroundColor: "#2D4059", justifyContent: "center",
-        //       alignItems: "center" }} >
-        //       <Text style={{textAlign: "center", padding: "auto",
-        //         fontSize: 23, color: '#ffffff'}}>SIGN IN</Text>
-        //   </TouchableOpacity>
-        //   <View style = {styles.signupView}>
-        //     <Text style = {{fontSize: 17, color: '5F5F5F'}}>Don't have an account?</Text>
-        //     <TouchableOpacity >
-        //       <Text style={styles.bluBtntext}>  Sign up</Text>
-        //     </TouchableOpacity>
-
-        //   </View>
- 
-        // </View>
     )   
 }
 
@@ -146,4 +115,4 @@ const styles = StyleSheet.create({
     
   }
   })
-export default LogInScreen
+export default LoginScreen
