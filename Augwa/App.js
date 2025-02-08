@@ -11,13 +11,17 @@ export default function App() {
 
   return (
 
-    <LoginScreen />
+    //<LoginScreen />
    // <SignupScreen />
     
      
-    // <NavigationContainer>
-    //   <MyStack.Screen name="signup" component={SignupScreen} />
-    // </NavigationContainer>
+    <NavigationContainer>
+      <MyStack.Navigator>
+      <MyStack.Screen name="signup" component={SignupScreen} />
+      <MyStack.Screen name="login" component={LoginScreen} />
+      </MyStack.Navigator>
+      
+    </NavigationContainer>
   );
 }
 
