@@ -1,7 +1,7 @@
 
 
 import React, { useState } from 'react';
-import { Image, View, StyleSheet, TextInput, Button, Text, TouchableOpacity} from 'react-native';
+import { TouchableWithoutFeedback, View, StyleSheet, TextInput, Keyboard, Text, TouchableOpacity} from 'react-native';
 import Logo from '../assets/images/app_logo.svg'
 import { buttonTextColor, errorGrey, errorRed, primaryColor, successGreen, textInputBorderColor } from "../assets/styles/color";
 
@@ -19,6 +19,7 @@ const LogInScreen = (props) =>{
 
     }
     return(
+      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <View style = {{marginTop:30}}>
           <Logo style = {styles.logoStyle}/>
           <Text style = {styles.textTitleStyle}>Welcome To Augwa</Text>
@@ -29,7 +30,6 @@ const LogInScreen = (props) =>{
               placeholder='Username: '/>
           <TextInput style = {styles.inputView}value = {password} onChangeText={setPassword}
               placeholder='Password: '/>
-
           </View>
           
           <TouchableOpacity style={styles.btnPsw} >
@@ -50,6 +50,38 @@ const LogInScreen = (props) =>{
           </View>
  
         </View>
+
+      </TouchableWithoutFeedback>
+        // <View style = {{marginTop:30}}>
+        //   <Logo style = {styles.logoStyle}/>
+        //   <Text style = {styles.textTitleStyle}>Welcome To Augwa</Text>
+        //   <View style = {{marginTop:37}}>
+        //   <TextInput style = {styles.inputView}value = {domain} onChangeText={setDomain}
+        //       placeholder='Domain: '/>
+        //   <TextInput style = {styles.inputView}value = {userName} onChangeText={setUserName}
+        //       placeholder='Username: '/>
+        //   <TextInput style = {styles.inputView}value = {password} onChangeText={setPassword}
+        //       placeholder='Password: '/>
+        //   </View>
+          
+        //   <TouchableOpacity style={styles.btnPsw} >
+        //       <Text style={styles.bluBtntext}>Forgot Password ?</Text>
+        //   </TouchableOpacity>
+        //   <TouchableOpacity style={{marginTop: 50, width: 340, height: 45, borderRadius: 8,
+        //       alignSelf: "center", backgroundColor: "#2D4059", justifyContent: "center",
+        //       alignItems: "center" }} >
+        //       <Text style={{textAlign: "center", padding: "auto",
+        //         fontSize: 23, color: '#ffffff'}}>SIGN IN</Text>
+        //   </TouchableOpacity>
+        //   <View style = {styles.signupView}>
+        //     <Text style = {{fontSize: 17, color: '5F5F5F'}}>Don't have an account?</Text>
+        //     <TouchableOpacity >
+        //       <Text style={styles.bluBtntext}>  Sign up</Text>
+        //     </TouchableOpacity>
+
+        //   </View>
+ 
+        // </View>
     )   
 }
 
