@@ -1,7 +1,9 @@
 
+
 import React, { useState } from 'react';
 import { Image, View, StyleSheet, TextInput, Button, Text, TouchableOpacity} from 'react-native';
 import Logo from '../assets/images/app_logo.svg'
+
 const LogInScreen = (props) =>{
     const [domain, setDomain] = useState('')
     const [userName, setUserName] = useState('') // set user name
@@ -45,14 +47,13 @@ const LogInScreen = (props) =>{
             </TouchableOpacity>
 
           </View>
-          
-
-           
+ 
         </View>
     )   
 }
 
 const styles = StyleSheet.create({ 
+
    logoStyle: {
     width:100,
     height: 100,
@@ -64,6 +65,7 @@ const styles = StyleSheet.create({
       justifyContent:'space-between',
       margin: 15,
       padding: 10},
+
     textTitleStyle: {
       marginTop: 25,
       fontSize: 35,
@@ -79,11 +81,13 @@ const styles = StyleSheet.create({
       fontWeight: "bold",
       marginTop:5,
       alignSelf: 'center'
+  
     },
     imageStyle: {
       alignSelf:"center",
       width: 50,
       height: 50
+
   },
   btnPsw:{
     marginLeft: 240,
