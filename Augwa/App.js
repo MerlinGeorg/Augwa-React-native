@@ -3,17 +3,24 @@ import { StyleSheet, Text, View } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import SignupScreen from './screens/SignupScreen';
-import LogInScreen from './screens/LogInScreen';
+import LoginScreen from './screens/LogInScreen';
 
 export default function App() {
 
   const MyStack = createStackNavigator();
 
   return (
+<<<<<<< HEAD
 
     <LogInScreen />
     // <SignupScreen />
 
+=======
+    //<LoginScreen />
+    <SignupScreen />
+    
+     
+>>>>>>> a5431bdc7741111c81a7a8f635b7eedbfcb897c9
     // <NavigationContainer>
     //   <MyStack.Screen name="signup" component={SignupScreen} />
     // </NavigationContainer>

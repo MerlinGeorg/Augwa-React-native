@@ -26,8 +26,15 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+<<<<<<< HEAD
     "plugins": [
       "expo-asset"
     ]
+=======
+    "packagerOpts": {
+      "sourceExts": ["js", "jsx", "svgx"],
+      "transformer": "node_modules/react-native-svg-transformer/index.js"
+    }
+>>>>>>> a5431bdc7741111c81a7a8f635b7eedbfcb897c9
   }
 }
