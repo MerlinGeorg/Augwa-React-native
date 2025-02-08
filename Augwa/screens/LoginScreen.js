@@ -1,8 +1,10 @@
 
 
 import React, { useState } from 'react';
-import { TouchableWithoutFeedback, View, StyleSheet, TextInput, Keyboard, Text, TouchableOpacity} from 'react-native';
+import { TouchableWithoutFeedback, View, StyleSheet, TextInput, Keyboard, 
+  KeyboardAvoidingView, Platform, Text, TouchableOpacity} from 'react-native';
 import Logo from '../assets/images/app_logo.svg'
+import { ScrollView } from 'react-native-gesture-handler';
 import { buttonTextColor, errorGrey, errorRed, primaryColor, successGreen, textInputBorderColor } from "../assets/styles/color";
 
 const LogInScreen = (props) =>{
@@ -19,11 +21,15 @@ const LogInScreen = (props) =>{
 
     }
     return(
-      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-        <View style = {{marginTop:30}}>
+      <KeyboardAvoidingView
+      style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+        
+        <View style = {{marginTop:10}}>
           <Logo style = {styles.logoStyle}/>
           <Text style = {styles.textTitleStyle}>Welcome To Augwa</Text>
-          <View style = {{marginTop:37}}>
+          <ScrollView>
+          <View style = {{marginTop:20}}>
           <TextInput style = {styles.inputView}value = {domain} onChangeText={setDomain}
               placeholder='Domain: '/>
           <TextInput style = {styles.inputView}value = {userName} onChangeText={setUserName}
@@ -31,6 +37,9 @@ const LogInScreen = (props) =>{
           <TextInput style = {styles.inputView}value = {password} onChangeText={setPassword}
               placeholder='Password: '/>
           </View>
+
+          </ScrollView>
+
           
           <TouchableOpacity style={styles.btnPsw} >
               <Text style={styles.bluBtntext}>Forgot Password ?</Text>
@@ -46,12 +55,11 @@ const LogInScreen = (props) =>{
             <TouchableOpacity >
               <Text style={styles.bluBtntext}>  Sign up</Text>
             </TouchableOpacity>
-
           </View>
- 
         </View>
-
       </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
+      
         // <View style = {{marginTop:30}}>
         //   <Logo style = {styles.logoStyle}/>
         //   <Text style = {styles.textTitleStyle}>Welcome To Augwa</Text>
