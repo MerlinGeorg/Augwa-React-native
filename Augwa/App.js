@@ -17,8 +17,9 @@ export default function App() {
      
     <NavigationContainer>
       <MyStack.Navigator>
-      <MyStack.Screen name="signup" component={SignupScreen} />
       <MyStack.Screen name="login" component={LoginScreen} />
+      <MyStack.Screen name="signup" component={SignupScreen} />
+      
       </MyStack.Navigator>
       
     </NavigationContainer>
