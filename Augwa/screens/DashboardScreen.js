@@ -6,94 +6,80 @@ import {
 } from 'react-native';
 import Logo from '../assets/images/app_logo.svg'
 import { ScrollView } from 'react-native-gesture-handler';
-import { buttonTextColor, errorGrey, errorRed, primaryColor, successGreen, textInputBorderColor } from "../assets/styles/color";
+import {
+  buttonTextColor, errorGrey,
+  errorRed, primaryColor, successGreen,
+  textInputBorderColor, augwaBlue, dashboardArea,
+} from "../assets/styles/color";
+import Message from'../components/Message'
+import BellIcon from '../components/BellIcon'
+import Fontisto from '@expo/vector-icons/Fontisto';
+
+
 
 const DashboardScreen = (props) => {
-  
+  const [username, setUsername] = useState('')
+
   return (
-    <SafeAreaView style = {styles.viewStyle}>
-      <KeyboardAvoidingView
-      style={{ flex: 1}} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-        <ScrollView 
-        contentContainerStyle={styles.scrollContent}
-        bounces={false}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled">
-        <View style={{ marginTop: 30 }}>
-          <Logo style={styles.logoStyle} />
-          <Text style={styles.textTitleStyle}>Welcome To Augwa</Text>
+    <View style={styles.viewStyle}>
+      {/* view for the top blue part */}
+      <View style={styles.greetingArea}>
+        <Text style={styles.greetings}>Welcome, </Text>
+        <View style = {styles.iconSection}>
+          <TouchableOpacity>
+            <Message />
+          </TouchableOpacity>
+          <TouchableOpacity style= {{marginLeft: 20}}>
+            <BellIcon />
+          </TouchableOpacity>
         </View>
+      </View>
+      {/* end of information area */}
+      {/* display username */}
+      <Text style = {styles.usernameStyle}>Display {username} here !</Text>
+      {/* beginning of the dashboard view */}
+      <View style = {styles.dashboardAreaStyle}>
 
-          
-          <TouchableOpacity style={styles.btnPsw} >
-            <Text style={styles.bluBtntext}>Forgot Password ?</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={{
-            marginTop: 50, width: 340, height: 45, borderRadius: 8,
-            alignSelf: "center", backgroundColor: "#2D4059", justifyContent: "center",
-            alignItems: "center"
-          }} >
-            <Text style={{
-              textAlign: "center", padding: "auto",
-              fontSize: 23, color: '#ffffff'
-            }}>SIGN IN</Text>
-          </TouchableOpacity>
-          <View style={styles.signupView}>
-            <Text style={{ fontSize: 17, color: '5F5F5F' }}>Don't have an account?</Text>
-            <TouchableOpacity >
-              <Text style={styles.bluBtntext}>  Sign up</Text>
-            </TouchableOpacity>
-          </View>
+      </View>
+      {/* end f the dashboard view */}
 
-        </ScrollView>
-
-        
-        
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
-
-    </SafeAreaView>
-    
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-  scrollContent:{
-    flexGrow: 1,
-
-  },
-
-  logoStyle: {
-    width: 100,
-    height: 100,
-    alignSelf: 'center',
-
-  },
   viewStyle: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: augwaBlue,
   },
-
-  textTitleStyle: {
-    fontSize: 24,
-    fontWeight: "600",
-    textAlign: "center",
-    marginBottom: 30,
-    color: "#000",
+  greetingArea: {
+    flexDirection: 'row'
+  },
+  iconSection: {
+    marginLeft: 120,
     marginTop: 20,
+    flexDirection: "row"
   },
-  inputView: {
-    width: "90%",
-    height: 50,
-    borderWidth: 1,
-    borderRadius: 8,
-    fontSize: 16,
+  greetings: {
     marginTop: 15,
-    alignSelf: 'center',
-    borderColor: textInputBorderColor,
-    paddingHorizontal: 15,
+    marginStart: 10,
+    fontSize: 35,
+    color: '#fff'
 
+  },
+  usernameStyle: {
+    fontSize: 35,
+    fontWeight: "500",
+    marginTop: 10,
+    marginStart: 10,
+    color: '#fff'
+   
+  },
+  dashboardAreaStyle: {
+    marginTop: 20,
+    flex: 1,
+    backgroundColor: dashboardArea,
+    borderRadius: 30
   },
   imageStyle: {
     alignSelf: "center",
@@ -117,3 +103,35 @@ const styles = StyleSheet.create({
   }
 })
 export default DashboardScreen
+{/* <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        bounces={false}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled">
+        <View style={{ marginTop: 30 }}>
+          <Logo style={styles.logoStyle} />
+          <Text style={styles.textTitleStyle}>Welcome To Augwa</Text>
+        </View>
+
+
+        <TouchableOpacity style={styles.btnPsw} >
+          <Text style={styles.bluBtntext}>Forgot Password ?</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={{
+          marginTop: 50, width: 340, height: 45, borderRadius: 8,
+          alignSelf: "center", backgroundColor: "#2D4059", justifyContent: "center",
+          alignItems: "center"
+        }} >
+          <Text style={{
+            textAlign: "center", padding: "auto",
+            fontSize: 23, color: '#ffffff'
+          }}>SIGN IN</Text>
+        </TouchableOpacity>
+        <View style={styles.signupView}>
+          <Text style={{ fontSize: 17, color: '5F5F5F' }}>Don't have an account?</Text>
+          <TouchableOpacity >
+            <Text style={styles.bluBtntext}>  Sign up</Text>
+          </TouchableOpacity>
+        </View>
+
+      </ScrollView> */}
