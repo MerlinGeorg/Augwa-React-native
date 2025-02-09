@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   TextInput,
   TouchableOpacity,
@@ -20,7 +20,8 @@ import {
 import Register from "../components/Signup";
 import { FontAwesome5 } from "react-native-vector-icons";
 import LogoImage from "../components/LogoImage";
-import { BiometricAuth } from "../components/BiometricAuth";
+import Modalize from "react-native-modalize";
+import { FaceIDAuth } from "../components/FaceIDAuth";
 import { sharedStyles } from "../assets/styles/SharedStyles";
 
 const PasswordRequirement = ({ met, text }) => (
@@ -46,32 +47,15 @@ export default function SignupScreen({ navigation }) {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // Track whether the user is focusing on the password field
   const [passwordFocused, setPasswordFocused] = useState(false);
-  const [biometricVisible, setBiometricVisible] = useState(false);
-  const [biometricType, setBiometricType] = useState(null);
-
-  useEffect(() => {
-    checkBiometricSupport();
-  }, []);
-
-  const checkBiometricSupport = async () => {
-    try {
-      const support = await BiometricAuth.checkBiometricSupport();
-      if (support.supported) {
-        setBiometricType(support.preferredMethod);
-      } else {
-        setBiometricVisible(false);
-      }
-    } catch (error) {
-      console.error('Error checking biometric support:', error);
-      setBiometricVisible(false);
-    }
-  };
+  const [faceIDVisible, setFaceIDVisible] = useState(true);
+  
 
   // Username validation
   const usernameValidation = {
     length: userName.length >= 6 && userName.length <= 32,
-    validChars: /^[a-zA-Z0-9]+$/.test(userName),
+    validChars: /^[a-zA-Z0-9]+$/.test(userName), // Ensure only letters and numbers
   };
 
   // Password validation checks
@@ -103,23 +87,20 @@ export default function SignupScreen({ navigation }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const enableBiometric = async () => {
+  const enableFaceID = async () => {
     try {
-      const success = await BiometricAuth.enableBiometric(userName, password);
+      const success = await FaceIDAuth.enableFaceID(userName, password);
       if (success) {
-        Alert.alert(
-          "Success", 
-          `${biometricType === 'faceId' ? 'Face ID' : 'Fingerprint'} has been enabled successfully!`
-        );
-        setBiometricVisible(false);
+        Alert.alert("Success", "Face ID has been enabled successfully!");
+        setFaceIDVisible(false);
       } else {
-        Alert.alert("Error", "Failed to enable biometric authentication. Please try again.");
+        Alert.alert("Error", "Failed to enable Face ID. Please try again.");
       }
     } catch (error) {
-      console.error("Biometric setup error:", error);
+      console.error("Face ID setup error:", error);
       Alert.alert(
         "Error",
-        "Could not enable biometric authentication. Please ensure it is set up on your device."
+        "Could not enable Face ID. Please ensure it is set up on your device."
       );
     }
   };
@@ -137,7 +118,8 @@ export default function SignupScreen({ navigation }) {
 
       if (result.success) {
         Alert.alert("Success", "Account created successfully!");
-        setBiometricVisible(true);
+
+        setFaceIDVisible(true);
       } else {
         Alert.alert("Error", result.error.message);
       }
@@ -175,6 +157,7 @@ export default function SignupScreen({ navigation }) {
             )}
           </View>
 
+          {/* <View style={styles.inputWithIcon}> */}
           <View style={sharedStyles.inputContainer}>
             <TextInput
               value={password}
@@ -191,7 +174,7 @@ export default function SignupScreen({ navigation }) {
               style={styles.eyeIcon}
             >
               <FontAwesome5
-                name={showPassword ? "eye" : "eye-slash"}
+                name={showPassword ? "eye" : "eye-slash"} // Toggle between eye and eye-slash
                 size={20}
                 color={iconColor}
               />
@@ -200,6 +183,8 @@ export default function SignupScreen({ navigation }) {
               <Text style={styles.errorText}>{errors.password}</Text>
             )}
           </View>
+
+          {/* Password Requirements */}
 
           {passwordFocused && (
             <View style={styles.requirements}>
@@ -239,7 +224,7 @@ export default function SignupScreen({ navigation }) {
               style={styles.eyeIcon}
             >
               <FontAwesome5
-                name={showConfirmPassword ? "eye" : "eye-slash"}
+                name={showConfirmPassword ? "eye" : "eye-slash"} // Toggle between eye and eye-slash
                 size={20}
                 color={iconColor}
               />
@@ -275,41 +260,45 @@ export default function SignupScreen({ navigation }) {
               {isLoading ? "SIGNING UP..." : "SIGNUP"}
             </Text>
           </TouchableOpacity>
+
+          {/* <TouchableOpacity
+            onPress={() => navigation.navigate("login")}
+            style={styles.signupButton}
+          >
+            <Text style={styles.signupText}>LOGIN</Text>
+          </TouchableOpacity> */}
         </View>
       </KeyboardAvoidingView>
 
-      {/* Biometric Authentication Modal */}
+      {/* Face ID Prompt Modal */}
       <Modal
-        visible={biometricVisible}
+        visible={faceIDVisible}
         transparent={true}
         animationType="fade"
-        onRequestClose={() => setBiometricVisible(false)}
+        onRequestClose={() => setFaceIDVisible(false)}
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
+            {/* Face ID Icon */}
             <FontAwesome5
-              name={biometricType === 'faceId' ? "smile-beam" : "fingerprint"}
+              name="smile-beam"
               size={45}
               color={iconColor}
-              style={styles.biometricIcon}
+              style={styles.faceIDIcon}
             />
 
-            <Text style={styles.modalTitle}>
-              Use {biometricType === 'faceId' ? 'Face ID' : 'Fingerprint'}?
-            </Text>
+            <Text style={styles.modalTitle}>Use Face ID?</Text>
             <Text style={styles.modalText}>
-              Would you like to enable {biometricType === 'faceId' ? 'Face ID' : 'fingerprint'} authentication?
+              Would you like to enable Face ID?
             </Text>
 
-            <TouchableOpacity style={styles.modalButton} onPress={enableBiometric}>
-              <Text style={styles.modalButtonText}>
-                Yes, enable {biometricType === 'faceId' ? 'Face ID' : 'fingerprint'}
-              </Text>
+            <TouchableOpacity style={styles.modalButton} onPress={enableFaceID}>
+              <Text style={styles.modalButtonText}>Yes, enable Face ID</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.modalCancelButton}
-              onPress={() => setBiometricVisible(false)}
+              onPress={() => setFaceIDVisible(false)}
             >
               <Text style={styles.modalCancelButtonText}>Not now</Text>
             </TouchableOpacity>
@@ -330,17 +319,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   logoContainer: {
-    marginTop: 30,
-    alignItems: "center",
+    marginTop: 30, // Adjust based on your design
+    alignItems: "center", // Centers the logo horizontally
   },
   logoStyle: {
     width: 30,
     height: 30,
     alignSelf: "center",
   },
+  
   form: {
     width: "100%",
   },
+ 
+  
   requirements: {
     marginBottom: 15,
     marginTop: -10,
@@ -353,41 +345,51 @@ const styles = StyleSheet.create({
   requirementIcon: {
     fontSize: 14,
     marginRight: 8,
-    color: errorGrey,
+    color: errorGrey, // Default gray color for X
   },
   requirementText: {
     fontSize: 14,
   },
   requirementMet: {
-    color: successGreen,
+    color: successGreen, // Green color for met requirements
   },
   requirementNotMet: {
-    color: errorGrey,
+    color: errorGrey, // Gray color for unmet requirements
   },
   errorText: {
     color: errorRed,
     fontSize: 12,
     marginBottom: 5,
   },
+  
+  //   inputWithIcon: {
+  //     flexDirection: "row",
+  //     alignItems: "center",
+  //     justifyContent: "space-between",
+  //     marginBottom: 15,
+  //   },
   eyeIcon: {
     position: "absolute",
     right: 15,
     padding: 10,
   },
+
+  // Modal Styles
   modalContainer: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: "flex-end", // Move the content to the bottom
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
   },
   modalContent: {
     backgroundColor: "#fff",
     padding: 20,
     borderRadius: 10,
     alignItems: "center",
-    width: "100%",
-    maxHeight: "50%",
+    width: "100%", // Full width
+    maxHeight: "50%", // Optional: Limit the height if needed
   },
+
   modalTitle: {
     fontSize: 20,
     fontWeight: "bold",
@@ -421,7 +423,7 @@ const styles = StyleSheet.create({
     color: "#555",
     fontSize: 16,
   },
-  biometricIcon: {
+  faceIDIcon: {
     marginBottom: 20,
   },
 });
