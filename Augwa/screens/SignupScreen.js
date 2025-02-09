@@ -9,26 +9,38 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Modal,
 } from "react-native";
-import { buttonTextColor, errorGrey, errorRed, primaryColor, successGreen, textInputBorderColor } from "../assets/styles/color";
+import {
+  buttonTextColor,
+  errorGrey,
+  errorRed,
+  iconColor,
+  primaryColor,
+  successGreen,
+  textInputBorderColor,
+} from "../assets/styles/color";
 import Register from "../components/Signup";
-import { FontAwesome } from "react-native-vector-icons";
+import { FontAwesome5 } from "react-native-vector-icons";
+import LogoImage from "../components/LogoImage";
+import Modalize from "react-native-modalize";
+import { FaceIDAuth } from "../components/FaceIDAuth";
 
 const PasswordRequirement = ({ met, text }) => (
   <View style={styles.requirementRow}>
-    <Text style={[styles.requirementIcon]}>
-      {met ? "✓" : "✕"}
-    </Text>
-    <Text style={[
-      styles.requirementText,
-      met ? styles.requirementMet : styles.requirementNotMet
-    ]}>
+    <Text style={[styles.requirementIcon]}>{met ? "✓" : "✕"}</Text>
+    <Text
+      style={[
+        styles.requirementText,
+        met ? styles.requirementMet : styles.requirementNotMet,
+      ]}
+    >
       {text}
     </Text>
   </View>
 );
 
-export default function SignupScreen({navigation}) {
+export default function SignupScreen({ navigation }) {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [inviteCode, setInviteCode] = useState("");
@@ -39,12 +51,13 @@ export default function SignupScreen({navigation}) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   // Track whether the user is focusing on the password field
   const [passwordFocused, setPasswordFocused] = useState(false);
+  const [faceIDVisible, setFaceIDVisible] = useState(true);
 
-    // Username validation
-const usernameValidation = {
-    length: userName.length >=6 && userName.length <= 32,
+  // Username validation
+  const usernameValidation = {
+    length: userName.length >= 6 && userName.length <= 32,
     validChars: /^[a-zA-Z0-9]+$/.test(userName), // Ensure only letters and numbers
-}
+  };
 
   // Password validation checks
   const validations = {
@@ -52,25 +65,46 @@ const usernameValidation = {
     uppercase: /[A-Z]/.test(password),
     lowercase: /[a-z]/.test(password),
     number: /[0-9]/.test(password),
-    nonAlphanumeric: /[^a-zA-Z0-9]/.test(password)
+    nonAlphanumeric: /[^a-zA-Z0-9]/.test(password),
   };
 
   const validateForm = () => {
     const newErrors = {};
     if (!userName) newErrors.userName = "Username is required";
-    if (!usernameValidation.length) newErrors.userName = "Username must be between 6 and 32 characters";
-    if (!usernameValidation.validChars) newErrors.userName = "Username can only contain letters and numbers";
+    if (!usernameValidation.length)
+      newErrors.userName = "Username must be between 6 and 32 characters";
+    if (!usernameValidation.validChars)
+      newErrors.userName = "Username can only contain letters and numbers";
     if (!password) newErrors.password = "Password is required";
-    if (!confirmPassword) newErrors.confirmPassword = "Confirm Password is required";
+    if (!confirmPassword)
+      newErrors.confirmPassword = "Confirm Password is required";
     if (!inviteCode) newErrors.inviteCode = "Invite Code is required";
-    if (password !== confirmPassword) newErrors.confirmPassword = "Passwords do not match";
-    if (!Object.values(validations).every(Boolean)) 
-        newErrors.password = "Password does not meet requirements";
-  
+    if (password !== confirmPassword)
+      newErrors.confirmPassword = "Passwords do not match";
+    if (!Object.values(validations).every(Boolean))
+      newErrors.password = "Password does not meet requirements";
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
+
+  const enableFaceID = async () => {
+    try {
+      const success = await FaceIDAuth.enableFaceID(userName, password);
+      if (success) {
+        Alert.alert("Success", "Face ID has been enabled successfully!");
+        setFaceIDVisible(false);
+      } else {
+        Alert.alert("Error", "Failed to enable Face ID. Please try again.");
+      }
+    } catch (error) {
+      console.error("Face ID setup error:", error);
+      Alert.alert(
+        "Error",
+        "Could not enable Face ID. Please ensure it is set up on your device."
+      );
+    }
+  };
 
   const handleSignup = async () => {
     if (!validateForm()) return;
@@ -85,13 +119,13 @@ const usernameValidation = {
 
       if (result.success) {
         Alert.alert("Success", "Account created successfully!");
-        // Navigate to login or next screen
-        // navigation.navigate('Login');
+
+        setFaceIDVisible(true);
       } else {
         Alert.alert("Error", result.error.message);
       }
     } catch (error) {
-        console.log("signup error", error)
+      console.log("signup error", error);
       Alert.alert("Error", "An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
@@ -100,16 +134,15 @@ const usernameValidation = {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.content}
       >
         <View style={styles.logoContainer}>
-          <Text style={styles.logoText}>A</Text>
+          <LogoImage style={styles.logoStyle} />
         </View>
-
         <Text style={styles.title}>Register to Augwa</Text>
-        
+
         <View style={styles.form}>
           <View style={styles.inputContainer}>
             <TextInput
@@ -119,9 +152,10 @@ const usernameValidation = {
               style={styles.input}
               autoCapitalize="none"
               autoCorrect={false}
-              
             />
-            {errors.userName && <Text style={styles.errorText}>{errors.userName}</Text>}
+            {errors.userName && (
+              <Text style={styles.errorText}>{errors.userName}</Text>
+            )}
           </View>
 
           {/* <View style={styles.inputWithIcon}> */}
@@ -133,47 +167,51 @@ const usernameValidation = {
               style={styles.input}
               secureTextEntry={!showPassword}
               autoCapitalize="none"
-              onFocus={()=> setPasswordFocused(true)}
-              onBlur={()=> setPasswordFocused(false)}
+              onFocus={() => setPasswordFocused(true)}
+              onBlur={() => setPasswordFocused(false)}
             />
-            <TouchableOpacity onPress={()=> setShowPassword(!showPassword)} style={styles.eyeIcon}>
-            <FontAwesome
-                name={showPassword ? "eye" : "eye-slash"}  // Toggle between eye and eye-slash
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={styles.eyeIcon}
+            >
+              <FontAwesome5
+                name={showPassword ? "eye" : "eye-slash"} // Toggle between eye and eye-slash
                 size={20}
-                color="#555"
+                color={iconColor}
               />
             </TouchableOpacity>
-            {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+            {errors.password && (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            )}
           </View>
 
           {/* Password Requirements */}
 
-          {PasswordRequirement && (
-             <View style={styles.requirements}>
-             <PasswordRequirement
-               met={validations.length}
-               text="At least 8 characters"
-             />
-             <PasswordRequirement
-               met={validations.uppercase}
-               text="At least one uppercase letter"
-             />
-             <PasswordRequirement
-               met={validations.lowercase}
-               text="At least one lowercase letter"
-             />
-             <PasswordRequirement
-               met={validations.number}
-               text="At least one number"
-             />
-             <PasswordRequirement 
-                 met={validations.nonAlphanumeric}
-                 text="At least one non-alphanumeric character"
-             />
-           </View>
- 
+          {passwordFocused && (
+            <View style={styles.requirements}>
+              <PasswordRequirement
+                met={validations.length}
+                text="At least 8 characters"
+              />
+              <PasswordRequirement
+                met={validations.uppercase}
+                text="At least one uppercase letter"
+              />
+              <PasswordRequirement
+                met={validations.lowercase}
+                text="At least one lowercase letter"
+              />
+              <PasswordRequirement
+                met={validations.number}
+                text="At least one number"
+              />
+              <PasswordRequirement
+                met={validations.nonAlphanumeric}
+                text="At least one non-alphanumeric character"
+              />
+            </View>
           )}
-         
+
           <View style={styles.inputContainer}>
             <TextInput
               value={confirmPassword}
@@ -182,14 +220,19 @@ const usernameValidation = {
               placeholder="Confirm Password"
               secureTextEntry={!showConfirmPassword}
             />
-            <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={styles.eyeIcon}>
-              <FontAwesome
-                name={showConfirmPassword ? "eye" : "eye-slash"}  // Toggle between eye and eye-slash
+            <TouchableOpacity
+              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              style={styles.eyeIcon}
+            >
+              <FontAwesome5
+                name={showConfirmPassword ? "eye" : "eye-slash"} // Toggle between eye and eye-slash
                 size={20}
-                color="#555"
+                color={iconColor}
               />
             </TouchableOpacity>
-            {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
+            {errors.confirmPassword && (
+              <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+            )}
           </View>
 
           <View style={styles.inputContainer}>
@@ -201,12 +244,17 @@ const usernameValidation = {
               autoCapitalize="none"
               autoCorrect={false}
             />
-            {errors.inviteCode && <Text style={styles.errorText}>{errors.inviteCode}</Text>}
+            {errors.inviteCode && (
+              <Text style={styles.errorText}>{errors.inviteCode}</Text>
+            )}
           </View>
 
-          <TouchableOpacity 
-            onPress={handleSignup} 
-            style={[styles.signupButton, isLoading && styles.signupButtonDisabled]}
+          <TouchableOpacity
+            onPress={handleSignup}
+            style={[
+              styles.signupButton,
+              isLoading && styles.signupButtonDisabled,
+            ]}
             disabled={isLoading}
           >
             <Text style={styles.signupText}>
@@ -214,16 +262,50 @@ const usernameValidation = {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            onPress={()=>navigation.navigate('login')} 
+          <TouchableOpacity
+            onPress={() => navigation.navigate("login")}
             style={styles.signupButton}
           >
-            <Text style={styles.signupText}>
-              LOGIN
-            </Text>
+            <Text style={styles.signupText}>LOGIN</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+
+      {/* Face ID Prompt Modal */}
+      <Modal
+        visible={faceIDVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setFaceIDVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            {/* Face ID Icon */}
+            <FontAwesome5
+              name="smile-beam"
+              size={45}
+              color={iconColor}
+              style={styles.faceIDIcon}
+            />
+
+            <Text style={styles.modalTitle}>Use Face ID?</Text>
+            <Text style={styles.modalText}>
+              Would you like to enable Face ID?
+            </Text>
+
+            <TouchableOpacity style={styles.modalButton} onPress={enableFaceID}>
+              <Text style={styles.modalButtonText}>Yes, enable Face ID</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.modalCancelButton}
+              onPress={() => setFaceIDVisible(false)}
+            >
+              <Text style={styles.modalCancelButtonText}>Not now</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -238,20 +320,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   logoContainer: {
-    width: 80,
-    height: 80,
-    backgroundColor: "#2B3A55",
-    borderRadius: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    alignSelf: "center",
-    marginTop: 40,
-    marginBottom: 20,
+    marginTop: 30, // Adjust based on your design
+    alignItems: "center", // Centers the logo horizontally
   },
-  logoText: {
-    color: "#fff",
-    fontSize: 40,
-    fontWeight: "bold",
+  logoStyle: {
+    width: 30,
+    height: 30,
+    alignSelf: "center",
   },
   title: {
     fontSize: 24,
@@ -259,6 +334,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 30,
     color: "#000",
+    marginTop: 20,
   },
   form: {
     width: "100%",
@@ -321,15 +397,69 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-//   inputWithIcon: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     justifyContent: "space-between",
-//     marginBottom: 15,
-//   },
+  //   inputWithIcon: {
+  //     flexDirection: "row",
+  //     alignItems: "center",
+  //     justifyContent: "space-between",
+  //     marginBottom: 15,
+  //   },
   eyeIcon: {
     position: "absolute",
     right: 15,
     padding: 10,
+  },
+
+  // Modal Styles
+  // Modal Styles
+  modalContainer: {
+    flex: 1,
+    justifyContent: "flex-end", // Move the content to the bottom
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+    width: "100%", // Full width
+    maxHeight: "50%", // Optional: Limit the height if needed
+  },
+
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  modalButton: {
+    backgroundColor: "#2B3A55",
+    padding: 10,
+    borderRadius: 8,
+    width: "100%",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  modalButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  modalCancelButton: {
+    padding: 10,
+    borderRadius: 8,
+    width: "100%",
+    alignItems: "center",
+  },
+  modalCancelButtonText: {
+    color: "#555",
+    fontSize: 16,
+  },
+  faceIDIcon: {
+    marginBottom: 20,
   },
 });
