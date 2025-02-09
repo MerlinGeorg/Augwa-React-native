@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import SignupScreen from './screens/SignupScreen';
 import LoginScreen from './screens/LoginScreen';
+import DashboardScreen from './screens/DashboardScreen'
 
 export default function App() {
 
@@ -19,6 +20,7 @@ export default function App() {
       <MyStack.Navigator>
       <MyStack.Screen name="signup" component={SignupScreen} />
       <MyStack.Screen name="login" component={LoginScreen} />
+      <MyStack.Screen name="dashboard" component={DashboardScreen} />
       </MyStack.Navigator>
       
     </NavigationContainer>
