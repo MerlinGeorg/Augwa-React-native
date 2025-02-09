@@ -12,7 +12,6 @@ import { buttonTextColor, errorGrey, errorRed, primaryColor, successGreen, textI
 const LoginScreen = (props) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [domain, setDomain] = useState('')
   const [userName, setUserName] = useState('') // set user name
   const [password, setPassword] = useState('')
   const handleLogin = async() => {
@@ -22,7 +21,7 @@ const LoginScreen = (props) => {
     }
     try{
       if (!credentials.username || !credentials.password){
-        alert("Please fill in all fields!")
+        Alert.alert("Please fill in all fields!")
         return
       }
       const result = await Login.login(credentials)
@@ -33,22 +32,22 @@ const LoginScreen = (props) => {
         switch (result.error.code) {
           
           case 'INVALID_CREDENTIALS' :
-            alert('Incorrect username or password')
+            Alert.alert('Incorrect username or password')
             break
           case 'ACCOUNT_UNVARIED' :
-            alert('Please verify you account')
+            Alert.alert('Please verify you account')
             break
           case 'NETWORK_ERROR' :
-            alert('Unable to connect to server, please check your Internet connection')
+            Alert.alert('Unable to connect to server, please check your Internet connection')
             break
           default:
-            alert('Login failed, please try again')
+            Alert.alert('Login failed, please try again')
 
           }
         }
      }catch(error) {
         console.error('System error:', error)
-        alert("A system error occured, Restart the app")
+        Alert.alert("A system error occured, Restart the app")
       }
   }
   
@@ -74,6 +73,7 @@ const LoginScreen = (props) => {
           <Text style={styles.textTitleStyle}>Welcome To Augwa</Text>
         </View>
 
+
           <View style={{marginTop:-10}}>
             <TextInput style={styles.inputView} value={domain} onChangeText={setDomain}
               placeholder='Domain: ' 
@@ -81,7 +81,7 @@ const LoginScreen = (props) => {
               autoCapitalize="none"
               autoCorrect={false}
               returnKeyType="next"/>
-            <TextInput style={styles.inputView} value={userName} onChangeText={setUserName}
+         <TextInput style={styles.inputView} value={userName} onChangeText={setUserName}
               placeholder='Username: ' 
               placeholderTextColor = {textInputBorderColor}
               autoCapitalize="none"
@@ -105,7 +105,7 @@ const LoginScreen = (props) => {
             marginTop: 50, width: 340, height: 45, borderRadius: 8,
             alignSelf: "center", backgroundColor: "#2D4059", justifyContent: "center",
             alignItems: "center"
-          }} >
+          }} onPress={handleLogin}>
             <Text style={{
               textAlign: "center", padding: "auto",
               fontSize: 23, color: '#ffffff'
