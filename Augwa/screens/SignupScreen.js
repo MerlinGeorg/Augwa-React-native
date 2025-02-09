@@ -12,19 +12,17 @@ import {
   Modal,
 } from "react-native";
 import {
-  buttonTextColor,
   errorGrey,
   errorRed,
   iconColor,
-  primaryColor,
   successGreen,
-  textInputBorderColor,
 } from "../assets/styles/color";
 import Register from "../components/Signup";
 import { FontAwesome5 } from "react-native-vector-icons";
 import LogoImage from "../components/LogoImage";
 import Modalize from "react-native-modalize";
 import { FaceIDAuth } from "../components/FaceIDAuth";
+import { sharedStyles } from "../assets/styles/SharedStyles";
 
 const PasswordRequirement = ({ met, text }) => (
   <View style={styles.requirementRow}>
@@ -141,15 +139,15 @@ export default function SignupScreen({ navigation }) {
         <View style={styles.logoContainer}>
           <LogoImage style={styles.logoStyle} />
         </View>
-        <Text style={styles.title}>Register to Augwa</Text>
+        <Text style={sharedStyles.title}>Register to Augwa</Text>
 
         <View style={styles.form}>
-          <View style={styles.inputContainer}>
+          <View style={sharedStyles.inputContainer}>
             <TextInput
               value={userName}
               onChangeText={setUserName}
               placeholder="Username"
-              style={styles.input}
+              style={sharedStyles.input}
               autoCapitalize="none"
               autoCorrect={false}
             />
@@ -159,12 +157,12 @@ export default function SignupScreen({ navigation }) {
           </View>
 
           {/* <View style={styles.inputWithIcon}> */}
-          <View style={styles.inputContainer}>
+          <View style={sharedStyles.inputContainer}>
             <TextInput
               value={password}
               onChangeText={setPassword}
               placeholder="Password"
-              style={styles.input}
+              style={sharedStyles.input}
               secureTextEntry={!showPassword}
               autoCapitalize="none"
               onFocus={() => setPasswordFocused(true)}
@@ -212,11 +210,11 @@ export default function SignupScreen({ navigation }) {
             </View>
           )}
 
-          <View style={styles.inputContainer}>
+          <View style={sharedStyles.inputContainer}>
             <TextInput
               value={confirmPassword}
               onChangeText={setConfirmPassword}
-              style={styles.input}
+              style={sharedStyles.input}
               placeholder="Confirm Password"
               secureTextEntry={!showConfirmPassword}
             />
@@ -235,12 +233,12 @@ export default function SignupScreen({ navigation }) {
             )}
           </View>
 
-          <View style={styles.inputContainer}>
+          <View style={sharedStyles.inputContainer}>
             <TextInput
               value={inviteCode}
               onChangeText={setInviteCode}
               placeholder="Invite Code"
-              style={styles.input}
+              style={sharedStyles.input}
               autoCapitalize="none"
               autoCorrect={false}
             />
@@ -252,12 +250,12 @@ export default function SignupScreen({ navigation }) {
           <TouchableOpacity
             onPress={handleSignup}
             style={[
-              styles.signupButton,
-              isLoading && styles.signupButtonDisabled,
+              sharedStyles.button,
+              isLoading && sharedStyles.buttonDisabled,
             ]}
             disabled={isLoading}
           >
-            <Text style={styles.signupText}>
+            <Text style={sharedStyles.buttonText}>
               {isLoading ? "SIGNING UP..." : "SIGNUP"}
             </Text>
           </TouchableOpacity>
@@ -328,30 +326,12 @@ const styles = StyleSheet.create({
     height: 30,
     alignSelf: "center",
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "600",
-    textAlign: "center",
-    marginBottom: 30,
-    color: "#000",
-    marginTop: 20,
-  },
+  
   form: {
     width: "100%",
   },
-  inputContainer: {
-    marginBottom: 15,
-  },
-  input: {
-    width: "100%",
-    height: 50,
-    borderWidth: 1,
-    borderColor: textInputBorderColor,
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    backgroundColor: "#fff",
-    fontSize: 16,
-  },
+ 
+  
   requirements: {
     marginBottom: 15,
     marginTop: -10,
@@ -380,23 +360,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginBottom: 5,
   },
-  signupButton: {
-    width: "100%",
-    height: 50,
-    borderRadius: 8,
-    backgroundColor: primaryColor,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 10,
-  },
-  signupButtonDisabled: {
-    opacity: 0.7,
-  },
-  signupText: {
-    color: buttonTextColor,
-    fontSize: 16,
-    fontWeight: "600",
-  },
+  
   //   inputWithIcon: {
   //     flexDirection: "row",
   //     alignItems: "center",
@@ -409,7 +373,6 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 
-  // Modal Styles
   // Modal Styles
   modalContainer: {
     flex: 1,
