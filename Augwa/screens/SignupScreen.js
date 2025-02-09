@@ -262,12 +262,12 @@ export default function SignupScreen({ navigation }) {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => navigation.navigate("login")}
             style={styles.signupButton}
           >
             <Text style={styles.signupText}>LOGIN</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </KeyboardAvoidingView>
 
