@@ -47,7 +47,7 @@ export default function SignupScreen({ navigation }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
-  const [biometricVisible, setBiometricVisible] = useState(false);
+  const [biometricVisible, setBiometricVisible] = useState(true);
   const [biometricType, setBiometricType] = useState(null);
 
   useEffect(() => {
