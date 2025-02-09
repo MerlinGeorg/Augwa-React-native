@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   TouchableWithoutFeedback, View, StyleSheet, TextInput, Keyboard,
   KeyboardAvoidingView, Platform, Text, TouchableOpacity,
-  Alert
+  alert, SafeAreaView
 } from 'react-native';
 import Login from "../components/Login";
 import Logo from '../assets/images/app_logo.svg'
@@ -51,36 +51,55 @@ const LoginScreen = (props) => {
       }
   }
   
-
+  // method for successful login, jump to dashboard
+  const loginSuccess = ()=> {
+    props.navigation.navigate("dashboard")
+  }
   const jumpToSignUp = () => {
     props.navigation.navigate("signup")
   }
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 0.75 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <SafeAreaView style = {styles.viewStyle}>
+      <KeyboardAvoidingView
+      style={{ flex: 1}} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-
-        <View style={{ marginTop: 10 }}>
+        <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        bounces={false}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled">
+        <View style={{ marginTop: 30 }}>
           <Logo style={styles.logoStyle} />
           <Text style={styles.textTitleStyle}>Welcome To Augwa</Text>
+        </View>
 
-          <View style={{ marginTop: 10 }}>
-            
-            <TextInput style={styles.inputView} value={userName} onChangeText={setUserName}
+
+          <View style={{marginTop:-10}}>
+            <TextInput style={styles.inputView} value={domain} onChangeText={setDomain}
+              placeholder='Domain: ' 
+              placeholderTextColor = {textInputBorderColor}
+              autoCapitalize="none"
+              autoCorrect={false}
+              returnKeyType="next"/>
+         <TextInput style={styles.inputView} value={userName} onChangeText={setUserName}
               placeholder='Username: ' 
-              placeholderTextColor="#666"
+              placeholderTextColor = {textInputBorderColor}
               autoCapitalize="none"
               autoCorrect={false}
               returnKeyType="next"/>
             <TextInput style={styles.inputView} value={password} onChangeText={setPassword}
               placeholder='Password: '
-              placeholderTextColor="#666"
+              placeholderTextColor = {textInputBorderColor}
               autoCapitalize="none"
               autoCorrect={false}
              returnKeyType="done" />
           </View>
           <TouchableOpacity style={styles.btnPsw} >
             <Text style={styles.bluBtntext}>Forgot Password ?</Text>
+          </TouchableOpacity>
+          {/* temprate btn to go to dashbpoard */}
+          <TouchableOpacity style={{marginLeft: 40}} onPress={loginSuccess}>
+            <Text style={styles.bluBtntext}>Go to dashboard</Text>
           </TouchableOpacity>
           <TouchableOpacity style={{
             marginTop: 50, width: 340, height: 45, borderRadius: 8,
@@ -98,13 +117,24 @@ const LoginScreen = (props) => {
               <Text style={styles.bluBtntext}>  Sign up</Text>
             </TouchableOpacity>
           </View>
-        </View>
+
+        </ScrollView>
+
+        
+        
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
+
+    </SafeAreaView>
+    
   )
 }
 
 const styles = StyleSheet.create({
+  scrollContent:{
+    flexGrow: 1,
+
+  },
 
   logoStyle: {
     width: 100,
@@ -113,28 +143,28 @@ const styles = StyleSheet.create({
 
   },
   viewStyle: {
-    alignItems: 'stretch',
-    justifyContent: 'space-between',
-    margin: 15,
-    padding: 10
+    flex: 1,
+    backgroundColor: "#fff",
   },
 
   textTitleStyle: {
-    marginTop: 25,
-    fontSize: 35,
-    fontWeight: "bold",
-    alignSelf: "center"
+    fontSize: 24,
+    fontWeight: "600",
+    textAlign: "center",
+    marginBottom: 30,
+    color: "#000",
+    marginTop: 20,
   },
   inputView: {
-    height: 45,
-    width: 360,
-    borderWidth: 0.5,
+    width: "90%",
+    height: 50,
+    borderWidth: 1,
     borderRadius: 8,
-    fontSize: 20,
-    fontWeight: "bold",
-    marginTop: 5,
+    fontSize: 16,
+    marginTop: 15,
     alignSelf: 'center',
-    borderColor: textInputBorderColor
+    borderColor: textInputBorderColor,
+    paddingHorizontal: 15,
 
   },
   imageStyle: {
