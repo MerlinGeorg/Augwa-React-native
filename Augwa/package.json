@@ -14,22 +14,28 @@
     "@react-navigation/stack": "^7.1.1",
     "axios": "^1.7.9",
     "expo": "~52.0.30",
+    "expo-asset": "~11.0.3",
+    "expo-local-authentication": "^15.0.2",
     "expo-status-bar": "~2.0.1",
     "react": "18.3.1",
     "react-native": "0.76.6",
+    "react-native-camera": "^4.2.1",
     "react-native-gesture-handler": "^2.23.0",
+    "react-native-keychain": "^9.2.2",
+    "react-native-local-authentication": "^0.1.1",
+    "react-native-modalize": "^2.1.1",
     "react-native-safe-area-context": "^5.2.0",
-    "expo-asset": "~11.0.3",
     "react-native-svg": "^15.11.1",
     "react-native-svg-transformer": "^1.5.0",
+    "react-native-touch-id": "^4.4.1",
     "react-native-vector-icons": "^10.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "react-native-dotenv": "^3.4.11",
-    "react-native-svg-transformer": "^1.5.0",
     "react-native-svg-asset-plugin": "^0.5.0",
-    "react-native-svg-loader": "^1.0.0"
+    "react-native-svg-loader": "^1.0.0",
+    "react-native-svg-transformer": "^1.5.0"
   },
   "jest": {
     "preset": "jest-expo",
