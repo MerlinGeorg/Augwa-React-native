@@ -7,3 +7,8 @@ export const errorGrey = "#B8B8B8"
 export const errorRed = "red"
 export const titleBlack = "#000000"
 export const iconColor = "#757575"
+export const augwaBlue = "#2d4059"
+export const dashboardArea = "#d9d9d9"
+export const textDisabled = "#b3b3b3"
+export const border = "#b3b3b3"
+
