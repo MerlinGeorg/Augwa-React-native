@@ -75,12 +75,6 @@ const LoginScreen = (props) => {
         </View>
 
           <View style={{marginTop:-10}}>
-            <TextInput style={styles.inputView} value={domain} onChangeText={setDomain}
-              placeholder='Domain: ' 
-              placeholderTextColor = {textInputBorderColor}
-              autoCapitalize="none"
-              autoCorrect={false}
-              returnKeyType="next"/>
             <TextInput style={styles.inputView} value={userName} onChangeText={setUserName}
               placeholder='Username: ' 
               placeholderTextColor = {textInputBorderColor}
