@@ -65,6 +65,7 @@ const DashboardTabs = () => {
         },
         tabBarActiveTintColor: '#177de1',
         tabBarInactiveTintColor: 'gray',
+        headerShown: false,
         headerStyle: {
           backgroundColor: augwaBlue,
           elevation: 0,

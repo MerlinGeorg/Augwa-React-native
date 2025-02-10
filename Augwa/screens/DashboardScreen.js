@@ -22,7 +22,7 @@ const DashboardScreen = (props) => {
   return (
     <View style={[styles.viewStyle]}>
       {/* view for the top blue part */}
-      <View style={{ backgroundColor: augwaBlue,}}>
+      <View style={{ backgroundColor: augwaBlue, marginTop: 70}}>
         <View style={styles.greetingArea}>
           <Text style={styles.greetings}>Welcome, </Text>
 
