@@ -11,4 +11,5 @@ export const augwaBlue = "#2d4059"
 export const dashboardArea = "#efefef"
 export const textDisabled = "#b3b3b3"
 export const border = "#b3b3b3"
+export const navigateColor = "#145aa0"
 

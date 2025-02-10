@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   TouchableWithoutFeedback, View, StyleSheet, TextInput, Keyboard,
-  KeyboardAvoidingView, Platform, Text, TouchableOpacity,
+  KeyboardAvoidingView, Platform, Text, TouchableOpacity, Button,
   alert, SafeAreaView
 } from 'react-native';
 import Logo from '../assets/images/app_logo.svg'
@@ -9,12 +9,15 @@ import { ScrollView } from 'react-native-gesture-handler';
 import {
   buttonTextColor, errorGrey,
   errorRed, primaryColor, successGreen,
-  textInputBorderColor, augwaBlue, dashboardArea,
+  textInputBorderColor, augwaBlue, dashboardArea, navigateColor
 } from "../assets/styles/color";
 import Message from'../components/Message'
 import BellIcon from '../components/BellIcon'
+import Ionicons from '@expo/vector-icons/Ionicons';
 const DashboardScreen = (props) => {
   const [username, setUsername] = useState('')
+  // initially job is not started
+  const [jobStart, setJobStart] = useState(false)
 
   return (
     <View style={styles.viewStyle}>
@@ -31,18 +34,50 @@ const DashboardScreen = (props) => {
         </View>
       </View>
       {/* end of information area */}
+
       {/* display username */}
       <Text style = {styles.usernameStyle}>Display {username} here !</Text>
+
       {/* beginning of the dashboard view */}
       <View style = {styles.dashboardAreaStyle}>
+        {/* section title view */}
         <View style = {{marginLeft: 5,flexDirection: 'row', marginTop: 20}}>
           <Text style = {styles.sectionTitle}>Current Job</Text>
           <Text style = {styles.timeTitle}>Job Time</Text>
         </View>
- 
-
+        {/* end of section title view */}
+        {/* jd,  btn */}
+        <View style = {{marginLeft: 5,flexDirection: 'row', marginTop: 20}}>
+          <View style = {styles.jobDescribtionStyle}>
+            <Text style = {styles.jobDescribtionText}Display time>
+            here to display the job decription
+            </Text>
+          </View>
+          <View style = {{flexDirection: 'column', marginLeft: 12}}>
+            <TouchableOpacity style = {[styles.btnStyle, {backgroundColor: augwaBlue}]}>
+              <Text style = {{fontSize: 20, color: "white"}}>
+                START JOB</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style = {[styles.btnStyle, {backgroundColor: navigateColor}]}>
+              <View style = {{flexDirection: "row"}}>
+                <Ionicons name="navigate-circle-outline" size={35} color="white" />  
+                <Text style = {[styles.btnTitle, ]}>Navigate</Text>
+              </View>
+            </TouchableOpacity>
+            {/* end of two buttons view */}
+          </View>
+        </View>
+        {/* end of Current job section btn view */}
+        {/* section upcoming job view */}
+        <View style = {{marginLeft: 5,flexDirection: 'row', marginTop: 20}}>
+          <Text style = {styles.sectionTitle}>Upcoming Jobs</Text>
+          <TouchableOpacity style = {{marginLeft: 130, marginTop: 5}}>
+             <Text style = {styles.bluBtntext}>View all</Text>
+            </TouchableOpacity>
+          
+        </View>
       </View>
-      {/* end f the dashboard view */}
+      {/* end of the first section view */}
 
     </View>
   )
@@ -85,31 +120,46 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    color: '#000'
-
-    
+    color: '#000',
+    fontWeight:'500',
+    marginLeft: 10
   },
   timeTitle: {
-    fontSize: 12,
-    color: '#000'
+    color: '#000',
+    marginTop: 5,
+    marginLeft: 150,
+    fontSize: 16
     
   },
   jobDescribtionStyle: {
     backgroundColor: "#fff",
-    width: "40%", 
-    height:"30%"
+    width: 210, 
+    height: 125,
+    borderRadius: 20
 
+  },
+  jobDescribtionText: {
+    fontSize: 16
+
+  },
+  btnTitle: {
+    fontSize: 20, 
+    color: "white",
+    alignSelf: 'center'
+  },
+
+  btnStyle: {
+    borderRadius: 8, 
+    justifyContent: "center",
+    alignItems: "center", 
+    marginTop: 10, 
+    width: 170, 
+    height:50
   },
   bluBtntext: {
     fontSize: 17,
     color: '#177de1'
   },
-  signupView: {
-    marginTop: 10,
-    flexDirection: 'row',
-    alignSelf: 'center'
-
-  }
 })
 export default DashboardScreen
 {/* <ScrollView
