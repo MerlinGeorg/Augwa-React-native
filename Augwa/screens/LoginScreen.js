@@ -4,6 +4,7 @@ import {
   KeyboardAvoidingView, Platform, Text, TouchableOpacity,
   Alert, SafeAreaView
 } from 'react-native';
+import sharedStyleSheet from "../assets/styles/SharedStyles"
 import Login from "../components/Login";
 import Logo from '../assets/images/app_logo.svg'
 import { ScrollView } from 'react-native-gesture-handler';

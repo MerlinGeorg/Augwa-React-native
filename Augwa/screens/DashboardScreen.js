@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   TouchableWithoutFeedback, View, StyleSheet, TextInput, Keyboard,
-  KeyboardAvoidingView, Platform, Text, TouchableOpacity,
+  KeyboardAvoidingView, Platform, Text, TouchableOpacity, Button,
   alert, SafeAreaView
 } from 'react-native';
 import Logo from '../assets/images/app_logo.svg'
@@ -9,39 +9,101 @@ import { ScrollView } from 'react-native-gesture-handler';
 import {
   buttonTextColor, errorGrey,
   errorRed, primaryColor, successGreen,
-  textInputBorderColor, augwaBlue, dashboardArea,
+  textInputBorderColor, augwaBlue, dashboardArea, navigateColor
 } from "../assets/styles/color";
-import Message from'../components/Message'
+import Message from '../components/Message'
 import BellIcon from '../components/BellIcon'
-import Fontisto from '@expo/vector-icons/Fontisto';
-
-
-
+import Ionicons from '@expo/vector-icons/Ionicons';
 const DashboardScreen = (props) => {
   const [username, setUsername] = useState('')
+  // initially job is not started
+  const [jobStart, setJobStart] = useState(false)
 
   return (
-    <View style={styles.viewStyle}>
+    <View style={[styles.viewStyle]}>
       {/* view for the top blue part */}
-      <View style={styles.greetingArea}>
-        <Text style={styles.greetings}>Welcome, </Text>
-        <View style = {styles.iconSection}>
-          <TouchableOpacity>
-            <Message />
-          </TouchableOpacity>
-          <TouchableOpacity style= {{marginLeft: 20}}>
-            <BellIcon />
+      <View style={{ backgroundColor: augwaBlue,}}>
+        <View style={styles.greetingArea}>
+          <Text style={styles.greetings}>Welcome, </Text>
+
+          <View style={styles.iconSection}>
+            <TouchableOpacity>
+              <Message />
+            </TouchableOpacity>
+            <TouchableOpacity style={{ marginLeft: 20 }}>
+              <BellIcon />
+            </TouchableOpacity>
+          </View>
+
+
+        </View>
+        {/* end of information area */}
+
+        {/* display username */}
+        <Text style={styles.usernameStyle}>Display {username} here !</Text>
+      </View>
+
+      {/* beginning of the dashboard view */}
+      <View style={styles.dashboardAreaStyle}>
+        {/* section title view */}
+        <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: 20 }}>
+          <Text style={styles.sectionTitle}>Current Job</Text>
+          <Text style={styles.timeTitle}>Job Time</Text>
+        </View>
+        {/* end of section title view */}
+        {/* jd,  btn */}
+        <View style={{ flexDirection: 'row', marginTop: 20 }}>
+          <View style={styles.jobDescribtionStyle}>
+            <Text style={styles.jobDescribtionText} Display time>
+              here to display the job decription
+            </Text>
+          </View>
+          <View style={{ flexDirection: 'column', marginLeft: 12 }}>
+            <TouchableOpacity style={[styles.btnStyle, { backgroundColor: augwaBlue }]}>
+              <Text style={{ fontSize: 20, color: "white" }}>
+                START JOB</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.btnStyle, { backgroundColor: navigateColor }]}>
+              <View style={{ flexDirection: "row" }}>
+                <Ionicons name="navigate-circle-outline" size={35} color="white" />
+                <Text style={[styles.btnTitle,]}>Navigate</Text>
+              </View>
+            </TouchableOpacity>
+            {/* end of two buttons view */}
+          </View>
+        </View>
+        {/* end of Current job section btn view */}
+        {/* section upcoming job view */}
+        <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: 20 }}>
+          <Text style={styles.sectionTitle}>Upcoming Jobs</Text>
+          <TouchableOpacity style={{ marginLeft: 150, marginTop: 5 }}>
+            <Text style={styles.bluBtntext}>View all</Text>
           </TouchableOpacity>
         </View>
-      </View>
-      {/* end of information area */}
-      {/* display username */}
-      <Text style = {styles.usernameStyle}>Display {username} here !</Text>
-      {/* beginning of the dashboard view */}
-      <View style = {styles.dashboardAreaStyle}>
+        <ScrollView horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContainer}>
+          {["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"].map((item, index) => (
+            <View key={index} style={[styles.jobDescribtionStyle]}>
+              <Text style={styles.jobDescribtionText}>{item}</Text>
+            </View>
+          ))}
+        </ScrollView>
+        <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: -10 }}>
+          <Text style={styles.sectionTitle}>Performabce Overview</Text>
+        </View>
+        <ScrollView horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContainer}>
+          {["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"].map((item, index) => (
+            <View key={index} style={[styles.jobDescribtionStyle]}>
+              <Text style={styles.jobDescribtionText}>{item}</Text>
+            </View>
+          ))}
+        </ScrollView>
 
       </View>
-      {/* end f the dashboard view */}
+      {/* end of the first section view */}
 
     </View>
   )
@@ -53,54 +115,86 @@ const styles = StyleSheet.create({
     backgroundColor: augwaBlue,
   },
   greetingArea: {
-    flexDirection: 'row'
+    flexDirection: 'row',
+    // backgroundColor: augwaBlue,
   },
   iconSection: {
-    marginLeft: 120,
+    marginLeft: 150,
     marginTop: 20,
     flexDirection: "row"
   },
   greetings: {
     marginTop: 15,
     marginStart: 10,
-    fontSize: 35,
+    fontSize: 33,
     color: '#fff'
 
   },
   usernameStyle: {
-    fontSize: 35,
+    fontSize: 33,
     fontWeight: "500",
     marginTop: 10,
     marginStart: 10,
     color: '#fff'
-   
+
   },
   dashboardAreaStyle: {
     marginTop: 20,
-    flex: 1,
+    // flex: 1,
+    height: '85%',
     backgroundColor: dashboardArea,
-    borderRadius: 30
+    borderRadius: 30,
   },
-  imageStyle: {
-    alignSelf: "center",
-    width: 50,
-    height: 50
+  sectionTitle: {
+    fontSize: 20,
+    color: '#000',
+    fontWeight: '500',
+    marginLeft: 10
+  },
+  timeTitle: {
+    color: '#000',
+    marginTop: 5,
+    marginLeft: 150,
+    fontSize: 16
 
   },
-  btnPsw: {
-    marginLeft: 240,
-    marginTop: 12
+  jobDescribtionStyle: {
+    backgroundColor: "#fff",
+    width: 210,
+    height: 125,
+    borderRadius: 20,
+    marginLeft: 10
+  },
+  jobDescribtionText: {
+    fontSize: 16
+
+  },
+  btnTitle: {
+    fontSize: 20,
+    color: "white",
+    alignSelf: 'center'
+  },
+
+  btnStyle: {
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10,
+    width: 150,
+    height: 50
   },
   bluBtntext: {
+    marginTop: -5,
     fontSize: 17,
     color: '#177de1'
   },
-  signupView: {
+  scrollContainer: {
+    paddingHorizontal: 10,
+    padding: 'auto',
     marginTop: 10,
-    flexDirection: 'row',
-    alignSelf: 'center'
+    height: 70,
+  },
 
-  }
 })
 export default DashboardScreen
 {/* <ScrollView
