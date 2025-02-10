@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import {
   TouchableWithoutFeedback, View, StyleSheet, TextInput, Keyboard,
   KeyboardAvoidingView, Platform, Text, TouchableOpacity,
-  Alert, SafeAreaView
+  Alert, SafeAreaView,
 } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 import sharedStyleSheet from "../assets/styles/SharedStyles"
 import Login from "../components/Login";
 import Logo from '../assets/images/app_logo.svg'
 import { ScrollView } from 'react-native-gesture-handler';
 import { buttonTextColor, errorGrey, errorRed, primaryColor, successGreen, textInputBorderColor } from "../assets/styles/color";
+import { useNavigation } from '@react-navigation/native';
 
 const LoginScreen = (props) => {
   const [loading, setLoading] = useState(false);
@@ -16,6 +18,7 @@ const LoginScreen = (props) => {
   const [domain, setDomain] = useState('')
   const [userName, setUserName] = useState('') // set user name
   const [password, setPassword] = useState('')
+  const navigation = useNavigation()
   const handleLogin = async() => {
     const credentials = {
       username: userName,
@@ -28,8 +31,9 @@ const LoginScreen = (props) => {
       }
       const result = await Login.login(credentials)
       if(result.success) {
-        await SecureStore.setItemAsync('authToken', result.data.token)
-        navigation.navigate('signin')
+         await SecureStore.setItemAsync('authToken', result.data.token)
+        
+        navigation.navigate('dashboard')
       }else {
         switch (result.error.code) {
           
