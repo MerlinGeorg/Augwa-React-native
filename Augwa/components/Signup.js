@@ -1,24 +1,47 @@
 import axios from 'axios';
-import { API_BASEPATH_DEV, x_Domain } from '@env';
+import { API_BASEPATH_DEV, X_DOMAIN } from '@env';
 
 // Create axios instance with default config
 const api = axios.create({
   baseURL: API_BASEPATH_DEV,
   headers: {
     'Content-Type': 'application/json',
-    'X-Domain': x_Domain
+    'X-Domain': X_DOMAIN
   }
+});
+api.defaults.headers.common['Accept'] = 'application/json';
+api.defaults.headers.common['Content-Type'] = 'application/json';
+api.interceptors.request.use(request => {
+  request.headers['X-Method'] = 'POST';
+  request.method = 'post';
+
+  console.log('Request Sent:', {
+    url: request.url,
+    method: request.method,
+    headers: request.headers,
+    data: request.data
+  });
+  return request;
+}, error => {
+  return Promise.reject(error);
 });
 
 class Register {
   // Register new user
   static async signup(userData) {
     try {
-      console.log("Trying to signup...");
-      console.log("User data posting:", userData);
-      
+      // console.log("Trying to signup...");
+      // console.log("User data posting:", userData);
+      // console.log("api url",API_BASEPATH_DEV);
+      // console.log("x_Domain",X_DOMAIN);
+      // console.log("API headers:", api.defaults.headers);
       const response = await api.post('/Account/Register', userData);
-
+      // console.log("Request Sent:", {
+      //   url: response.config.url,
+      //   method: response.config.method,
+      //   headers: response.config.headers,
+      //   data: response.config.data
+      // });
       console.log("API response received:");
       console.log("Status:", response.status);
       console.log("Data from backend:", response.data);

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_BASEPATH_DEV, X_Domain } from '@env';
+import { API_BASEPATH_DEV, X_DOMAIN } from '@env';
 
 // Error message constants
 const ERROR_MESSAGES = {
@@ -15,7 +15,7 @@ const api = axios.create({
     baseURL: API_BASEPATH_DEV,
     headers: {
         'Content-Type': 'application/json',
-        'X-Domain': X_Domain  // Ensure this header is correct
+        'X-Domain': X_DOMAIN  // Ensure this header is correct
     }
 });
 

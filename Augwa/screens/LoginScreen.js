@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   TouchableWithoutFeedback, View, StyleSheet, TextInput, Keyboard,
   KeyboardAvoidingView, Platform, Text, TouchableOpacity,
-  alert, SafeAreaView
+  Alert, SafeAreaView
 } from 'react-native';
 import Login from "../components/Login";
 import Logo from '../assets/images/app_logo.svg'
@@ -22,7 +22,7 @@ const LoginScreen = (props) => {
     }
     try{
       if (!credentials.username || !credentials.password){
-        alert("Please fill in all fields!")
+        Alert.alert("Please fill in all fields!")
         return
       }
       const result = await Login.login(credentials)
@@ -33,22 +33,22 @@ const LoginScreen = (props) => {
         switch (result.error.code) {
           
           case 'INVALID_CREDENTIALS' :
-            alert('Incorrect username or password')
+            Alert.alert('Incorrect username or password')
             break
           case 'ACCOUNT_UNVARIED' :
-            alert('Please verify you account')
+            Alert.alert('Please verify you account')
             break
           case 'NETWORK_ERROR' :
-            alert('Unable to connect to server, please check your Internet connection')
+            Alert.alert('Unable to connect to server, please check your Internet connection')
             break
           default:
-            alert('Login failed, please try again')
+            Alert.alert('Login failed, please try again')
 
           }
         }
      }catch(error) {
         console.error('System error:', error)
-        alert("A system error occured, Restart the app")
+        Alert.alert("A system error occured, Restart the app")
       }
   }
   
@@ -95,7 +95,7 @@ const LoginScreen = (props) => {
           <TouchableOpacity style={{marginLeft: 40}} onPress={loginSuccess}>
             <Text style={styles.bluBtntext}>Go to dashboard</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{
+          <TouchableOpacity onPress={handleLogin} style={{
             marginTop: 50, width: 340, height: 45, borderRadius: 8,
             alignSelf: "center", backgroundColor: "#2D4059", justifyContent: "center",
             alignItems: "center"
