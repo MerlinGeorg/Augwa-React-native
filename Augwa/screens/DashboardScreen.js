@@ -22,7 +22,7 @@ const DashboardScreen = (props) => {
   return (
     <View style={[styles.viewStyle]}>
       {/* view for the top blue part */}
-      <View style={{ backgroundColor: augwaBlue,}}>
+      <View style={{ backgroundColor: augwaBlue, marginTop: 70}}>
         <View style={styles.greetingArea}>
           <Text style={styles.greetings}>Welcome, </Text>
 
@@ -52,7 +52,7 @@ const DashboardScreen = (props) => {
         </View>
         {/* end of section title view */}
         {/* jd,  btn */}
-        <View style={{ flexDirection: 'row', marginTop: 20 }}>
+        <View style={{ flexDirection: 'row', marginTop: 20, marginLeft: 9 }}>
           <View style={styles.jobDescribtionStyle}>
             <Text style={styles.jobDescribtionText} Display time>
               here to display the job decription
@@ -89,14 +89,14 @@ const DashboardScreen = (props) => {
             </View>
           ))}
         </ScrollView>
-        <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: -10 }}>
+        <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: -30 }}>
           <Text style={styles.sectionTitle}>Performabce Overview</Text>
         </View>
         <ScrollView horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollContainer}>
           {["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"].map((item, index) => (
-            <View key={index} style={[styles.jobDescribtionStyle]}>
+            <View key={index} style={[styles.performanceStyle]}>
               <Text style={styles.jobDescribtionText}>{item}</Text>
             </View>
           ))}
@@ -194,6 +194,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
     height: 70,
   },
+  performanceStyle:{
+    backgroundColor: "#fff",
+    width: 150,
+    height: 110,
+    borderRadius: 20,
+    marginLeft: 7
+
+  }
 
 })
 export default DashboardScreen
