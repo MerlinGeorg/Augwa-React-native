@@ -4,7 +4,7 @@ const Message = () =>{
     return(
         <View>
             <MaterialCommunityIcons name="message-processing-outline" 
-            size={36} color="#fff" />
+            size={32} color="#fff" />
             {/* triggering the action from the search bar in the list, 
             write in the searchbar(child) and move into the list(parent)*/}
         </View>

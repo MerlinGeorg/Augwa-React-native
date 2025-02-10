@@ -13,10 +13,6 @@ import {
 } from "../assets/styles/color";
 import Message from'../components/Message'
 import BellIcon from '../components/BellIcon'
-import Fontisto from '@expo/vector-icons/Fontisto';
-
-
-
 const DashboardScreen = (props) => {
   const [username, setUsername] = useState('')
 
@@ -39,6 +35,11 @@ const DashboardScreen = (props) => {
       <Text style = {styles.usernameStyle}>Display {username} here !</Text>
       {/* beginning of the dashboard view */}
       <View style = {styles.dashboardAreaStyle}>
+        <View style = {{marginLeft: 5,flexDirection: 'row', marginTop: 20}}>
+          <Text style = {styles.sectionTitle}>Current Job</Text>
+          <Text style = {styles.timeTitle}>Job Time</Text>
+        </View>
+ 
 
       </View>
       {/* end f the dashboard view */}
@@ -56,19 +57,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   },
   iconSection: {
-    marginLeft: 120,
+    marginLeft: 150,
     marginTop: 20,
     flexDirection: "row"
   },
   greetings: {
     marginTop: 15,
     marginStart: 10,
-    fontSize: 35,
+    fontSize: 33,
     color: '#fff'
 
   },
   usernameStyle: {
-    fontSize: 35,
+    fontSize: 33,
     fontWeight: "500",
     marginTop: 10,
     marginStart: 10,
@@ -79,17 +80,25 @@ const styles = StyleSheet.create({
     marginTop: 20,
     flex: 1,
     backgroundColor: dashboardArea,
-    borderRadius: 30
+    borderRadius: 30,
+    padding: "auto"
   },
-  imageStyle: {
-    alignSelf: "center",
-    width: 50,
-    height: 50
+  sectionTitle: {
+    fontSize: 20,
+    color: '#000'
 
+    
   },
-  btnPsw: {
-    marginLeft: 240,
-    marginTop: 12
+  timeTitle: {
+    fontSize: 12,
+    color: '#000'
+    
+  },
+  jobDescribtionStyle: {
+    backgroundColor: "#fff",
+    width: "40%", 
+    height:"30%"
+
   },
   bluBtntext: {
     fontSize: 17,
