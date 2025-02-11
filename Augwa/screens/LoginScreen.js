@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { AuthContext } from '../src/context/AuthContext';
+import { useContext } from 'react';
 import {
   TouchableWithoutFeedback, View, StyleSheet, TextInput, Keyboard,
   KeyboardAvoidingView, Platform, Text, TouchableOpacity,
@@ -13,6 +15,7 @@ import { buttonTextColor, errorGrey, errorRed, primaryColor, successGreen, textI
 import { useNavigation } from '@react-navigation/native';
 
 const LoginScreen = (props) => {
+  const {setAuthToken} = useContext(AuthContext)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [domain, setDomain] = useState('')
@@ -31,9 +34,14 @@ const LoginScreen = (props) => {
       }
       const result = await Login.login(credentials)
       if(result.success) {
+        // reveived token
          await SecureStore.setItemAsync('authToken', result.data.token)
+        // pass the token to dasshboard
+        setAuthToken(result.data.token)
+        console.log("Token being passed:", result.data.token)
+        props.navigation.navigate('dashboard')
         
-        navigation.navigate('dashboard')
+
       }else {
         switch (result.error.code) {
           

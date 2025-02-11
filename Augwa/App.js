@@ -5,6 +5,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AuthContext } from './src/context/AuthContext';
+import React, { useState } from 'react';
 
 // Import screens
 import SignupScreen from './screens/SignupScreen';
@@ -115,13 +117,17 @@ const DashboardTabs = () => {
 
 // Main App Component
 export default function App() {
+  const [authToken, setAuthToken] = useState(null)
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <StatusBar style="light" />
-        <LoginStack />
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <AuthContext.Provider value = {{authToken, setAuthToken}}>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <StatusBar style="light" />
+          <LoginStack />
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </AuthContext.Provider>
+    
   );
 }
 
