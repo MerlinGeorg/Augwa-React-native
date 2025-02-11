@@ -16,22 +16,23 @@ const SearchBar = ({term , onTermChange}) => {
 
 const styles = StyleSheet.create({
     viewStyle: {
-        backgroundColor: '#F0EEEE',
-        height: 50,
-        borderRadius: 5,
+        backgroundColor: '#d3d3d3',
+        margin: 10,
+        height: 40,
+        borderRadius: 10,
         flexDirection: 'row',
         alignItems:'stretch'
     },
     iconStyle: {
         color: 'black',
-        fontSize: 35,
+        fontSize: 25,
         alignSelf: 'center',
         marginHorizontal: 15
     },
     inputStyle: {
         fontSize: 20,
-        flex: 1,
-    
+        position: 'relative',
+        top: 5
     }
 })
 
