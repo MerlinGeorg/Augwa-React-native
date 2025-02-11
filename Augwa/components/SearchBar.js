@@ -18,6 +18,7 @@ const styles = StyleSheet.create({
     viewStyle: {
         backgroundColor: '#d3d3d3',
         margin: 10,
+        marginLeft:20,
         height: 40,
         borderRadius: 10,
         flexDirection: 'row',

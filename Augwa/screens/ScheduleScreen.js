@@ -4,6 +4,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import SearchBar from "../components/SearchBar";
 import { getBooking } from "../components/Schedule";
 import { augwaBlue,dashboardArea } from "../assets/styles/color";
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 
 
@@ -21,7 +22,10 @@ return (
         </View>
         {/* Schedule area */}
         <View style={styles.dashboardAreaStyle}>
-        <SearchBar/>
+          <View style = {styles.row}>
+          <FontAwesome6 name="sliders" />
+          <SearchBar/>
+          </View>
         <Text style ={[styles.Content]}>Today's Schedule</Text>
         </View>
     </View>
@@ -53,6 +57,11 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         fontWeight: 'bold',
         color: '#000'
+      },
+      row: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
       },
 })
 
