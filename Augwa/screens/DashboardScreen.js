@@ -25,13 +25,6 @@ const DashboardScreen = ({route, navigation}) => {
   console.log("authtoken:", authToken);
   
 
-  // this is just an example
-  // fetch('https://api.example.com/jobs', {
-  //   method: 'GET',
-  //   headers: {
-  //     'Authorization': `Bearer ${token}`, // Sending token in the request
-  //   }
-  // })
   return (
     <View style={[styles.viewStyle]}>
       {/* view for the top blue part */}
