@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   TouchableWithoutFeedback, View, StyleSheet, TextInput, Keyboard,
   KeyboardAvoidingView, Platform, Text, TouchableOpacity, Button,
-  alert, SafeAreaView
+  alert, SafeAreaView,
 } from 'react-native';
+import { useContext } from 'react';
+import { AuthContext } from '../src/context/AuthContext';
 import Logo from '../assets/images/app_logo.svg'
 import { ScrollView } from 'react-native-gesture-handler';
 import {
@@ -14,11 +16,22 @@ import {
 import Message from '../components/Message'
 import BellIcon from '../components/BellIcon'
 import Ionicons from '@expo/vector-icons/Ionicons';
-const DashboardScreen = (props) => {
+import axios from "axios"
+const DashboardScreen = ({route, navigation}) => {
   const [username, setUsername] = useState('')
   // initially job is not started
   const [jobStart, setJobStart] = useState(false)
+  const {authToken} = useContext(AuthContext)
+  console.log("authtoken:", authToken);
+  
 
+  // this is just an example
+  // fetch('https://api.example.com/jobs', {
+  //   method: 'GET',
+  //   headers: {
+  //     'Authorization': `Bearer ${token}`, // Sending token in the request
+  //   }
+  // })
   return (
     <View style={[styles.viewStyle]}>
       {/* view for the top blue part */}
@@ -40,7 +53,7 @@ const DashboardScreen = (props) => {
         {/* end of information area */}
 
         {/* display username */}
-        <Text style={styles.usernameStyle}>Display {username} here !</Text>
+        <Text style={styles.usernameStyle}>Display name here !</Text>
       </View>
 
       {/* beginning of the dashboard view */}
@@ -90,7 +103,7 @@ const DashboardScreen = (props) => {
           ))}
         </ScrollView>
         <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: -30 }}>
-          <Text style={styles.sectionTitle}>Performabce Overview</Text>
+          <Text style={styles.sectionTitle}>Performance Overview</Text>
         </View>
         <ScrollView horizontal
           showsHorizontalScrollIndicator={false}
