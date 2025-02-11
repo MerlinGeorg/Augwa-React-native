@@ -10,8 +10,9 @@ import React, { useState } from 'react';
 
 // Import screens
 import SignupScreen from './screens/SignupScreen';
-import LoginScreen from './screens/LoginScreen';
+import LoginScreen from './screens/LogInScreen';
 import DashboardScreen from './screens/DashboardScreen';
+import ScheduleScreen from './screens/ScheduleScreen';
 import { augwaBlue } from './assets/styles/color';
 
 // Create navigators
@@ -98,7 +99,7 @@ const DashboardTabs = () => {
       />
       <Tab.Screen 
         name="Schedule" 
-        component={DashboardScreen}
+        component={ScheduleScreen}
         options={{ title: 'Schedule' }}
       />
       <Tab.Screen 
