@@ -16,7 +16,7 @@ const JobCard = ({ job }) => {
     return (
         <View style={styles.card}>
             <View style = {styles.row}>
-      <Text style={styles.status}>🔵 {job.status}</Text>
+      <Text style={styles.status}> {job.status}</Text>
       <TouchableOpacity style={styles.startButton}>
         <Text style={styles.buttonText}>START</Text>
       </TouchableOpacity>
