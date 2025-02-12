@@ -1,5 +1,6 @@
 import axios from "axios";
 import { API_BASEPATH_DEV,X_DOMAIN } from '@env';
+import { AuthContext } from "../src/context/AuthContext";
 
 const api = axios.create({
     baseURL: API_BASEPATH_DEV,
@@ -9,12 +10,23 @@ const api = axios.create({
     }
 });
 
-export const getBooking = async () => {
+// Fetch the jobs only for logged-in user
+export const getBooking = async (authToken) => {
     try {
         console.log("Fetching Bookings...");
-        const response = await api.get('/Booking');
-        console.log("Booking fetched");
-        console.log("Response Status: ", response.status);
+        
+        if (!authToken) {
+            throw new Error("Authentication token not found");
+        }
+
+
+        const response = await api.get('/Booking',{
+            headers: {
+                Authorization: `Bearer ${authToken}`,
+            },
+        });
+
+        console.log("Assigned Booking fetched", response.status);
         return {
             success: true,
             data: response.data

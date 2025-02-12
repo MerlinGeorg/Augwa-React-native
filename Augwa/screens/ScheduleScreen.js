@@ -1,10 +1,12 @@
-import React, {useState} from "react";
+import React, {useState, useEffect, useContext} from "react";
 import { TouchableOpacity, Text, Button, View, StyleSheet,FlatList } from "react-native";
 import { ScrollView } from 'react-native-gesture-handler';
 import SearchBar from "../components/SearchBar";
 import { getBooking } from "../components/Schedule";
 import { augwaBlue,dashboardArea } from "../assets/styles/color";
 import { Ionicons } from '@expo/vector-icons';
+import { AuthContext } from '../src/context/AuthContext';
+
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 const Tabbar = ({ tabName }) => {
@@ -26,8 +28,47 @@ const ScheduleScreen = (props) => {
     const [search, setSearch] = useState('')
     const [filtersearch, setFilterSearch] = useState([])
     const [selectedTab, setSelectedTab] = useState("Today");
+    const { authToken } = useContext(AuthContext);
 
-    const tab = createBottomTabNavigator();
+    useEffect(() => {
+      fetchBookings();
+  }, []);
+
+    // Function to fetch booking
+    const fetchBookings = async () => {
+      setLoading(true);
+      const result = await getBooking(authToken);
+      if (result.success) {
+          setSchedule(result.data);  // Store fetched bookings
+      } else {
+          console.error("Error fetching bookings:", result.error);
+      }
+      setLoading(false);
+  };
+
+  // Function to load the selectedTab jobs
+  const filterJobs = () => {
+    const today = new Date(); 
+
+    return schedule.filter((job) => {
+        const jobDate = new Date(job.date); 
+
+        if (selectedTab === "Today") {
+            return (
+                jobDate.getDate() === today.getDate() &&
+                jobDate.getMonth() === today.getMonth() &&
+                jobDate.getFullYear() === today.getFullYear()
+            );
+        } else if (selectedTab === "Past") {
+            return jobDate < today; 
+        } else if (selectedTab === "Future") {
+            return jobDate > today; 
+        }
+
+        return false; 
+    });
+};
+
 
 
 return (
@@ -38,15 +79,11 @@ return (
         {/* Schedule area */}
         <View style={styles.dashboardAreaStyle}>
         <View style={styles.tabNavigation}>
-                    <TouchableOpacity onPress={() => setSelectedTab("Past")}>
-                       <Text style={selectedTab === "Past" ? styles.selectedTab : styles.tabText}>Past</Text> 
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => setSelectedTab("Today")}>
-                        <Text style={selectedTab === "Today" ? styles.selectedTab : styles.tabText}>Today</Text> 
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => setSelectedTab("Future")}>
-                        <Text style={selectedTab === "Future" ? styles.selectedTab : styles.tabText}>Future</Text> 
-                    </TouchableOpacity>
+                    {["Past", "Today", "Future"].map((tab) => (
+                        <TouchableOpacity key={tab} onPress={() => setSelectedTab(tab)}>
+                            <Text style={selectedTab === tab ? styles.selectedTab : styles.tabText}>{tab}</Text>
+                        </TouchableOpacity>
+                    ))}
                 </View>
 
 {/* Searcbar and menu options */}
@@ -56,6 +93,30 @@ return (
             </TouchableOpacity>
           <SearchBar/>
           </View>
+          <ScrollView style={{ flex: 1, marginBottom: 20 }}>
+                    {loading ? (
+                        <Text style={{ textAlign: "center", marginTop: 20, fontSize: 16 }}>
+                        Loading jobs...
+                    </Text>
+                ) : schedule.length > 0 ? (
+                        <FlatList
+                            data={filterJobs()}
+                            keyExtractor={(item) => item.id.toString()}
+                            renderItem={({ item }) => (
+                                <View style={styles.jobCard}>
+                                    <Text style={styles.jobTitle}>{item.serviceType}</Text>
+                                    <Text>Date: {item.date}</Text>
+                                    <Text>Time: {item.time}</Text>
+                                    <Text>Location: {item.address}</Text>
+                                </View>
+                            )}
+                            />
+                        ) : (
+                            <Text style={{ textAlign: "center", marginTop: 20, fontSize: 16 }}>
+                                No jobs found.
+                            </Text>
+                        )}
+                </ScrollView>
         </View>
     </View>
    
