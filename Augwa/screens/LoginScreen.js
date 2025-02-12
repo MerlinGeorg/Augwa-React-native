@@ -18,13 +18,15 @@ import { BiometricAuth } from "../components/BiometricAuth";
 
 const LoginScreen = (props) => {
   const {setAuthToken} = useContext(AuthContext);
+  const {setUserName} = useContext(AuthContext) // newly added for username
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [userName, setUserName] = useState('');
+  const [userName, setUserNameInput] = useState('');
   const [password, setPassword] = useState('');
   const [biometricType, setBiometricType] = useState(null);
   const [isBiometricAvailable, setIsBiometricAvailable] = useState(false);
   const navigation = useNavigation();
+
 
   useEffect(() => {
     checkBiometricSupport();
@@ -58,7 +60,8 @@ const LoginScreen = (props) => {
         if (result.success) {
           await SecureStore.setItemAsync('authToken', result.data.token);
           setAuthToken(result.data.token);
-          props.navigation.navigate('dashboard');
+          // props.navigation.navigate('dashboard');
+          props.navigation.navigate('dashboard', { toDashboard: { userName: userName } })
         } else {
           Alert.alert('Error', 'Biometric authentication failed. Please login with your credentials.');
         }
@@ -85,6 +88,7 @@ const LoginScreen = (props) => {
       if(result.success) {
         await SecureStore.setItemAsync('authToken', result.data.token);
         setAuthToken(result.data.token);
+        setUserName(userName)
         props.navigation.navigate('dashboard');
       } else {
         switch (result.error.code) {
@@ -147,7 +151,7 @@ const LoginScreen = (props) => {
               <TextInput
                 style={styles.inputView}
                 value={userName}
-                onChangeText={setUserName}
+                onChangeText={setUserNameInput}
                 placeholder='Username: ' 
                 placeholderTextColor={textInputBorderColor}
                 autoCapitalize="none"

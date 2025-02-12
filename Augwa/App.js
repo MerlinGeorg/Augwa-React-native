@@ -122,8 +122,9 @@ const DashboardTabs = () => {
 // Main App Component
 export default function App() {
   const [authToken, setAuthToken] = useState(null)
+  const [userName, setUserName] = useState(null)
   return (
-    <AuthContext.Provider value = {{authToken, setAuthToken}}>
+    <AuthContext.Provider value = {{authToken, setAuthToken, userName, setUserName}}>
       <SafeAreaProvider>
         <NavigationContainer>
           <StatusBar style="light" />
