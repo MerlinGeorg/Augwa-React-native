@@ -28,14 +28,7 @@ const DashboardScreen = ({ route, navigation }) => {
         'X-Domain': X_DOMAIN  // Ensure this header is correct
     }
   });
-
-  const username = route.params?.toDashboard;
-  console.log(`passed username: ${username}`)
-
-
-
   
-
   useEffect(() => {
     if (authToken) {
       console.log('Fetching with token: ', authToken)
@@ -55,9 +48,9 @@ const DashboardScreen = ({ route, navigation }) => {
 
   // )
   /////////////////// naviagte to schedule///////////////////
-  // const gotoSchedule = ()=>{
-  //   navigation.navigate("schedule")
-  // }
+  const gotoSchedule = ()=>{
+    navigation.navigate("schedule")
+  }
   //////////////////////////////////////////////////////////
   const fetchJoblist = async () => {
     try {
@@ -177,7 +170,7 @@ const DashboardScreen = ({ route, navigation }) => {
         {/* section upcoming job view */}
         <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: 20 }}>
           <Text style={styles.sectionTitle}>Upcoming Jobs</Text>
-          <TouchableOpacity style={{ marginLeft: 150, marginTop: 5 }}>
+          <TouchableOpacity style={{ marginLeft: 150, marginTop: 5 }} onPress={gotoSchedule}>
             <Text style={styles.bluBtntext}>View all</Text>
           </TouchableOpacity>
         </View>
