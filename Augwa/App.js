@@ -14,6 +14,7 @@ import LoginScreen from './screens/LogInScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import ScheduleScreen from './screens/ScheduleScreen';
 import { augwaBlue } from './assets/styles/color';
+import SuccessScreen from './screens/biometricSuccessScreen';
 
 // Create navigators
 const Stack = createStackNavigator();
@@ -28,8 +29,10 @@ const LoginStack = () => {
         cardStyle: { backgroundColor: '#fff' }
       }}
     >
+      
       <Stack.Screen name="login" component={LoginScreen} />
       <Stack.Screen name="signup" component={SignupScreen} />
+      <Stack.Screen name="biometrysuccess" component={SuccessScreen} />
       <Stack.Screen 
         name="dashboard" 
         component={DashboardTabs}
