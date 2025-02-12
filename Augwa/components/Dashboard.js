@@ -6,17 +6,31 @@ import React, { useState, useEffect, useContext } from 'react';
 
 
 const Dashboard = () => {
-    const {authToken} = useContext(AuthContext)
+    const { authToken } = useContext(AuthContext)
     const [scheduleData, setScheduleData] = useState(null)
     const [error, setError] = useState(null)
 
-const fetchData = fetch(API_BASEPATH_DEV, {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${authToken}`, // Sending token in the request
-    }
-  })
-  set
+    useEffect(() => {
+        if (authToken) {
+            fetchData()
+        }
+    }, [authToken])
 
+    const fetchJoblist = async () => {
+        try {
+            const response = await axios.get(`{API_BASEPATH_DEV}/Booking`, {
+                headers: {
+                    'Authorization':`Bearer ${authToken}`,
+                }
+            })
+            setScheduleData(response.data)
+        }catch(error){
+            setError('Error fetching schedule data')
+            console.error(err)
+        }
+    }
 }
+
+
+
 
