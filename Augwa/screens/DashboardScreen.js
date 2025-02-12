@@ -85,7 +85,23 @@ const DashboardScreen = ({ route, navigation }) => {
       }
     }
   };
-  console.log(scheduleData)
+  // console.log(scheduleData)
+  // only prints out with jdahan account
+  // to get client's address
+  // console.log(scheduleData?.results?.[0]?.address);
+  // to get the staff information
+  console.log(scheduleData?.results?.[0]?.staff);
+  // this is what staff obkect looks like:
+  // [{"calendarId": "494264a7-f9b9-4df6-a03f-c8f8c1eb53a8", 
+  //   "staff": {"accountLinked": true, "availability": [Array], 
+  //     "calendar": [Array], "emailAddress": "qyu39@my.centennialcollege.ca", 
+  //     "emailAddressStatus": "Unverifed", "firstName": "qianhui", 
+  //     "id": "7487cc7b-c0e5-4aae-98d5-dd65b00067cb", "lastName": "yu", 
+  //     "phoneNumber": "1111111111", "phoneNumberExtension": "", 
+  //     "phoneNumberStatus": "Unverifed", "roleId": "293e37be-40a7-4c91-964d-5e62dfde3e18", 
+  //     "status": "Active"}}]
+  
+
 
 
   return (
@@ -123,8 +139,8 @@ const DashboardScreen = ({ route, navigation }) => {
         {/* jd,  btn */}
         <View style={{ flexDirection: 'row', marginTop: 20, marginLeft: 9 }}>
           <View style={styles.jobDescribtionStyle}>
-            <Text style={styles.jobDescribtionText} Display time>
-              here to display the job decription
+            <Text style={styles.jobDescribtionText}>
+              display here
             </Text>
           </View>
           <View style={{ flexDirection: 'column', marginLeft: 12 }}>
