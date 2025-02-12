@@ -156,7 +156,7 @@ const DashboardScreen = ({ route, navigation }) => {
           <View style={styles.jobDescribtionStyle}>
             <Text style={styles.jobDescribtionText}>
               {/* display the first only */}
-            {scheduleData?.results?.[0].address}
+            {scheduleData?.results?.[0].address} {scheduleData?.results?.[0].startDate} 
             </Text>
           </View>
           <View style={{ flexDirection: 'column', marginLeft: 12 }}>
@@ -186,7 +186,7 @@ const DashboardScreen = ({ route, navigation }) => {
           contentContainerStyle={styles.scrollContainer}>
           {scheduleData?.results.map((item, index) => (
             <View key={index} style={[styles.jobDescribtionStyle]}>
-              <Text style={styles.jobDescribtionText}>{item.address}</Text>
+              <Text style={styles.jobDescribtionText}>{item.address} {item.startDate}</Text>
             </View>
           ))}
         </ScrollView>
