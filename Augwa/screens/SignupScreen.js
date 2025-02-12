@@ -107,11 +107,12 @@ export default function SignupScreen({ navigation }) {
     try {
       const success = await BiometricAuth.enableBiometric(userName, password);
       if (success) {
-        Alert.alert(
-          "Success", 
-          `${biometricType === 'faceId' ? 'Face ID' : 'Fingerprint'} has been enabled successfully!`
-        );
+        // Alert.alert(
+        //   "Success", 
+        //   `${biometricType === 'faceId' ? 'Face ID' : 'Fingerprint'} has been enabled successfully!`
+        // );
         setBiometricVisible(false);
+        navigation.replace('biometrysuccess');
       } else {
         Alert.alert("Error", "Failed to enable biometric authentication. Please try again.");
       }
@@ -136,8 +137,8 @@ export default function SignupScreen({ navigation }) {
       });
 
       if (result.success) {
-        Alert.alert("Success", "Account created successfully!");
-        setBiometricVisible(true);
+        Alert.alert("Success", "Account created successfully!",[{ onPress: () => setBiometricVisible(true)}]);
+
       } else {
         Alert.alert("Error", result.error.message);
       }

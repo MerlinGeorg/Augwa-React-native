@@ -22,11 +22,13 @@ const Tabbar = ({ tabName }) => {
   }
 };
 
+
 const ScheduleScreen = (props) => {
     const [schedule, setSchedule] = useState([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
     const [filtersearch, setFilterSearch] = useState([])
+
     const [selectedTab, setSelectedTab] = useState("Today");
     const { authToken } = useContext(AuthContext);
 
@@ -76,8 +78,8 @@ return (
         <View style = {{ backgroundColor: augwaBlue, marginTop:40}}>
             <Text style = {[styles.Title]}>Schedule</Text>
         </View>
-        {/* Schedule area */}
         <View style={styles.dashboardAreaStyle}>
+
         <View style={styles.tabNavigation}>
                     {["Past", "Today", "Future"].map((tab) => (
                         <TouchableOpacity key={tab} onPress={() => setSelectedTab(tab)}>
