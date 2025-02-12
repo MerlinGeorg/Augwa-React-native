@@ -5,6 +5,7 @@ import SearchBar from "../components/SearchBar";
 import { getBooking } from "../components/Schedule";
 import { augwaBlue,dashboardArea } from "../assets/styles/color";
 import { Ionicons } from '@expo/vector-icons';
+
 import { AuthContext } from '../src/context/AuthContext';
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -30,6 +31,7 @@ const ScheduleScreen = (props) => {
     const [filtersearch, setFilterSearch] = useState([])
 
     const [selectedTab, setSelectedTab] = useState("Today");
+
     const { authToken } = useContext(AuthContext);
 
     useEffect(() => {
@@ -72,7 +74,6 @@ const ScheduleScreen = (props) => {
 };
 
 
-
 return (
     <View style = {[styles.viewStyle]}>
         <View style = {{ backgroundColor: augwaBlue, marginTop:40}}>
@@ -95,6 +96,7 @@ return (
             </TouchableOpacity>
           <SearchBar/>
           </View>
+
           <ScrollView style={{ flex: 1, marginBottom: 20 }}>
                     {loading ? (
                         <Text style={{ textAlign: "center", marginTop: 20, fontSize: 16 }}>
