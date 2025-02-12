@@ -12,7 +12,7 @@ import React, { useState } from 'react';
 import SignupScreen from './screens/SignupScreen';
 import LoginScreen from './screens/LogInScreen';
 import DashboardScreen from './screens/DashboardScreen';
-import ScheduleScreen from './screens/ScheduleScreen';
+import ScheduleScreen from './screens/ScheduleScreen.js';
 import { augwaBlue } from './assets/styles/color';
 
 // Create navigators
