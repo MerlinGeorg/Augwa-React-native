@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         top: 5,
         flex: 1
-    }
+    },
 })
 
 export default SearchBar;

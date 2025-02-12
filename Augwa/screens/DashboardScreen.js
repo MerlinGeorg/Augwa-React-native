@@ -1,41 +1,113 @@
-import React, { useState, useEffect } from 'react';
-import {
-  TouchableWithoutFeedback, View, StyleSheet, TextInput, Keyboard,
-  KeyboardAvoidingView, Platform, Text, TouchableOpacity, Button,
-  alert, SafeAreaView,
-} from 'react-native';
+import React, { useState, useEffect} from 'react';
+import axios from "axios"
+import {View, StyleSheet, Text, TouchableOpacity, } from 'react-native';
 import { useContext } from 'react';
 import { AuthContext } from '../src/context/AuthContext';
-import Logo from '../assets/images/app_logo.svg'
 import { ScrollView } from 'react-native-gesture-handler';
-import {
-  buttonTextColor, errorGrey,
-  errorRed, primaryColor, successGreen,
-  textInputBorderColor, augwaBlue, dashboardArea, navigateColor
-} from "../assets/styles/color";
+import { API_BASEPATH_DEV, X_DOMAIN } from '@env';
+import {augwaBlue, dashboardArea, navigateColor} from "../assets/styles/color";
 import Message from '../components/Message'
+// import Dashboard from '../components/Dashboard'
 import BellIcon from '../components/BellIcon'
 import Ionicons from '@expo/vector-icons/Ionicons';
-import axios from "axios"
-const DashboardScreen = ({route, navigation}) => {
+
+const DashboardScreen = ({ route, navigation }) => {
   const [username, setUsername] = useState('')
   // initially job is not started
   const [jobStart, setJobStart] = useState(false)
-  const {authToken} = useContext(AuthContext)
-  console.log("authtoken:", authToken);
+  const { authToken } = useContext(AuthContext) // get token from
+  //console.log("authtoken:", authToken);
+  const [scheduleData, setScheduleData] = useState(null)
+  const [error, setError] = useState(null)
+
+  const api = axios.create({
+    baseURL: API_BASEPATH_DEV,
+    headers: {
+        'Content-Type': 'application/json',
+        'X-Domain': X_DOMAIN  // Ensure this header is correct
+    }
+});
+
+  useEffect(() => {
+    if (authToken) {
+      console.log('Fetching with token: ', authToken)
+      fetchJoblist()
+    }
+    else {
+      console.log("Now token available")
+      setError('Authentication required')
+    }
+  }, [authToken])
+  // useEffect(()=>{
+  //   if(scheduleData){
+  //     console.log('Processing schedule data...')
+  //     process
+  //   }
+  // }
+
+  // )
+
+  const fetchJoblist = async () => {
+    try {
+      if (!authToken) {
+        throw new Error("No authentication token available");
+      }
+      
+      console.log('Making request to:', `${API_BASEPATH_DEV}/Booking`);
+      console.log('Headers:', {
+        'Authorization': `Bearer ${authToken.substring(0, 10)}...` // Log first 10 chars only
+      });
+  
+      const response = await api.get(`${API_BASEPATH_DEV}/Booking`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      
+      setScheduleData(response.data);
+    } catch (error) {
+      if (error.response) {
+        // Server responded with error
+        console.error('Error Response Data:', error.response.data);
+        console.error('Error Response Status:', error.response.status);
+        console.error('Error Response Headers:', error.response.headers);
+        setError(`Server Error: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
+      } else if (error.request) {
+        // Request made but no response
+        console.error('Error Request:', error.request);
+        setError('No response received from server');
+      } else {
+        // Error setting up request
+        console.error('Error Message:', error.message);
+        setError(`Error: ${error.message}`);
+      }
+    }
+  };
+  // console.log(scheduleData)
+  // only prints out with jdahan account
+  // to get client's address
+  // console.log(scheduleData?.results?.[0]?.address);
+  // to get the staff information
+  console.log(scheduleData?.results?.[0]?.staff);
+  // this is what staff obkect looks like:
+  // [{"calendarId": "494264a7-f9b9-4df6-a03f-c8f8c1eb53a8", 
+  //   "staff": {"accountLinked": true, "availability": [Array], 
+  //     "calendar": [Array], "emailAddress": "qyu39@my.centennialcollege.ca", 
+  //     "emailAddressStatus": "Unverifed", "firstName": "qianhui", 
+  //     "id": "7487cc7b-c0e5-4aae-98d5-dd65b00067cb", "lastName": "yu", 
+  //     "phoneNumber": "1111111111", "phoneNumberExtension": "", 
+  //     "phoneNumberStatus": "Unverifed", "roleId": "293e37be-40a7-4c91-964d-5e62dfde3e18", 
+  //     "status": "Active"}}]
   
 
-  // this is just an example
-  // fetch('https://api.example.com/jobs', {
-  //   method: 'GET',
-  //   headers: {
-  //     'Authorization': `Bearer ${token}`, // Sending token in the request
-  //   }
-  // })
+
+
   return (
     <View style={[styles.viewStyle]}>
       {/* view for the top blue part */}
-      <View style={{ backgroundColor: augwaBlue, marginTop: 70}}>
+      <View style={{ backgroundColor: augwaBlue, marginTop: 70 }}>
         <View style={styles.greetingArea}>
           <Text style={styles.greetings}>Welcome, </Text>
 
@@ -67,8 +139,8 @@ const DashboardScreen = ({route, navigation}) => {
         {/* jd,  btn */}
         <View style={{ flexDirection: 'row', marginTop: 20, marginLeft: 9 }}>
           <View style={styles.jobDescribtionStyle}>
-            <Text style={styles.jobDescribtionText} Display time>
-              here to display the job decription
+            <Text style={styles.jobDescribtionText}>
+              display here
             </Text>
           </View>
           <View style={{ flexDirection: 'column', marginLeft: 12 }}>
@@ -207,7 +279,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     height: 70,
   },
-  performanceStyle:{
+  performanceStyle: {
     backgroundColor: "#fff",
     width: 150,
     height: 110,
@@ -218,35 +290,3 @@ const styles = StyleSheet.create({
 
 })
 export default DashboardScreen
-{/* <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        bounces={false}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled">
-        <View style={{ marginTop: 30 }}>
-          <Logo style={styles.logoStyle} />
-          <Text style={styles.textTitleStyle}>Welcome To Augwa</Text>
-        </View>
-
-
-        <TouchableOpacity style={styles.btnPsw} >
-          <Text style={styles.bluBtntext}>Forgot Password ?</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={{
-          marginTop: 50, width: 340, height: 45, borderRadius: 8,
-          alignSelf: "center", backgroundColor: "#2D4059", justifyContent: "center",
-          alignItems: "center"
-        }} >
-          <Text style={{
-            textAlign: "center", padding: "auto",
-            fontSize: 23, color: '#ffffff'
-          }}>SIGN IN</Text>
-        </TouchableOpacity>
-        <View style={styles.signupView}>
-          <Text style={{ fontSize: 17, color: '5F5F5F' }}>Don't have an account?</Text>
-          <TouchableOpacity >
-            <Text style={styles.bluBtntext}>  Sign up</Text>
-          </TouchableOpacity>
-        </View>
-
-      </ScrollView> */}

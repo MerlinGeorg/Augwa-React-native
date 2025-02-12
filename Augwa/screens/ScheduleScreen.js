@@ -20,11 +20,13 @@ const Tabbar = ({ tabName }) => {
   }
 };
 
+
 const ScheduleScreen = (props) => {
     const [schedule, setSchedule] = useState([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
     const [filtersearch, setFilterSearch] = useState([])
+
     const [selectedTab, setSelectedTab] = useState("Today");
 
     const tab = createBottomTabNavigator();
@@ -35,8 +37,8 @@ return (
         <View style = {{ backgroundColor: augwaBlue, marginTop:40}}>
             <Text style = {[styles.Title]}>Schedule</Text>
         </View>
-        {/* Schedule area */}
         <View style={styles.dashboardAreaStyle}>
+
         <View style={styles.tabNavigation}>
                     <TouchableOpacity onPress={() => setSelectedTab("Past")}>
                        <Text style={selectedTab === "Past" ? styles.selectedTab : styles.tabText}>Past</Text> 
