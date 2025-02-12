@@ -1,11 +1,12 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
+import base64 from 'base-64';
 import axios from "axios"
-import {View, StyleSheet, Text, TouchableOpacity, } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, } from 'react-native';
 import { useContext } from 'react';
 import { AuthContext } from '../src/context/AuthContext';
 import { ScrollView } from 'react-native-gesture-handler';
 import { API_BASEPATH_DEV, X_DOMAIN } from '@env';
-import {augwaBlue, dashboardArea, errorRed, navigateColor} from "../assets/styles/color";
+import { augwaBlue, dashboardArea, errorRed, navigateColor } from "../assets/styles/color";
 import Message from '../components/Message'
 // import Dashboard from '../components/Dashboard'
 import BellIcon from '../components/BellIcon'
@@ -16,7 +17,7 @@ const DashboardScreen = ({ route, navigation }) => {
   // initially job is not started
   const [jobStart, setJobStart] = useState(false)
   const { authToken } = useContext(AuthContext) // get token from
-  const {userName} = useContext(AuthContext)
+  const { userName } = useContext(AuthContext)
   //console.log("authtoken:", authToken);
   const [scheduleData, setScheduleData] = useState(null)
   const [error, setError] = useState(null)
@@ -24,18 +25,10 @@ const DashboardScreen = ({ route, navigation }) => {
   const api = axios.create({
     baseURL: API_BASEPATH_DEV,
     headers: {
-        'Content-Type': 'application/json',
-        'X-Domain': X_DOMAIN  // Ensure this header is correct
+      'Content-Type': 'application/json',
+      'X-Domain': X_DOMAIN  // Ensure this header is correct
     }
   });
-
-  const username = route.params?.toDashboard;
-  console.log(`passed username: ${username}`)
-
-
-
-  
-
   useEffect(() => {
     if (authToken) {
       console.log('Fetching with token: ', authToken)
@@ -54,22 +47,39 @@ const DashboardScreen = ({ route, navigation }) => {
   // }
 
   // )
+  // decode method
+  const decodeJWT = (token) => {
+    try {
+      const [header, payload, signature] = token.split('.');
+      // handles playload token
+      const decodedPayload = base64.decode(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      return JSON.parse(decodedPayload);
+    } catch (error) {
+      console.error('Failed decode:', error);
+      return null;
+    }
+  };
+
+  const payload = decodeJWT(authToken);
+  const accountID = payload.StaffId
+  // console.log(payload);
+  console.log(`account id: ${accountID}`);
   /////////////////// naviagte to schedule///////////////////
-  // const gotoSchedule = ()=>{
-  //   navigation.navigate("schedule")
-  // }
+  const gotoSchedule = () => {
+    navigation.navigate("schedule")
+  }
   //////////////////////////////////////////////////////////
   const fetchJoblist = async () => {
     try {
       if (!authToken) {
         throw new Error("No authentication token available");
       }
-      
+
       console.log('Making request to:', `${API_BASEPATH_DEV}/Booking`);
       console.log('Headers:', {
         'Authorization': `Bearer ${authToken.substring(0, 10)}...` // Log first 10 chars only
       });
-  
+
       const response = await api.get('/Booking', {
         headers: {
           'Authorization': `Bearer ${authToken}`,
@@ -77,7 +87,6 @@ const DashboardScreen = ({ route, navigation }) => {
           'Accept': 'application/json'
         }
       });
-      
       setScheduleData(response.data);
     } catch (error) {
       if (error.response) {
@@ -102,7 +111,7 @@ const DashboardScreen = ({ route, navigation }) => {
   // to get client's address
   // console.log(scheduleData?.results?.[0]?.address);
   // to get the staff information
-  console.log(scheduleData?.results?.[0]?.staff);
+  // console.log(scheduleData?.results?.[0]?.staff);
   // this is what staff obkect looks like:
   // [{"calendarId": "494264a7-f9b9-4df6-a03f-c8f8c1eb53a8", 
   //   "staff": {"accountLinked": true, "availability": [Array], 
@@ -112,13 +121,17 @@ const DashboardScreen = ({ route, navigation }) => {
   //     "phoneNumber": "1111111111", "phoneNumberExtension": "", 
   //     "phoneNumberStatus": "Unverifed", "roleId": "293e37be-40a7-4c91-964d-5e62dfde3e18", 
   //     "status": "Active"}}]
-  console.log(scheduleData?.results);
-  // sort the start time in accesding order:
-  
-  
-
-
-
+  // const staffSchedule = scheduleData?.results.filter(staff => staff.StaffId == accountID)
+  //console.log(scheduleData?.results.filter(staff => staff?.StaffId == accountID));
+  // a function to filter the received data by decoded staff id
+  // console.log(scheduleData.results[0].staff) // get the stuff from schedule
+  const matchedSchedules = scheduleData?.results?.filter((schedule) => {
+    // check staff staff.id
+    return schedule.staff?.some((staffEntry) =>
+      staffEntry?.staff?.id === accountID
+    );
+  }) || [];
+  console.log(matchedSchedules)
   return (
     <View style={[styles.viewStyle]}>
       {/* view for the top blue part */}
@@ -155,8 +168,10 @@ const DashboardScreen = ({ route, navigation }) => {
         <View style={{ flexDirection: 'row', marginTop: 20, marginLeft: 9 }}>
           <View style={styles.jobDescribtionStyle}>
             <Text style={styles.jobDescribtionText}>
-              {/* display the first only */}
-            {scheduleData?.results?.[0].address} {scheduleData?.results?.[0].startDate} 
+              {matchedSchedules?.[0] ?
+                `${matchedSchedules[0].address} ${matchedSchedules[0].startDate}` :
+                'No scheduled jobs'
+              }
             </Text>
           </View>
           <View style={{ flexDirection: 'column', marginLeft: 12 }}>
@@ -177,14 +192,14 @@ const DashboardScreen = ({ route, navigation }) => {
         {/* section upcoming job view */}
         <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: 20 }}>
           <Text style={styles.sectionTitle}>Upcoming Jobs</Text>
-          <TouchableOpacity style={{ marginLeft: 150, marginTop: 5 }}>
+          <TouchableOpacity style={{ marginLeft: 150, marginTop: 5 }} onPress={gotoSchedule}>
             <Text style={styles.bluBtntext}>View all</Text>
           </TouchableOpacity>
         </View>
         <ScrollView horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollContainer}>
-          {scheduleData?.results.map((item, index) => (
+          {matchedSchedules.slice(1).map((item, index) => (
             <View key={index} style={[styles.jobDescribtionStyle]}>
               <Text style={styles.jobDescribtionText}>{item.address} {item.startDate}</Text>
             </View>
