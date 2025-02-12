@@ -12,10 +12,11 @@ import BellIcon from '../components/BellIcon'
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 const DashboardScreen = ({ route, navigation }) => {
-  const [username, setUsername] = useState('')
+  // const [username, setUsername] = useState('')
   // initially job is not started
   const [jobStart, setJobStart] = useState(false)
   const { authToken } = useContext(AuthContext) // get token from
+  const {userName} = useContext(AuthContext)
   //console.log("authtoken:", authToken);
   const [scheduleData, setScheduleData] = useState(null)
   const [error, setError] = useState(null)
@@ -26,7 +27,14 @@ const DashboardScreen = ({ route, navigation }) => {
         'Content-Type': 'application/json',
         'X-Domain': X_DOMAIN  // Ensure this header is correct
     }
-});
+  });
+
+  const username = route.params?.toDashboard;
+  console.log(`passed username: ${username}`)
+
+
+
+  
 
   useEffect(() => {
     if (authToken) {
@@ -46,7 +54,11 @@ const DashboardScreen = ({ route, navigation }) => {
   // }
 
   // )
-
+  /////////////////// naviagte to schedule///////////////////
+  // const gotoSchedule = ()=>{
+  //   navigation.navigate("schedule")
+  // }
+  //////////////////////////////////////////////////////////
   const fetchJoblist = async () => {
     try {
       if (!authToken) {
@@ -58,7 +70,7 @@ const DashboardScreen = ({ route, navigation }) => {
         'Authorization': `Bearer ${authToken.substring(0, 10)}...` // Log first 10 chars only
       });
   
-      const response = await api.get(`${API_BASEPATH_DEV}/Booking`, {
+      const response = await api.get('/Booking', {
         headers: {
           'Authorization': `Bearer ${authToken}`,
           'Content-Type': 'application/json',
@@ -128,7 +140,7 @@ const DashboardScreen = ({ route, navigation }) => {
         {/* end of information area */}
 
         {/* display username */}
-        <Text style={styles.usernameStyle}>Display name here !</Text>
+        <Text style={styles.usernameStyle}> {userName} !</Text>
       </View>
 
       {/* beginning of the dashboard view */}
