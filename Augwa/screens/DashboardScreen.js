@@ -5,7 +5,7 @@ import { useContext } from 'react';
 import { AuthContext } from '../src/context/AuthContext';
 import { ScrollView } from 'react-native-gesture-handler';
 import { API_BASEPATH_DEV, X_DOMAIN } from '@env';
-import {augwaBlue, dashboardArea, navigateColor} from "../assets/styles/color";
+import {augwaBlue, dashboardArea, errorRed, navigateColor} from "../assets/styles/color";
 import Message from '../components/Message'
 // import Dashboard from '../components/Dashboard'
 import BellIcon from '../components/BellIcon'
@@ -37,7 +37,7 @@ const DashboardScreen = ({ route, navigation }) => {
       console.log("Now token available")
       setError('Authentication required')
     }
-  }, [authToken])
+  }, [])
   // useEffect(()=>{
   //   if(scheduleData){
   //     console.log('Processing schedule data...')
@@ -100,6 +100,9 @@ const DashboardScreen = ({ route, navigation }) => {
   //     "phoneNumber": "1111111111", "phoneNumberExtension": "", 
   //     "phoneNumberStatus": "Unverifed", "roleId": "293e37be-40a7-4c91-964d-5e62dfde3e18", 
   //     "status": "Active"}}]
+  console.log(scheduleData?.results);
+  // sort the start time in accesding order:
+  
   
 
 
@@ -133,14 +136,15 @@ const DashboardScreen = ({ route, navigation }) => {
         {/* section title view */}
         <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: 20 }}>
           <Text style={styles.sectionTitle}>Current Job</Text>
-          <Text style={styles.timeTitle}>Job Time</Text>
+          <Text style={styles.timeTitle}>{scheduleData?.results?.[0].startDate}</Text>
         </View>
         {/* end of section title view */}
         {/* jd,  btn */}
         <View style={{ flexDirection: 'row', marginTop: 20, marginLeft: 9 }}>
           <View style={styles.jobDescribtionStyle}>
             <Text style={styles.jobDescribtionText}>
-              display here
+              {/* display the first only */}
+            {scheduleData?.results?.[0].address}
             </Text>
           </View>
           <View style={{ flexDirection: 'column', marginLeft: 12 }}>
@@ -168,9 +172,9 @@ const DashboardScreen = ({ route, navigation }) => {
         <ScrollView horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollContainer}>
-          {["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"].map((item, index) => (
+          {scheduleData?.results.map((item, index) => (
             <View key={index} style={[styles.jobDescribtionStyle]}>
-              <Text style={styles.jobDescribtionText}>{item}</Text>
+              <Text style={styles.jobDescribtionText}>{item.address}</Text>
             </View>
           ))}
         </ScrollView>
@@ -180,7 +184,7 @@ const DashboardScreen = ({ route, navigation }) => {
         <ScrollView horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollContainer}>
-          {["Item 1", "Item 2", "Item 3", "Item 4", "Item 5"].map((item, index) => (
+          {["Today's tasks", "Weekly tasks", "Item 3", "Item 4", "Item 5"].map((item, index) => (
             <View key={index} style={[styles.performanceStyle]}>
               <Text style={styles.jobDescribtionText}>{item}</Text>
             </View>
@@ -239,8 +243,10 @@ const styles = StyleSheet.create({
   timeTitle: {
     color: '#000',
     marginTop: 5,
-    marginLeft: 150,
-    fontSize: 16
+    marginLeft: 80,
+    fontSize: 16,
+    color: augwaBlue,
+    fontWeight: '500'
 
   },
   jobDescribtionStyle: {
@@ -251,6 +257,8 @@ const styles = StyleSheet.create({
     marginLeft: 10
   },
   jobDescribtionText: {
+    marginTop: 10,
+    marginLeft: 5,
     fontSize: 16
 
   },
