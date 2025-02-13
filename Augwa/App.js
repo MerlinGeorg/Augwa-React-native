@@ -33,11 +33,10 @@ const LoginStack = () => {
       <Stack.Screen name="login" component={LoginScreen} />
       <Stack.Screen name="signup" component={SignupScreen} />
       <Stack.Screen name="biometrysuccess" component={SuccessScreen} />
-      <Stack.Screen 
-        name="dashboard" 
-        component={DashboardTabs}
+      <Stack.Screen name="dashboard" component={DashboardTabs}
         options={{ gestureEnabled: false }} // Prevent going back to login
       />
+      <Stack.Screen name = "schedule" component={ScheduleScreen} />
     </Stack.Navigator>
   );
 };
