@@ -337,9 +337,10 @@ const DashboardScreen = ({ route, navigation }) => {
         <ScrollView horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollContainer}>
-          {[`Todays' Task: ${todayTaskList.length}`, "Weekly tasks", "Item 3", "Item 4", "Item 5"].map((item, index) => (
+          {[`Today's tasks: `, "Weekly tasks ",].map((item, index) => (
             <View key={index} style={[styles.performanceStyle]}>
-              <Text style={styles.jobDescribtionText}>{item}</Text>
+              <Text style = {styles.sectionTitle}>{item}</Text>
+              <Text style={styles.sectionTitle}>{todayTaskList.length}</Text>
             </View>
           ))}
         </ScrollView>
