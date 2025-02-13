@@ -15,7 +15,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 const DashboardScreen = ({ route, navigation }) => {
   // const [username, setUsername] = useState('')
   // initially job is not started
-  const [jobStart, setJobStart] = useState(false)
+  const [jobStatus, setJobStatus] = useState('')
   const { authToken } = useContext(AuthContext) // get token from
   const { userName } = useContext(AuthContext)
   //console.log("authtoken:", authToken);
@@ -70,7 +70,7 @@ const DashboardScreen = ({ route, navigation }) => {
   }
   //////////////////////////////////////////////////////////
   const fetchJoblist = async () => {
-    
+
     try {
       if (!authToken) {
         throw new Error("No authentication token available");
@@ -92,8 +92,8 @@ const DashboardScreen = ({ route, navigation }) => {
             'Accept': 'application/json'
           }
         });
-        if (response.data.results.length > 0){
-      
+        if (response.data.results.length > 0) {
+
           allResults = [...allResults, ...response.data.results]
           page++
         } else {
@@ -111,7 +111,7 @@ const DashboardScreen = ({ route, navigation }) => {
       //   }
       // });
       // setScheduleData(response.data.results);
-      
+
 
     } catch (error) {
       if (error.response) {
@@ -154,13 +154,13 @@ const DashboardScreen = ({ route, navigation }) => {
   today.setHours(0, 0, 0, 0)
   const matchedSchedules = scheduleData?.filter((schedule) => {
     const isStatusValid = schedule?.status === "Scheduled";
-  const hasMatchingStaff = schedule?.staff?.some((task) => 
-    task?.staff?.id === accountID
-  ) || false;
-  const startDate = schedule?.startDate ? new Date(schedule.startDate) : null;
-  const isDateValid = startDate ? startDate > today : false;
+    const hasMatchingStaff = schedule?.staff?.some((task) =>
+      task?.staff?.id === accountID
+    ) || false;
+    const startDate = schedule?.startDate ? new Date(schedule.startDate) : null;
+    const isDateValid = startDate ? startDate > today : false;
 
-  return isStatusValid && hasMatchingStaff && isDateValid;
+    return isStatusValid && hasMatchingStaff && isDateValid;
     // check staff staff.id
     // return schedule.staff?.some((staffEntry) =>
     //   staffEntry?.staff?.id === accountID
@@ -168,9 +168,62 @@ const DashboardScreen = ({ route, navigation }) => {
   }) || [];
   console.log("total schedules length:", scheduleData?.length);
   //console.log(matchedSchedules)
-  console.log(scheduleData)
+  //console.log(scheduleData)
   console.log("Matched schedules length:", matchedSchedules?.length);
+  // button click to start the job
+  // since current job is always the first
   
+  const current = matchedSchedules[0]
+// handle if this is null
+//  console.log(`current task id: ${current.id}`)
+  const changeStatus = async () => {
+    try {
+      if (current.status === 'Scheduled') {
+        const response = await api.patch(`/Booking/${current.id}`, 
+          {status: 'InProgress'},
+          {
+            headers: {
+              'Authorization': `Bearer ${authToken}`,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            }
+
+          }
+          
+        );
+      }
+      else if (current.status === 'InProgress') {
+        const response = await api.patch(`/Booking/${current.id}`, 
+          {status: 'Completed'},
+        {
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+
+        })
+      }
+    } catch (error) {
+      if (error.response) {
+        console.error("Error Response Status:", error.response.status);
+        console.error("Error Response Data:", error.response.data); // Important: Check this
+        console.error("Error Response Headers:", error.response.headers);
+        setError(`Server Error: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
+      } else if (error.request) {
+        console.error("No response received:", error.request);
+        setError("No response received from server");
+      } else {
+        console.error("Request setup error:", error.message);
+        setError(`Request Error: ${error.message}`);
+      }
+    }
+
+
+
+
+  }
+
   return (
     <View style={[styles.viewStyle]}>
       {/* view for the top blue part */}
@@ -208,13 +261,15 @@ const DashboardScreen = ({ route, navigation }) => {
           <View style={styles.jobDescribtionStyle}>
             <Text style={styles.jobDescribtionText}>
               {matchedSchedules?.[0] ?
-                `${matchedSchedules[0].address} ${matchedSchedules[0].startDate}` :
+                `${matchedSchedules[0].address} ${matchedSchedules[0].startDate}
+                Status: ${matchedSchedules[0].status}` :
                 'No scheduled jobs'
               }
             </Text>
           </View>
           <View style={{ flexDirection: 'column', marginLeft: 12 }}>
-            <TouchableOpacity style={[styles.btnStyle, { backgroundColor: augwaBlue }]}>
+            <TouchableOpacity style={[styles.btnStyle, { backgroundColor: augwaBlue }]}
+            onPress={changeStatus}>
               <Text style={{ fontSize: 20, color: "white" }}>
                 START JOB</Text>
             </TouchableOpacity>
@@ -240,7 +295,9 @@ const DashboardScreen = ({ route, navigation }) => {
           contentContainerStyle={styles.scrollContainer}>
           {matchedSchedules.slice(1).map((item, index) => (
             <View key={index} style={[styles.jobDescribtionStyle]}>
-              <Text style={styles.jobDescribtionText}>{item.address} {item.startDate}</Text>
+              <Text style={styles.jobDescribtionText}>{item.address} {item.startDate}
+                {item.status}
+              </Text>
             </View>
           ))}
         </ScrollView>
