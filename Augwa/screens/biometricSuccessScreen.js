@@ -1,7 +1,20 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+} from "react-native";
+import {
+  lightText,
+  successGreen,
+  titleBlack,
+} from "../assets/styles/color";
+import CustomButton from "../components/CustomButton";
+import { scaleSize, moderateScale, calculatePercentageHeight } from "../utils/scaling";
 
-const SuccessScreen = ({navigation}) => {
+const SuccessScreen = ({ navigation, route }) => {
+  const { biometricType } = route.params;
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
@@ -13,20 +26,20 @@ const SuccessScreen = ({navigation}) => {
         </View>
 
         {/* Text Content */}
-        <Text style={styles.title}>Face ID is now set up.</Text>
+        <Text style={styles.title}>{biometricType} is now set up.</Text>
         <Text style={styles.subtitle}>
-          Registration complete!{'\n'}
-          You can now log in with Face ID or{'\n'}
+          Registration complete!{"\n"}
+          You can now log in with {biometricType} or{"\n"}
           your credentials.
         </Text>
 
         {/* Button */}
-        <TouchableOpacity 
-          style={styles.button}
-          onPress={()=>navigation.replace('dashboard')}
-        >
-          <Text style={styles.buttonText}>Start Using the App</Text>
-        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <CustomButton
+            title="Start Using the App"
+            onPress={() => navigation.replace("dashboard")}
+          />
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -35,58 +48,51 @@ const SuccessScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   content: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
+    paddingTop: calculatePercentageHeight(20), //20%=height*0.2
+    alignItems: "center",
+    justifyContent: "flex-start",
+    flexGrow: 1,
+    paddingHorizontal: scaleSize(24),
   },
   iconContainer: {
-    marginBottom: 24,
+    marginBottom: scaleSize(24),
   },
   circle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#34C759',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: scaleSize(80),
+    height: scaleSize(80),
+    borderRadius: scaleSize(40),
+    backgroundColor: successGreen,
+    alignItems: "center",
+    justifyContent: "center",
   },
   checkmark: {
-    color: 'white',
-    fontSize: 40,
-    fontWeight: 'bold',
+    color: "white",
+    fontSize: moderateScale(40),
+    fontWeight: "bold",
   },
   title: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 12,
-    textAlign: 'center',
-    color: '#000',
+    fontSize: moderateScale(20),
+    fontWeight: "600",
+    marginBottom: scaleSize(12),
+    textAlign: "center",
+    color: titleBlack,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 32,
+    fontSize: moderateScale(16),
+    color: lightText,
+    textAlign: "center",
+    lineHeight: scaleSize(22),
+    marginBottom: scaleSize(32),
   },
-  button: {
-    backgroundColor: '#2C3E50',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-    width: '100%',
-    marginTop: 'auto',
-    marginBottom: 32,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
+  buttonContainer: {
+    flex: 1,
+    width: "100%",
+    justifyContent: "flex-end", // Aligns the button to the bottom
+     marginBottom: scaleSize(32)
   },
 });
 
