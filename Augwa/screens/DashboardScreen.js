@@ -151,6 +151,7 @@ const DashboardScreen = ({ route, navigation }) => {
   // a function to filter the received data by decoded staff id
   // console.log(scheduleData.results[0].staff) // get the stuff from schedule
   const today = new Date();
+  let numTaskToday = 0
   today.setHours(0, 0, 0, 0)
   const matchedSchedules = scheduleData?.filter((schedule) => {
     const isStatusValid = schedule?.status === "Scheduled";
@@ -159,7 +160,6 @@ const DashboardScreen = ({ route, navigation }) => {
     ) || false;
     const startDate = schedule?.startDate ? new Date(schedule.startDate) : null;
     const isDateValid = startDate ? startDate > today : false;
-
     return isStatusValid && hasMatchingStaff && isDateValid;
     // check staff staff.id
     // return schedule.staff?.some((staffEntry) =>
@@ -172,10 +172,26 @@ const DashboardScreen = ({ route, navigation }) => {
   console.log("Matched schedules length:", matchedSchedules?.length);
   // button click to start the job
   // since current job is always the first
-  
+  const countTodayTask = ()=>{
+    let numTaskToday = 0
+    const today = new Date();
+    today.setHours(0, 0, 0, 0)
+    matchedSchedules.forEach((schedule) => {
+      const startDate = schedule?.startDate ? new Date(schedule.startDate) : null;
+      if (startDate) {
+        startDate.setHours(0, 0, 0, 0); // Normalize startDate to midnight
+    
+        if (startDate.getTime() === today.getTime()) {
+          numTaskToday++; // Count tasks for today
+        }
+      }
+    })
+    return numTaskToday
+  }
+  console.log(`number of tasks: ${countTodayTask()}`)
   const current = matchedSchedules[0]
 // handle if this is null
-//  console.log(`current task id: ${current.id}`)
+  // console.log(`current task: ${current.id}`)
   const changeStatus = async () => {
     try {
       if (current.status === 'Scheduled') {
@@ -307,7 +323,7 @@ const DashboardScreen = ({ route, navigation }) => {
         <ScrollView horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollContainer}>
-          {["Today's tasks", "Weekly tasks", "Item 3", "Item 4", "Item 5"].map((item, index) => (
+          {["countTodayTask()", "Weekly tasks", "Item 3", "Item 4", "Item 5"].map((item, index) => (
             <View key={index} style={[styles.performanceStyle]}>
               <Text style={styles.jobDescribtionText}>{item}</Text>
             </View>
