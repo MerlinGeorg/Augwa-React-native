@@ -70,6 +70,7 @@ const DashboardScreen = ({ route, navigation }) => {
   }
   //////////////////////////////////////////////////////////
   const fetchJoblist = async () => {
+    
     try {
       if (!authToken) {
         throw new Error("No authentication token available");
@@ -80,14 +81,38 @@ const DashboardScreen = ({ route, navigation }) => {
         'Authorization': `Bearer ${authToken.substring(0, 10)}...` // Log first 10 chars only
       });
 
-      const response = await api.get('/Booking', {
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+      let allResults = []
+      let page = 1
+      let hasMoreData = true
+      while (hasMoreData) {
+        const response = await api.get(`/Booking?page=${page}`, {
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        });
+        if (response.data.results.length > 0){
+      
+          allResults = [...allResults, ...response.data.results]
+          page++
+        } else {
+          hasMoreData = false
         }
-      });
-      setScheduleData(response.data);
+      }
+      console.log(`All result: ${allResults}`)
+      setScheduleData(allResults)
+
+      // const response = await api.get('/Booking', {
+      //   headers: {
+      //     'Authorization': `Bearer ${authToken}`,
+      //     'Content-Type': 'application/json',
+      //     'Accept': 'application/json'
+      //   }
+      // });
+      // setScheduleData(response.data.results);
+      
+
     } catch (error) {
       if (error.response) {
         // Server responded with error
@@ -125,13 +150,17 @@ const DashboardScreen = ({ route, navigation }) => {
   //console.log(scheduleData?.results.filter(staff => staff?.StaffId == accountID));
   // a function to filter the received data by decoded staff id
   // console.log(scheduleData.results[0].staff) // get the stuff from schedule
-  const matchedSchedules = scheduleData?.results?.filter((schedule) => {
+  const matchedSchedules = scheduleData?.filter((schedule) => {
     // check staff staff.id
     return schedule.staff?.some((staffEntry) =>
       staffEntry?.staff?.id === accountID
     );
   }) || [];
-  console.log(matchedSchedules)
+  console.log("total schedules length:", scheduleData?.length);
+  //console.log(matchedSchedules)
+  console.log(scheduleData)
+  console.log("Matched schedules length:", matchedSchedules?.length);
+  
   return (
     <View style={[styles.viewStyle]}>
       {/* view for the top blue part */}
