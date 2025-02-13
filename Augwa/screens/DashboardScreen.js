@@ -150,11 +150,21 @@ const DashboardScreen = ({ route, navigation }) => {
   //console.log(scheduleData?.results.filter(staff => staff?.StaffId == accountID));
   // a function to filter the received data by decoded staff id
   // console.log(scheduleData.results[0].staff) // get the stuff from schedule
+  const today = new Date();
+  today.setHours(0, 0, 0, 0)
   const matchedSchedules = scheduleData?.filter((schedule) => {
+    const isStatusValid = schedule?.status === "Scheduled";
+  const hasMatchingStaff = schedule?.staff?.some((task) => 
+    task?.staff?.id === accountID
+  ) || false;
+  const startDate = schedule?.startDate ? new Date(schedule.startDate) : null;
+  const isDateValid = startDate ? startDate > today : false;
+
+  return isStatusValid && hasMatchingStaff && isDateValid;
     // check staff staff.id
-    return schedule.staff?.some((staffEntry) =>
-      staffEntry?.staff?.id === accountID
-    );
+    // return schedule.staff?.some((staffEntry) =>
+    //   staffEntry?.staff?.id === accountID
+    // );
   }) || [];
   console.log("total schedules length:", scheduleData?.length);
   //console.log(matchedSchedules)
