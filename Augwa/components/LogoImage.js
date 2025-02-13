@@ -3,10 +3,10 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Logo from '../assets/images/app_logo.svg';
 
-const LogoImage = () => {
+const LogoImage = ({ style }) => {
     return (
        
-            <Logo  />
+            <Logo style={[styles.logo, style]} />
         
     );
 }
@@ -16,10 +16,10 @@ const styles = StyleSheet.create({
     //     marginTop: 30, // Adjust based on your design
     //     alignItems: 'center', // Centers the logo horizontally
     // },
-    // logoStyle: {
-    //     width: 100,
-    //     height: 100,
-    // },
+    logo: {
+        width: '100%', // Adjust as needed
+        height: '100%', // Adjust as needed
+      },
 });
 
 export default LogoImage;

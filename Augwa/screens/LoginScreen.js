@@ -60,8 +60,8 @@ const LoginScreen = (props) => {
         if (result.success) {
           await SecureStore.setItemAsync('authToken', result.data.token);
           setAuthToken(result.data.token);
-          // props.navigation.navigate('dashboard');
-          props.navigation.navigate('dashboard')
+          Alert.alert('Success', 'You have successfully loggedin.');
+          props.navigation.navigate('dashboard');
         } else {
           Alert.alert('Error', 'Biometric authentication failed. Please login with your credentials.');
         }
@@ -89,6 +89,7 @@ const LoginScreen = (props) => {
         await SecureStore.setItemAsync('authToken', result.data.token);
         setAuthToken(result.data.token);
         setUserName(userName)
+        Alert.alert('Success', 'You have successfully loggedin.');
         props.navigation.navigate('dashboard');
       } else {
         switch (result.error.code) {
