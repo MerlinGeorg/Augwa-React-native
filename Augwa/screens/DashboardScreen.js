@@ -15,7 +15,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 const DashboardScreen = ({ route, navigation }) => {
   // const [username, setUsername] = useState('')
   // initially job is not started
-  const [jobStart, setJobStart] = useState(false)
+  const [jobStatus, setJobStatus] = useState('')
   const { authToken } = useContext(AuthContext) // get token from
   const { userName } = useContext(AuthContext)
   //console.log("authtoken:", authToken);
@@ -70,6 +70,7 @@ const DashboardScreen = ({ route, navigation }) => {
   }
   //////////////////////////////////////////////////////////
   const fetchJoblist = async () => {
+
     try {
       if (!authToken) {
         throw new Error("No authentication token available");
@@ -80,14 +81,38 @@ const DashboardScreen = ({ route, navigation }) => {
         'Authorization': `Bearer ${authToken.substring(0, 10)}...` // Log first 10 chars only
       });
 
-      const response = await api.get('/Booking', {
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+      let allResults = []
+      let page = 1
+      let hasMoreData = true
+      while (hasMoreData) {
+        const response = await api.get(`/Booking?page=${page}`, {
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        });
+        if (response.data.results.length > 0) {
+
+          allResults = [...allResults, ...response.data.results]
+          page++
+        } else {
+          hasMoreData = false
         }
-      });
-      setScheduleData(response.data);
+      }
+      console.log(`All result: ${allResults}`)
+      setScheduleData(allResults)
+
+      // const response = await api.get('/Booking', {
+      //   headers: {
+      //     'Authorization': `Bearer ${authToken}`,
+      //     'Content-Type': 'application/json',
+      //     'Accept': 'application/json'
+      //   }
+      // });
+      // setScheduleData(response.data.results);
+
+
     } catch (error) {
       if (error.response) {
         // Server responded with error
@@ -125,13 +150,96 @@ const DashboardScreen = ({ route, navigation }) => {
   //console.log(scheduleData?.results.filter(staff => staff?.StaffId == accountID));
   // a function to filter the received data by decoded staff id
   // console.log(scheduleData.results[0].staff) // get the stuff from schedule
-  const matchedSchedules = scheduleData?.results?.filter((schedule) => {
+  const today = new Date();
+  let numTaskToday = 0
+  today.setHours(0, 0, 0, 0)
+  const matchedSchedules = scheduleData?.filter((schedule) => {
+    const isStatusValid = schedule?.status === "Scheduled";
+    const hasMatchingStaff = schedule?.staff?.some((task) =>
+      task?.staff?.id === accountID
+    ) || false;
+    const startDate = schedule?.startDate ? new Date(schedule.startDate) : null;
+    const isDateValid = startDate ? startDate > today : false;
+    return isStatusValid && hasMatchingStaff && isDateValid;
     // check staff staff.id
-    return schedule.staff?.some((staffEntry) =>
-      staffEntry?.staff?.id === accountID
-    );
+    // return schedule.staff?.some((staffEntry) =>
+    //   staffEntry?.staff?.id === accountID
+    // );
   }) || [];
-  console.log(matchedSchedules)
+  console.log("total schedules length:", scheduleData?.length);
+  //console.log(matchedSchedules)
+  //console.log(scheduleData)
+  console.log("Matched schedules length:", matchedSchedules?.length);
+  // button click to start the job
+  // since current job is always the first
+  const countTodayTask = ()=>{
+    let numTaskToday = 0
+    const today = new Date();
+    today.setHours(0, 0, 0, 0)
+    matchedSchedules.forEach((schedule) => {
+      const startDate = schedule?.startDate ? new Date(schedule.startDate) : null;
+      if (startDate) {
+        startDate.setHours(0, 0, 0, 0); // Normalize startDate to midnight
+    
+        if (startDate.getTime() === today.getTime()) {
+          numTaskToday++; // Count tasks for today
+        }
+      }
+    })
+    return numTaskToday
+  }
+  console.log(`number of tasks: ${countTodayTask()}`)
+  const current = matchedSchedules[0]
+// handle if this is null
+  // console.log(`current task: ${current.id}`)
+  const changeStatus = async () => {
+    try {
+      if (current.status === 'Scheduled') {
+        const response = await api.patch(`/Booking/${current.id}`, 
+          {status: 'InProgress'},
+          {
+            headers: {
+              'Authorization': `Bearer ${authToken}`,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            }
+
+          }
+          
+        );
+      }
+      else if (current.status === 'InProgress') {
+        const response = await api.patch(`/Booking/${current.id}`, 
+          {status: 'Completed'},
+        {
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+
+        })
+      }
+    } catch (error) {
+      if (error.response) {
+        console.error("Error Response Status:", error.response.status);
+        console.error("Error Response Data:", error.response.data); // Important: Check this
+        console.error("Error Response Headers:", error.response.headers);
+        setError(`Server Error: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
+      } else if (error.request) {
+        console.error("No response received:", error.request);
+        setError("No response received from server");
+      } else {
+        console.error("Request setup error:", error.message);
+        setError(`Request Error: ${error.message}`);
+      }
+    }
+
+
+
+
+  }
+
   return (
     <View style={[styles.viewStyle]}>
       {/* view for the top blue part */}
@@ -169,13 +277,15 @@ const DashboardScreen = ({ route, navigation }) => {
           <View style={styles.jobDescribtionStyle}>
             <Text style={styles.jobDescribtionText}>
               {matchedSchedules?.[0] ?
-                `${matchedSchedules[0].address} ${matchedSchedules[0].startDate}` :
+                `${matchedSchedules[0].address} ${matchedSchedules[0].startDate}
+                Status: ${matchedSchedules[0].status}` :
                 'No scheduled jobs'
               }
             </Text>
           </View>
           <View style={{ flexDirection: 'column', marginLeft: 12 }}>
-            <TouchableOpacity style={[styles.btnStyle, { backgroundColor: augwaBlue }]}>
+            <TouchableOpacity style={[styles.btnStyle, { backgroundColor: augwaBlue }]}
+            onPress={changeStatus}>
               <Text style={{ fontSize: 20, color: "white" }}>
                 START JOB</Text>
             </TouchableOpacity>
@@ -201,7 +311,9 @@ const DashboardScreen = ({ route, navigation }) => {
           contentContainerStyle={styles.scrollContainer}>
           {matchedSchedules.slice(1).map((item, index) => (
             <View key={index} style={[styles.jobDescribtionStyle]}>
-              <Text style={styles.jobDescribtionText}>{item.address} {item.startDate}</Text>
+              <Text style={styles.jobDescribtionText}>{item.address} {item.startDate}
+                {item.status}
+              </Text>
             </View>
           ))}
         </ScrollView>
@@ -211,7 +323,7 @@ const DashboardScreen = ({ route, navigation }) => {
         <ScrollView horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollContainer}>
-          {["Today's tasks", "Weekly tasks", "Item 3", "Item 4", "Item 5"].map((item, index) => (
+          {["countTodayTask()", "Weekly tasks", "Item 3", "Item 4", "Item 5"].map((item, index) => (
             <View key={index} style={[styles.performanceStyle]}>
               <Text style={styles.jobDescribtionText}>{item}</Text>
             </View>
