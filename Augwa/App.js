@@ -33,11 +33,10 @@ const LoginStack = () => {
       <Stack.Screen name="login" component={LoginScreen} />
       <Stack.Screen name="signup" component={SignupScreen} />
       <Stack.Screen name="biometrysuccess" component={SuccessScreen} />
-      <Stack.Screen 
-        name="dashboard" 
-        component={DashboardTabs}
+      <Stack.Screen name="dashboard" component={DashboardTabs}
         options={{ gestureEnabled: false }} // Prevent going back to login
       />
+      <Stack.Screen name = "schedule" component={ScheduleScreen} />
     </Stack.Navigator>
   );
 };
@@ -122,8 +121,9 @@ const DashboardTabs = () => {
 // Main App Component
 export default function App() {
   const [authToken, setAuthToken] = useState(null)
+  const [userName, setUserName] = useState(null)
   return (
-    <AuthContext.Provider value = {{authToken, setAuthToken}}>
+    <AuthContext.Provider value = {{authToken, setAuthToken, userName, setUserName}}>
       <SafeAreaProvider>
         <NavigationContainer>
           <StatusBar style="light" />
