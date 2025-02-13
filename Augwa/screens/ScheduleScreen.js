@@ -8,7 +8,6 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { AuthContext } from '../src/context/AuthContext';
 
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 const Tabbar = ({ tabName }) => {
   switch (tabName) {
@@ -43,7 +42,10 @@ const ScheduleScreen = (props) => {
       setLoading(true);
       const result = await getBooking(authToken);
       if (result.success) {
-          setSchedule(result.data);  // Store fetched bookings
+        console.log("Fetched bookings:", result.data);
+        const assignedBookings = result.data.filter(booking => booking.assignedTo === user.id);
+        console.log("Assigned bookings:", assignedBookings); 
+        setSchedule(assignedBookings);
       } else {
           console.error("Error fetching bookings:", result.error);
       }

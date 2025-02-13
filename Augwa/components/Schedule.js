@@ -1,63 +1,59 @@
 import axios from "axios";
-import { API_BASEPATH_DEV,X_DOMAIN } from '@env';
-import { AuthContext } from "../src/context/AuthContext";
+import { API_BASEPATH_DEV, X_DOMAIN } from "@env";
 
 const api = axios.create({
     baseURL: API_BASEPATH_DEV,
     headers: {
-        'Content-Type': 'application/json',
-        'X_domain': X_DOMAIN
-    }
+        "Content-Type": "application/json",
+        "X-Domain": X_DOMAIN, // Ensure this matches API expectations
+    },
 });
 
-// Fetch the jobs only for logged-in user
+// Fetch bookings assigned to the logged-in user
 export const getBooking = async (authToken) => {
+    if (!authToken) {
+        return {
+            success: false,
+            error: { message: "Authentication token not provided", code: "NO_AUTH" },
+        };
+    }
+
     try {
         console.log("Fetching Bookings...");
-        
-        if (!authToken) {
-            throw new Error("Authentication token not found");
-        }
 
-
-        const response = await api.get('/Booking',{
+        const response = await api.get("/Booking", {
             headers: {
                 Authorization: `Bearer ${authToken}`,
             },
         });
 
-        console.log("Assigned Booking fetched", response.status);
+        console.log("Assigned Bookings fetched", response.status);
         return {
             success: true,
-            data: response.data
+            data: response.data,
         };
     } catch (error) {
-        console.error("Error fetching", error);
+        console.error("Error fetching bookings:", error);
+
         if (error.response) {
             const { status, data } = error.response;
-            switch(status) {
-                case 400:
-                    return {
-                        success: false,
-                        error: {
-                            message: data.message|| 'Bad Request',
-                            code: 'BAD_REQUEST'
-                        }
-                    };
-                case 401: 
-                    return {
-                        success: false,
-                        error: {
-                            message: data.message|| 'Unauthorized',
-                            code: 'UNAUTHORIZED'
-                        }
-                }
-                default:
-                        return {
-                            success: false,
-                            error: { message: data.message || 'Error fetching bookings', code: 'API_ERROR' }
-                        };
-            }
+
+            return {
+                success: false,
+                error: {
+                    message: data.message || "Error fetching bookings",
+                    code: status === 400 ? "BAD_REQUEST" :
+                          status === 401 ? "UNAUTHORIZED" : "API_ERROR",
+                },
+            };
+        } else {
+            return {
+                success: false,
+                error: {
+                    message: "Network error or server unreachable",
+                    code: "NETWORK_ERROR",
+                },
+            };
         }
     }
-}
+};
