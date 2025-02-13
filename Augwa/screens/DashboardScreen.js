@@ -11,6 +11,7 @@ import Message from '../components/Message'
 // import Dashboard from '../components/Dashboard'
 import BellIcon from '../components/BellIcon'
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { isSearchBarAvailableForCurrentPlatform } from 'react-native-screens';
 
 const DashboardScreen = ({ route, navigation }) => {
   // const [username, setUsername] = useState('')
@@ -172,6 +173,20 @@ const DashboardScreen = ({ route, navigation }) => {
   console.log("Matched schedules length:", matchedSchedules?.length);
   // button click to start the job
   // since current job is always the first
+  const todayTaskList = (matchedSchedules || []).filter((schedule) => {
+    if (!schedule?.startDate) return false; // Skip if startDate is null or undefined
+  
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+  
+    const startDate = new Date(schedule.startDate);
+    startDate.setHours(0, 0, 0, 0); // Normalize startDate to avoid time mismatches
+  
+    return startDate.getTime() === today.getTime();
+  });
+  // console.log(todayTaskList)
+  const current = todayTaskList[0]
+  console.log(current)
   const countTodayTask = ()=>{
     let numTaskToday = 0
     const today = new Date();
@@ -189,9 +204,9 @@ const DashboardScreen = ({ route, navigation }) => {
     return numTaskToday
   }
   console.log(`number of tasks: ${countTodayTask()}`)
-  const current = matchedSchedules[0]
+  
 // handle if this is null
-  // console.log(`current task: ${current.id}`)
+// console.log(`current task: ${current}`)
   const changeStatus = async () => {
     try {
       if (current.status === 'Scheduled') {
@@ -276,10 +291,9 @@ const DashboardScreen = ({ route, navigation }) => {
         <View style={{ flexDirection: 'row', marginTop: 20, marginLeft: 9 }}>
           <View style={styles.jobDescribtionStyle}>
             <Text style={styles.jobDescribtionText}>
-              {matchedSchedules?.[0] ?
-                `${matchedSchedules[0].address} ${matchedSchedules[0].startDate}
-                Status: ${matchedSchedules[0].status}` :
-                'No scheduled jobs'
+              {` ${todayTaskList[0]?.address} ${todayTaskList[0]?.startDate}
+              Status: ${todayTaskList[0]?.status}`
+               
               }
             </Text>
           </View>
@@ -311,9 +325,9 @@ const DashboardScreen = ({ route, navigation }) => {
           contentContainerStyle={styles.scrollContainer}>
           {matchedSchedules.slice(1).map((item, index) => (
             <View key={index} style={[styles.jobDescribtionStyle]}>
-              <Text style={styles.jobDescribtionText}>{item.address} {item.startDate}
-                {item.status}
-              </Text>
+              <Text style={styles.jobDescribtionText}>{item.address} {item.startDate}</Text> 
+              {/* <Text style={styles.jobDescribtionText}> {item.startDate}</Text> */}
+              <Text style={styles.jobDescribtionText}> {item.status}</Text>
             </View>
           ))}
         </ScrollView>
@@ -323,9 +337,10 @@ const DashboardScreen = ({ route, navigation }) => {
         <ScrollView horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollContainer}>
-          {["countTodayTask()", "Weekly tasks", "Item 3", "Item 4", "Item 5"].map((item, index) => (
+          {[`Today's tasks: `, "Weekly tasks ",].map((item, index) => (
             <View key={index} style={[styles.performanceStyle]}>
-              <Text style={styles.jobDescribtionText}>{item}</Text>
+              <Text style = {styles.sectionTitle}>{item}</Text>
+              <Text style={styles.sectionTitle}>{todayTaskList.length}</Text>
             </View>
           ))}
         </ScrollView>
