@@ -1,33 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import { AuthContext } from '../src/context/AuthContext';
-import { useContext } from 'react';
+import React, { useState, useEffect } from "react";
+import { AuthContext } from "../src/context/AuthContext";
+import { useContext } from "react";
 import {
-  TouchableWithoutFeedback, View, StyleSheet, TextInput, Keyboard,
-  KeyboardAvoidingView, Platform, Text, TouchableOpacity,
-  Alert, SafeAreaView, Modal
-} from 'react-native';
-import * as SecureStore from 'expo-secure-store';
+  TouchableWithoutFeedback,
+  View,
+  StyleSheet,
+  TextInput,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Text,
+  TouchableOpacity,
+  Alert,
+  SafeAreaView,
+  Modal,
+} from "react-native";
+import * as SecureStore from "expo-secure-store";
 import { FontAwesome5 } from "react-native-vector-icons";
 import sharedStyleSheet from "../assets/styles/SharedStyles";
 import Login from "../components/Login";
-import Logo from '../assets/images/app_logo.svg';
-import { ScrollView } from 'react-native-gesture-handler';
-import { buttonTextColor, errorGrey, errorRed, primaryColor, successGreen, textInputBorderColor, iconColor } from "../assets/styles/color";
-import { useNavigation } from '@react-navigation/native';
+import Logo from "../assets/images/app_logo.svg";
+import { ScrollView } from "react-native-gesture-handler";
+import {
+  buttonTextColor,
+  errorGrey,
+  errorRed,
+  primaryColor,
+  successGreen,
+  textInputBorderColor,
+  iconColor,
+} from "../assets/styles/color";
+import { useNavigation } from "@react-navigation/native";
 import { BiometricAuth } from "../components/BiometricAuth";
 
 const LoginScreen = (props) => {
-  const {setAuthToken} = useContext(AuthContext);
-  const {setUserName} = useContext(AuthContext) // newly added for username
+  const { setAuthToken } = useContext(AuthContext);
+  const { setUserName } = useContext(AuthContext); // newly added for username
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [userName, setUserNameInput] = useState('');
-  const [password, setPassword] = useState('');
+  const [error, setError] = useState("");
+  const [userName, setUserNameInput] = useState("");
+  const [password, setPassword] = useState("");
   const [biometricType, setBiometricType] = useState(null);
   const [isBiometricAvailable, setIsBiometricAvailable] = useState(false);
   const [showBiometricSetup, setShowBiometricSetup] = useState(false);
   const navigation = useNavigation();
-
+  const canEnableBiometric =
+    userName.trim() !== "" && password.trim() !== "" && !isBiometricAvailable;
 
   useEffect(() => {
     checkBiometricSupport();
@@ -42,14 +60,17 @@ const LoginScreen = (props) => {
         console.log("isBiometricAvailable:", support.isEnabled);
       }
     } catch (error) {
-      console.error('Error checking biometric support:', error);
+      console.error("Error checking biometric support:", error);
     }
   };
 
   const handleBiometricLogin = async () => {
     try {
+      if (!isBiometricAvailable && !canEnableBiometric) {
+        return;
+      }
       const support = await BiometricAuth.checkBiometricSupport();
-      
+
       // If biometrics is supported but not enabled, show setup modal
       if (support.supported && !support.isEnabled) {
         setShowBiometricSetup(true);
@@ -60,21 +81,27 @@ const LoginScreen = (props) => {
         // Use the stored credentials to login
         const result = await Login.login({
           username: credentials.username,
-          password: credentials.password
+          password: credentials.password,
         });
 
         if (result.success) {
-          await SecureStore.setItemAsync('authToken', result.data.token);
+          await SecureStore.setItemAsync("authToken", result.data.token);
           setAuthToken(result.data.token);
-          Alert.alert('Success', 'You have successfully loggedin.');
-          props.navigation.navigate('dashboard');
+          Alert.alert("Success", "You have successfully loggedin.");
+          props.navigation.navigate("dashboard");
         } else {
-          Alert.alert('Error', 'Biometric authentication failed. Please login with your credentials.');
+          Alert.alert(
+            "Error",
+            "Biometric authentication failed. Please login with your credentials."
+          );
         }
       }
     } catch (error) {
-      console.error('Biometric login error:', error);
-      Alert.alert('Error', 'Biometric authentication failed. Please try again or use your credentials.');
+      console.error("Biometric login error:", error);
+      Alert.alert(
+        "Error",
+        "Biometric authentication failed. Please try again or use your credentials."
+      );
     }
   };
 
@@ -83,7 +110,7 @@ const LoginScreen = (props) => {
       // First verify credentials before enabling biometric
       const result = await Login.login({
         username: userName,
-        password: password
+        password: password,
       });
 
       if (result.success) {
@@ -91,55 +118,66 @@ const LoginScreen = (props) => {
         if (success) {
           setShowBiometricSetup(false);
           setIsBiometricAvailable(true);
-          Alert.alert('Success', 'Biometric authentication has been enabled.');
+          Alert.alert("Success", "Biometric authentication has been enabled.");
         } else {
-          Alert.alert('Error', 'Failed to enable biometric authentication. Please try again.');
+          Alert.alert(
+            "Error",
+            "Failed to enable biometric authentication. Please try again."
+          );
         }
       } else {
-        Alert.alert('Error', 'Please enter valid credentials before enabling biometric authentication.');
+        Alert.alert(
+          "Error",
+          "Please enter valid credentials before enabling biometric authentication."
+        );
       }
     } catch (error) {
-      console.error('Biometric setup error:', error);
-      Alert.alert('Error', 'Could not enable biometric authentication. Please ensure it is set up on your device.');
+      console.error("Biometric setup error:", error);
+      Alert.alert(
+        "Error",
+        "Could not enable biometric authentication. Please ensure it is set up on your device."
+      );
     }
   };
 
-  const handleLogin = async() => {
+  const handleLogin = async () => {
     const credentials = {
       username: userName,
-      password: password
+      password: password,
     };
-    
+
     try {
       if (!credentials.username || !credentials.password) {
         Alert.alert("Please fill in all fields!");
         return;
       }
-      
+
       const result = await Login.login(credentials);
-      if(result.success) {
-        await SecureStore.setItemAsync('authToken', result.data.token);
+      if (result.success) {
+        await SecureStore.setItemAsync("authToken", result.data.token);
         setAuthToken(result.data.token);
-        setUserName(userName)
-        Alert.alert('Success', 'You have successfully loggedin.');
-        props.navigation.navigate('dashboard');
+        setUserName(userName);
+        Alert.alert("Success", "You have successfully loggedin.");
+        props.navigation.navigate("dashboard");
       } else {
         switch (result.error.code) {
-          case 'INVALID_CREDENTIALS':
-            Alert.alert('Incorrect username or password');
+          case "INVALID_CREDENTIALS":
+            Alert.alert("Incorrect username or password");
             break;
-          case 'ACCOUNT_UNVARIED':
-            Alert.alert('Please verify your account');
+          case "ACCOUNT_UNVARIED":
+            Alert.alert("Please verify your account");
             break;
-          case 'NETWORK_ERROR':
-            Alert.alert('Unable to connect to server, please check your Internet connection');
+          case "NETWORK_ERROR":
+            Alert.alert(
+              "Unable to connect to server, please check your Internet connection"
+            );
             break;
           default:
-            Alert.alert('Login failed, please try again');
+            Alert.alert("Login failed, please try again");
         }
       }
-    } catch(error) {
-      console.error('System error:', error);
+    } catch (error) {
+      console.error("System error:", error);
       Alert.alert("A system error occurred, Restart the app");
     }
   };
@@ -148,37 +186,26 @@ const LoginScreen = (props) => {
     props.navigation.navigate("signup");
   };
 
-  // const clearAllCredentials = async () => {
-  //   try {
-  //     await SecureStore.deleteItemAsync('user_credentials');
-  //     await SecureStore.deleteItemAsync('biometrics_enabled');
-  //     await SecureStore.deleteItemAsync('authToken');
-  //     // Force a re-check of biometric status
-  //     checkBiometricSupport();
-  //     Alert.alert('Success', 'All credentials cleared');
-  //   } catch (error) {
-  //     console.error('Error clearing credentials:', error);
-  //     Alert.alert('Error', 'Failed to clear credentials');
-  //   }
-  // };
   return (
     <SafeAreaView style={styles.viewStyle}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-          <ScrollView 
+          <ScrollView
             contentContainerStyle={styles.scrollContent}
             bounces={false}
             showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled">
+            keyboardShouldPersistTaps="handled"
+          >
             <View style={{ marginTop: 30 }}>
               <Logo style={styles.logoStyle} />
               <Text style={styles.textTitleStyle}>Welcome To Augwa</Text>
             </View>
 
             {/* {isBiometricAvailable && ( */}
-              <TouchableOpacity
+            {/* <TouchableOpacity
                 style={styles.biometricButton}
                 onPress={handleBiometricLogin}
               >
@@ -190,15 +217,56 @@ const LoginScreen = (props) => {
                 <Text style={styles.biometricText}>
                   Login with {biometricType === 'faceId' ? 'Face ID' : 'Fingerprint'}
                 </Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             {/* )} */}
 
-            <View style={{marginTop: 20}}>
+            <TouchableOpacity
+              style={[
+                styles.biometricButton,
+                !canEnableBiometric &&
+                  !isBiometricAvailable &&
+                  styles.biometricButtonDisabled,
+              ]}
+              onPress={handleBiometricLogin}
+              disabled={!canEnableBiometric && !isBiometricAvailable}
+            >
+              <FontAwesome5
+                name={
+                  biometricType === "faceId"
+                    ? "face-recognition"
+                    : "fingerprint"
+                }
+                size={24}
+                color={
+                  !canEnableBiometric && !isBiometricAvailable
+                    ? errorGrey
+                    : iconColor
+                }
+              />
+              <Text
+                style={[
+                  styles.biometricText,
+                  !canEnableBiometric &&
+                    !isBiometricAvailable &&
+                    styles.biometricTextDisabled,
+                ]}
+              >
+                {isBiometricAvailable
+                  ? `Login with ${
+                      biometricType === "faceId" ? "Face ID" : "Fingerprint"
+                    }`
+                  : `Enable ${
+                      biometricType === "faceId" ? "Face ID" : "Fingerprint"
+                    } Login`}
+              </Text>
+            </TouchableOpacity>
+
+            <View style={{ marginTop: 20 }}>
               <TextInput
                 style={styles.inputView}
                 value={userName}
                 onChangeText={setUserNameInput}
-                placeholder='Username: ' 
+                placeholder="Username: "
                 placeholderTextColor={textInputBorderColor}
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -208,7 +276,7 @@ const LoginScreen = (props) => {
                 style={styles.inputView}
                 value={password}
                 onChangeText={setPassword}
-                placeholder='Password: '
+                placeholder="Password: "
                 placeholderTextColor={textInputBorderColor}
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -227,24 +295,24 @@ const LoginScreen = (props) => {
               disabled={loading}
             >
               <Text style={styles.signInButtonText}>
-                {loading ? 'SIGNING IN...' : 'SIGN IN'}
+                {loading ? "SIGNING IN..." : "SIGN IN"}
               </Text>
             </TouchableOpacity>
 
             <View style={styles.signupView}>
-              <Text style={{ fontSize: 17, color: '#5F5F5F' }}>
+              <Text style={{ fontSize: 17, color: "#5F5F5F" }}>
                 Don't have an account?
               </Text>
               <TouchableOpacity onPress={jumpToSignUp}>
-                <Text style={styles.bluBtntext}>  Sign up</Text>
+                <Text style={styles.bluBtntext}> Sign up</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
 
-       {/* Biometric Setup Modal */}
-       <Modal
+      {/* Biometric Setup Modal */}
+      <Modal
         visible={showBiometricSetup}
         transparent={true}
         animationType="fade"
@@ -253,25 +321,28 @@ const LoginScreen = (props) => {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <FontAwesome5
-              name={biometricType === 'faceId' ? "smile-beam" : "fingerprint"}
+              name={biometricType === "faceId" ? "smile-beam" : "fingerprint"}
               size={45}
               color={iconColor}
               style={styles.biometricIcon}
             />
 
             <Text style={styles.modalTitle}>
-              Enable {biometricType === 'faceId' ? 'Face ID' : 'Fingerprint'}?
+              Enable {biometricType === "faceId" ? "Face ID" : "Fingerprint"}?
             </Text>
             <Text style={styles.modalText}>
-              Would you like to enable {biometricType === 'faceId' ? 'Face ID' : 'fingerprint'} authentication for faster login?
+              Would you like to enable{" "}
+              {biometricType === "faceId" ? "Face ID" : "fingerprint"}{" "}
+              authentication for faster login?
             </Text>
 
-            <TouchableOpacity 
-              style={styles.modalButton} 
+            <TouchableOpacity
+              style={styles.modalButton}
               onPress={enableBiometric}
             >
               <Text style={styles.modalButtonText}>
-                Yes, enable {biometricType === 'faceId' ? 'Face ID' : 'fingerprint'}
+                Yes, enable{" "}
+                {biometricType === "faceId" ? "Face ID" : "fingerprint"}
               </Text>
             </TouchableOpacity>
 
@@ -285,14 +356,25 @@ const LoginScreen = (props) => {
         </View>
       </Modal>
 
+{/* Temporary Reset Biometric button */}
       {__DEV__ && (
-  <TouchableOpacity 
-    style={[styles.signInButton, { marginTop: 10, backgroundColor: 'red' }]}
-    onPress={BiometricAuth.removeBiometric}
-  >
-    <Text style={styles.signInButtonText}>Reset Biometric (Dev Only)</Text>
-  </TouchableOpacity>
-)}
+        <TouchableOpacity
+          style={[
+            styles.signInButton,
+            { marginTop: 10, backgroundColor: "red" },
+          ]}
+          onPress={async () => {
+            await BiometricAuth.removeBiometric();
+            checkBiometricSupport();
+            Alert.alert("Success", "Biometric credentials removed");
+          }}
+        >
+          <Text style={styles.signInButtonText}>
+            Reset Biometric (Dev Only)
+          </Text>
+        </TouchableOpacity>
+      )}
+
     </SafeAreaView>
   );
 };
@@ -304,7 +386,7 @@ const styles = StyleSheet.create({
   logoStyle: {
     width: 100,
     height: 100,
-    alignSelf: 'center',
+    alignSelf: "center",
   },
   viewStyle: {
     flex: 1,
@@ -325,7 +407,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     fontSize: 16,
     marginTop: 15,
-    alignSelf: 'center',
+    alignSelf: "center",
     borderColor: textInputBorderColor,
     paddingHorizontal: 15,
   },
@@ -335,27 +417,12 @@ const styles = StyleSheet.create({
   },
   bluBtntext: {
     fontSize: 17,
-    color: '#177de1',
+    color: "#177de1",
   },
   signupView: {
     marginTop: 10,
-    flexDirection: 'row',
-    alignSelf: 'center',
-  },
-  biometricButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 15,
-    marginHorizontal: 20,
-    borderRadius: 8,
-    backgroundColor: '#f5f5f5',
-    marginTop: 10,
-  },
-  biometricText: {
-    marginLeft: 10,
-    fontSize: 16,
-    color: '#333',
+    flexDirection: "row",
+    alignSelf: "center",
   },
   signInButton: {
     marginTop: 50,
@@ -370,7 +437,7 @@ const styles = StyleSheet.create({
   signInButtonText: {
     textAlign: "center",
     fontSize: 23,
-    color: '#ffffff',
+    color: "#ffffff",
   },
   modalContainer: {
     flex: 1,
@@ -421,7 +488,29 @@ const styles = StyleSheet.create({
   },
   biometricIcon: {
     marginBottom: 20,
-  }
+  },
+  biometricButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 15,
+    marginHorizontal: 20,
+    borderRadius: 8,
+    backgroundColor: "#f5f5f5",
+    marginTop: 10,
+  },
+  biometricButtonDisabled: {
+    backgroundColor: "#f0f0f0",
+    opacity: 0.7,
+  },
+  biometricText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: "#333",
+  },
+  biometricTextDisabled: {
+    color: errorGrey,
+  },
 });
 
 export default LoginScreen;
