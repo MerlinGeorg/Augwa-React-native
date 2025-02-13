@@ -4,7 +4,7 @@ import { useContext } from 'react';
 import {
   TouchableWithoutFeedback, View, StyleSheet, TextInput, Keyboard,
   KeyboardAvoidingView, Platform, Text, TouchableOpacity,
-  Alert, SafeAreaView,
+  Alert, SafeAreaView, Modal
 } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { FontAwesome5 } from "react-native-vector-icons";
@@ -25,6 +25,7 @@ const LoginScreen = (props) => {
   const [password, setPassword] = useState('');
   const [biometricType, setBiometricType] = useState(null);
   const [isBiometricAvailable, setIsBiometricAvailable] = useState(false);
+  const [showBiometricSetup, setShowBiometricSetup] = useState(false);
   const navigation = useNavigation();
 
 
@@ -37,10 +38,8 @@ const LoginScreen = (props) => {
       const support = await BiometricAuth.checkBiometricSupport();
       if (support.supported) {
         setBiometricType(support.biometryType);
-        // Change this line to use the correct key
-        const hasBiometricEnabled = await SecureStore.getItemAsync('biometrics_enabled');
-        setIsBiometricAvailable(!!hasBiometricEnabled);
-        console.log("isBiometricAvailable:", !!hasBiometricEnabled);
+        setIsBiometricAvailable(support.isEnabled);
+        console.log("isBiometricAvailable:", support.isEnabled);
       }
     } catch (error) {
       console.error('Error checking biometric support:', error);
@@ -49,8 +48,15 @@ const LoginScreen = (props) => {
 
   const handleBiometricLogin = async () => {
     try {
+      const support = await BiometricAuth.checkBiometricSupport();
+      
+      // If biometrics is supported but not enabled, show setup modal
+      if (support.supported && !support.isEnabled) {
+        setShowBiometricSetup(true);
+        return;
+      }
       const credentials = await BiometricAuth.authenticateWithBiometric();
-      if (credentials) {
+      if (credentials && credentials.success) {
         // Use the stored credentials to login
         const result = await Login.login({
           username: credentials.username,
@@ -69,6 +75,32 @@ const LoginScreen = (props) => {
     } catch (error) {
       console.error('Biometric login error:', error);
       Alert.alert('Error', 'Biometric authentication failed. Please try again or use your credentials.');
+    }
+  };
+
+  const enableBiometric = async () => {
+    try {
+      // First verify credentials before enabling biometric
+      const result = await Login.login({
+        username: userName,
+        password: password
+      });
+
+      if (result.success) {
+        const success = await BiometricAuth.enableBiometric(userName, password);
+        if (success) {
+          setShowBiometricSetup(false);
+          setIsBiometricAvailable(true);
+          Alert.alert('Success', 'Biometric authentication has been enabled.');
+        } else {
+          Alert.alert('Error', 'Failed to enable biometric authentication. Please try again.');
+        }
+      } else {
+        Alert.alert('Error', 'Please enter valid credentials before enabling biometric authentication.');
+      }
+    } catch (error) {
+      console.error('Biometric setup error:', error);
+      Alert.alert('Error', 'Could not enable biometric authentication. Please ensure it is set up on your device.');
     }
   };
 
@@ -116,6 +148,19 @@ const LoginScreen = (props) => {
     props.navigation.navigate("signup");
   };
 
+  // const clearAllCredentials = async () => {
+  //   try {
+  //     await SecureStore.deleteItemAsync('user_credentials');
+  //     await SecureStore.deleteItemAsync('biometrics_enabled');
+  //     await SecureStore.deleteItemAsync('authToken');
+  //     // Force a re-check of biometric status
+  //     checkBiometricSupport();
+  //     Alert.alert('Success', 'All credentials cleared');
+  //   } catch (error) {
+  //     console.error('Error clearing credentials:', error);
+  //     Alert.alert('Error', 'Failed to clear credentials');
+  //   }
+  // };
   return (
     <SafeAreaView style={styles.viewStyle}>
       <KeyboardAvoidingView
@@ -132,7 +177,7 @@ const LoginScreen = (props) => {
               <Text style={styles.textTitleStyle}>Welcome To Augwa</Text>
             </View>
 
-            {isBiometricAvailable && (
+            {/* {isBiometricAvailable && ( */}
               <TouchableOpacity
                 style={styles.biometricButton}
                 onPress={handleBiometricLogin}
@@ -146,7 +191,7 @@ const LoginScreen = (props) => {
                   Login with {biometricType === 'faceId' ? 'Face ID' : 'Fingerprint'}
                 </Text>
               </TouchableOpacity>
-            )}
+            {/* )} */}
 
             <View style={{marginTop: 20}}>
               <TextInput
@@ -197,6 +242,57 @@ const LoginScreen = (props) => {
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
+
+       {/* Biometric Setup Modal */}
+       <Modal
+        visible={showBiometricSetup}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowBiometricSetup(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <FontAwesome5
+              name={biometricType === 'faceId' ? "smile-beam" : "fingerprint"}
+              size={45}
+              color={iconColor}
+              style={styles.biometricIcon}
+            />
+
+            <Text style={styles.modalTitle}>
+              Enable {biometricType === 'faceId' ? 'Face ID' : 'Fingerprint'}?
+            </Text>
+            <Text style={styles.modalText}>
+              Would you like to enable {biometricType === 'faceId' ? 'Face ID' : 'fingerprint'} authentication for faster login?
+            </Text>
+
+            <TouchableOpacity 
+              style={styles.modalButton} 
+              onPress={enableBiometric}
+            >
+              <Text style={styles.modalButtonText}>
+                Yes, enable {biometricType === 'faceId' ? 'Face ID' : 'fingerprint'}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.modalCancelButton}
+              onPress={() => setShowBiometricSetup(false)}
+            >
+              <Text style={styles.modalCancelButtonText}>Not now</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {__DEV__ && (
+  <TouchableOpacity 
+    style={[styles.signInButton, { marginTop: 10, backgroundColor: 'red' }]}
+    onPress={BiometricAuth.removeBiometric}
+  >
+    <Text style={styles.signInButtonText}>Reset Biometric (Dev Only)</Text>
+  </TouchableOpacity>
+)}
     </SafeAreaView>
   );
 };
@@ -276,6 +372,56 @@ const styles = StyleSheet.create({
     fontSize: 23,
     color: '#ffffff',
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+    width: "100%",
+    maxHeight: "50%",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  modalButton: {
+    backgroundColor: "#2D4059",
+    padding: 10,
+    borderRadius: 8,
+    width: "100%",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  modalButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  modalCancelButton: {
+    padding: 10,
+    borderRadius: 10,
+    width: "100%",
+    alignItems: "center",
+  },
+  modalCancelButtonText: {
+    color: "#555",
+    fontSize: 16,
+  },
+  biometricIcon: {
+    marginBottom: 20,
+  }
 });
 
 export default LoginScreen;
