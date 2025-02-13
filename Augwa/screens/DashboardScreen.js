@@ -291,8 +291,9 @@ const DashboardScreen = ({ route, navigation }) => {
         <View style={{ flexDirection: 'row', marginTop: 20, marginLeft: 9 }}>
           <View style={styles.jobDescribtionStyle}>
             <Text style={styles.jobDescribtionText}>
-              {`${current.address} ${current.startDate}
-                Status: ${current.status}` 
+              {` ${todayTaskList[0]?.address} ${todayTaskList[0]?.startDate}
+              Status: ${todayTaskList[0]?.status}`
+               
               }
             </Text>
           </View>
@@ -324,9 +325,9 @@ const DashboardScreen = ({ route, navigation }) => {
           contentContainerStyle={styles.scrollContainer}>
           {matchedSchedules.slice(1).map((item, index) => (
             <View key={index} style={[styles.jobDescribtionStyle]}>
-              <Text style={styles.jobDescribtionText}>{item.address} {item.startDate}
-                {item.status}
-              </Text>
+              <Text style={styles.jobDescribtionText}>{item.address} {item.startDate}</Text> 
+              {/* <Text style={styles.jobDescribtionText}> {item.startDate}</Text> */}
+              <Text style={styles.jobDescribtionText}> {item.status}</Text>
             </View>
           ))}
         </ScrollView>
