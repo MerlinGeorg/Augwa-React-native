@@ -7,20 +7,6 @@ import { augwaBlue,dashboardArea } from "../assets/styles/color";
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../src/context/AuthContext';
 
-/*const Tabbar = ({ tabName }) => {
-  switch (tabName) {
-    case "Past":
-      return <Text>Past</Text>;
-    case "Today":
-      return <Text>Today</Text>;
-    case "Future":
-      return <Text>Future</Text>;
-    default: 
-      return <Text>Today</Text>
-  }
-};}
-*/
-
 
 const ScheduleScreen = (props) => {
     const [schedule, setSchedule] = useState([])
@@ -30,14 +16,24 @@ const ScheduleScreen = (props) => {
     const [selectedTab, setSelectedTab] = useState("Today");
     const { authToken, user } = useContext(AuthContext);
 
+    // Get dates for tabs
+    const getDates = () => {
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      return {
+          Past: yesterday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          Today: today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          Future: tomorrow.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      };
+  }; 
 
     useEffect(() => {
       fetchBookings();
   }, []);
-
-  useEffect(() => {
-    //console.log("Updated Schedule State:", JSON.stringify(schedule, null, 2));
-}, [schedule]);
 
     // Function to fetch booking
     const fetchBookings = async () => {
@@ -48,7 +44,7 @@ const ScheduleScreen = (props) => {
         const assignedBookings = result.data.filter(booking => booking.assignedTo === user);
         console.log("Assigned bookings:", JSON.stringify(assignedBookings, null, 2));
         setSchedule(assignedBookings);
-       // console.log("Schedule State:", JSON.stringify(schedule, null, 2));
+       
 
       } else {
           console.error("Error fetching bookings:", result.error);
@@ -78,8 +74,34 @@ const ScheduleScreen = (props) => {
 
         return false; 
     });
-};
+};  
+
+
 console.log("Filtered Jobs:", filterJobs());
+const dates = getDates();
+
+const handleStatusUpdate = async (bookingId, newStatus) => {
+  try {
+      const result = await updateJobStatus(authToken, bookingId, newStatus);
+      if (result.success) {
+          setSchedule(prevSchedule => 
+              prevSchedule.map(job => 
+                  job.id === bookingId ? { ...job, status: newStatus } : job
+              )
+          );
+      }
+  } catch (error) {
+      console.error("Error updating status:", error);
+  }
+};
+
+const isJobEnabled = (startDate, status) => {
+  if (status === 'cancelled' || status === 'completed') return false;
+  const now = new Date();
+  const jobStart = new Date(startDate);
+  return jobStart > now;
+};
+
 
 
 return (
@@ -90,45 +112,65 @@ return (
         <View style={styles.dashboardAreaStyle}>
 
         <View style={styles.tabNavigation}>
-                    {["Past", "Today", "Future"].map((tab) => (
+                    {Object.entries(dates).map(([tab, date]) => (
                         <TouchableOpacity key={tab} onPress={() => setSelectedTab(tab)}>
-                            <Text style={selectedTab === tab ? styles.selectedTab : styles.tabText}>{tab}</Text>
+                            <Text style={selectedTab === tab ? styles.selectedTab : styles.tabText}>{date}</Text>
                         </TouchableOpacity>
                     ))}
                 </View>
 
 {/* Searcbar and menu options */}
-          <View style = {styles.row}>
+       {/*   <View style = {styles.row}>
             <TouchableOpacity>
             <Ionicons name="options-outline" style = {styles.iconStyle}/>
             </TouchableOpacity>
           <SearchBar/>
-          </View>
-                    <View style = {{ flex: 1}}>
+          </View>  */}
+                    <View style = { styles.Container}>
                       
                     {loading ? (
-                        <Text style={{ textAlign: "center", marginTop: 20, fontSize: 16 }}>
-                        Loading jobs...
-                    </Text>
+                        <Text style={ styles.msgText }>Loading jobs...</Text>
                 ) : schedule.length > 0 ? (
-                  
-                  <FlatList
+                  <FlatList 
                  data={filterJobs()}
                   keyExtractor={(item, index) => index.toString()}
-                  renderItem={({ item }) => (
+                  renderItem={({ item }) => {
+                    const formattedStartTime = new Date(item.startDate).toLocaleTimeString([], {
+                      hour: "2-digit", minute: "2-digit", hour12: true});
+                    const formattedEndTime = new Date(item.endDate).toLocaleTimeString([], {
+                      hour: "2-digit", minute: "2-digit", hour12: true });
+
+                    const enabled = isJobEnabled(item.startDate, item.status);
+
+                    return (
                       <TouchableOpacity onPress={() => console.log('Job selected:', item)}>
                           <View style={styles.jobCard}>
-                              <View>
-                                  <Button title="START" style={styles.buttonstyle}>
-                                  </Button>
-                                  <Text>Location: {item.address}</Text>
-                                  <Text>Time: {item.time}</Text>
-                
+                              <View style = {styles.Container}>
+
+                              <TouchableOpacity style={[styles.startButton, !enabled && styles.startButtonDisabled]}
+                                  disabled={!enabled}
+                                  onPress={() => handleStatusUpdate(item.id, 'in_progress')}>
+                                <Text style={[styles.startButtonText,
+                                                    !enabled && styles.startButtonTextDisabled]}>START</Text>
+                              </TouchableOpacity>
+                             
+                              <View style={styles.jobInfo}>
+                                  <View style= {styles.JobView}>
+                                    <Ionicons name="location" style={styles.JobIcon}/>
+                                    <Text> {item.address}</Text>
+                                  </View>
+                                  <View style = {styles.JobView}>
+                                    <Ionicons name="time-outline" style = {styles.JobIcon} />
+                                    <Text> {formattedStartTime} - {formattedEndTime}</Text>
+                                  </View>
                               </View>
+                              </View>
+                              <Text> {item.status}</Text>
                           </View>
                       </TouchableOpacity>
-                  )}
+                  )}}
               />
+              
                         ) : (
                             <Text style={{ textAlign: "center", marginTop: 20, fontSize: 16 }}>
                                 No jobs found.
@@ -170,6 +212,7 @@ const styles = StyleSheet.create({
       row: {
         flexDirection: 'row',
         alignItems: 'center',
+        paddingHorizontal: 15,
        
       },
       iconStyle: {
@@ -195,21 +238,58 @@ const styles = StyleSheet.create({
   },
   jobCard: {
       flexDirection: 'row',
-      alignItems: 'stretch',
+      alignItems: 'center',
       justifyContent:'space-between',
-      backgroundColor: "lightgrey",
+      backgroundColor: "#fff",
       marginLeft: 20,
       marginRight: 20,
       marginTop: 10,
       borderRadius: 5,
       padding: 10
   },
+  Container: {
+    flex: 1,
+  },
   buttonstyle: {
    
     justifyContent: 'space-between',
     flexDirection: 'row'
-
-  }
+  },
+  JobView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    fontSize: 16
+  },
+  JobIcon: {
+    fontSize: 20,
+    alignSelf: 'center',
+    color: '#666'
+  },
+  
+  startButton: {
+    backgroundColor: '#177de1',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    marginBottom: 10,
+    alignSelf: 'flex-start',
+},
+startButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
+},
+msgText: {
+  textAlign: 'center',
+  marginTop: 20,
+  fontSize: 16,
+  color: '#666',
+},
+startButtonDisabled: {
+  backgroundColor: '#cccccc',
+},
+  
 })
 
 export default ScheduleScreen;
