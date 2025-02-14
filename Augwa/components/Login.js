@@ -23,6 +23,7 @@ class Login {
     static async login(credentials) {
         try {
             console.log("Trying to sign in...");
+            console.log(credentials);
             const response = await api.post('/Auth', credentials); // Use POST instead of GET
             console.log("Sign in response received");
             console.log("Status code: ", response.status);

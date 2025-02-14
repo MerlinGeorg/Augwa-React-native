@@ -1,4 +1,4 @@
-import { Platform, Alert } from 'react-native';
+import { Platform } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as SecureStore from 'expo-secure-store';
 
@@ -32,11 +32,15 @@ export const BiometricAuth = {
       const hasFaceId = types.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION);
       const hasFingerprint = types.includes(LocalAuthentication.AuthenticationType.FINGERPRINT);
 
+      const biometricsEnabled = await SecureStore.getItemAsync('biometrics_enabled');
+      const hasStoredCredentials = await SecureStore.getItemAsync('user_credentials');
+
       return {
         supported: true,
         faceIdAvailable: hasFaceId,
         fingerprintAvailable: hasFingerprint,
-        biometryType: hasFaceId ? 'FaceID' : hasFingerprint ? 'TouchID' : 'None'
+        biometryType: hasFaceId ? 'FaceID' : hasFingerprint ? 'TouchID' : 'None',
+        isEnabled: biometricsEnabled === 'true' && hasStoredCredentials !== null
       };
     } catch (error) {
       console.error('Biometric support check failed:', error);
@@ -101,7 +105,7 @@ export const BiometricAuth = {
     try {
       const biometricSupport = await BiometricAuth.checkBiometricSupport();
 
-      if (!biometricSupport.supported) {
+      if (!biometricSupport.supported || !biometricSupport.isEnabled) {
         throw new Error('Biometric authentication is not available');
       }
 
@@ -124,14 +128,14 @@ export const BiometricAuth = {
 
       if (result.success) {
         const credentialsJson = await SecureStore.getItemAsync('user_credentials');
-        if (credentialsJson) {
-          const credentials = JSON.parse(credentialsJson);
-          return {
-            success: true,
-            ...credentials
-          };
+        if (!credentialsJson) {
+          throw new Error('No credentials stored');
         }
-        throw new Error('No credentials stored');
+        const credentials = JSON.parse(credentialsJson);
+        return {
+          success: true,
+          ...credentials
+        };
       }
       return { success: false };
     } catch (error) {
