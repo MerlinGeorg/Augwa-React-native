@@ -5,11 +5,9 @@ import SearchBar from "../components/SearchBar";
 import { getBooking } from "../components/Schedule";
 import { augwaBlue,dashboardArea } from "../assets/styles/color";
 import { Ionicons } from '@expo/vector-icons';
-
 import { AuthContext } from '../src/context/AuthContext';
 
-
-const Tabbar = ({ tabName }) => {
+/*const Tabbar = ({ tabName }) => {
   switch (tabName) {
     case "Past":
       return <Text>Past</Text>;
@@ -20,7 +18,8 @@ const Tabbar = ({ tabName }) => {
     default: 
       return <Text>Today</Text>
   }
-};
+};}
+*/
 
 
 const ScheduleScreen = (props) => {
@@ -28,14 +27,17 @@ const ScheduleScreen = (props) => {
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
     const [filtersearch, setFilterSearch] = useState([])
-
     const [selectedTab, setSelectedTab] = useState("Today");
+    const { authToken, user } = useContext(AuthContext);
 
-    const { authToken } = useContext(AuthContext);
 
     useEffect(() => {
       fetchBookings();
   }, []);
+
+  useEffect(() => {
+    //console.log("Updated Schedule State:", JSON.stringify(schedule, null, 2));
+}, [schedule]);
 
     // Function to fetch booking
     const fetchBookings = async () => {
@@ -43,9 +45,11 @@ const ScheduleScreen = (props) => {
       const result = await getBooking(authToken);
       if (result.success) {
         console.log("Fetched bookings:", result.data);
-        const assignedBookings = result.data.filter(booking => booking.assignedTo === user.id);
-        console.log("Assigned bookings:", assignedBookings); 
+        const assignedBookings = result.data.filter(booking => booking.assignedTo === user);
+        console.log("Assigned bookings:", JSON.stringify(assignedBookings, null, 2));
         setSchedule(assignedBookings);
+       // console.log("Schedule State:", JSON.stringify(schedule, null, 2));
+
       } else {
           console.error("Error fetching bookings:", result.error);
       }
@@ -54,26 +58,28 @@ const ScheduleScreen = (props) => {
 
   // Function to load the selectedTab jobs
   const filterJobs = () => {
-    const today = new Date(); 
+    const today = new Date().toISOString().split("T")[0];
+    //const todayDate = new Date(today.toDateString());
 
     return schedule.filter((job) => {
-        const jobDate = new Date(job.date); 
+      console.log("Job Date (before conversion):", job.startDate);
+      const jobDate = new Date(job.startDate).toISOString().split("T")[0];
+        console.log("Converted Job Date:", jobDate);
+
+        //const jobDateOnly = new Date(jobDate.toDateString());
 
         if (selectedTab === "Today") {
-            return (
-                jobDate.getDate() === today.getDate() &&
-                jobDate.getMonth() === today.getMonth() &&
-                jobDate.getFullYear() === today.getFullYear()
-            );
+          return jobDate == today; // Compare date without time
         } else if (selectedTab === "Past") {
-            return jobDate < today; 
+          return jobDate < today; // Compare against today's date
         } else if (selectedTab === "Future") {
-            return jobDate > today; 
+          return jobDate > today; // Compare against today's date
         }
 
         return false; 
     });
 };
+console.log("Filtered Jobs:", filterJobs());
 
 
 return (
@@ -98,31 +104,37 @@ return (
             </TouchableOpacity>
           <SearchBar/>
           </View>
-
-          <ScrollView style={{ flex: 1, marginBottom: 20 }}>
+                    <View style = {{ flex: 1}}>
+                      
                     {loading ? (
                         <Text style={{ textAlign: "center", marginTop: 20, fontSize: 16 }}>
                         Loading jobs...
                     </Text>
                 ) : schedule.length > 0 ? (
-                        <FlatList
-                            data={filterJobs()}
-                            keyExtractor={(item) => item.id.toString()}
-                            renderItem={({ item }) => (
-                                <View style={styles.jobCard}>
-                                    <Text style={styles.jobTitle}>{item.serviceType}</Text>
-                                    <Text>Date: {item.date}</Text>
-                                    <Text>Time: {item.time}</Text>
-                                    <Text>Location: {item.address}</Text>
-                                </View>
-                            )}
-                            />
+                  
+                  <FlatList
+                 data={filterJobs()}
+                  keyExtractor={(item, index) => index.toString()}
+                  renderItem={({ item }) => (
+                      <TouchableOpacity onPress={() => console.log('Job selected:', item)}>
+                          <View style={styles.jobCard}>
+                              <View>
+                                  <Button title="START" style={styles.buttonstyle}>
+                                  </Button>
+                                  <Text>Location: {item.address}</Text>
+                                  <Text>Time: {item.time}</Text>
+                
+                              </View>
+                          </View>
+                      </TouchableOpacity>
+                  )}
+              />
                         ) : (
                             <Text style={{ textAlign: "center", marginTop: 20, fontSize: 16 }}>
                                 No jobs found.
                             </Text>
                         )}
-                </ScrollView>
+                        </View>
         </View>
     </View>
    
@@ -181,6 +193,23 @@ const styles = StyleSheet.create({
       fontWeight: 'bold',
       color: '#177de1', 
   },
+  jobCard: {
+      flexDirection: 'row',
+      alignItems: 'stretch',
+      justifyContent:'space-between',
+      backgroundColor: "lightgrey",
+      marginLeft: 20,
+      marginRight: 20,
+      marginTop: 10,
+      borderRadius: 5,
+      padding: 10
+  },
+  buttonstyle: {
+   
+    justifyContent: 'space-between',
+    flexDirection: 'row'
+
+  }
 })
 
 export default ScheduleScreen;
