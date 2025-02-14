@@ -6,23 +6,23 @@ import { scaleSize, moderateScale } from '../../utils/scaling';
 export const sharedStyles = StyleSheet.create({
 
   //main button
-  // button: {
-  //   width: '100%',
-  //   height: scaleSize(50),
-  //   borderRadius: scaleSize(8),
-  //   backgroundColor: primaryColor,
-  //   alignItems: 'center',
-  //   justifyContent: 'center',
-  //   marginTop: scaleSize(10),
-  // },
-  // buttonDisabled: {
-  //   opacity: 0.7,
-  // },
-  // buttonText: {
-  //   color: buttonTextColor,
-  //   fontSize: moderateScale(16),
-  //   fontWeight: '600',
-  // },
+  button: {
+    width: '100%',
+    height: scaleSize(50),
+    borderRadius: scaleSize(8),
+    backgroundColor: primaryColor,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: scaleSize(10),
+  },
+  buttonDisabled: {
+    opacity: 0.7,
+  },
+  buttonText: {
+    color: buttonTextColor,
+    fontSize: moderateScale(16),
+    fontWeight: '600',
+  },
 
   // //input text box
   // inputContainer: {
