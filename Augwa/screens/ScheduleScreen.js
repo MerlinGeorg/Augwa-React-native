@@ -16,84 +16,76 @@ const ScheduleScreen = (props) => {
     const [selectedTab, setSelectedTab] = useState("Today");
     const { authToken, user } = useContext(AuthContext);
 
-    // Get dates for tabs
-    const getDates = () => {
-      const today = new Date();
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
+    // Update getDates to return actual dates for Past/Future
+const getDates = () => {
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
 
-      return {
-          Past: yesterday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          Today: today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          Future: tomorrow.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-      };
-  }; 
+  const formatDate = (date) => date.toISOString().split("T")[0];
+
+  return {
+    Past: formatDate(yesterday),
+    Today: formatDate(today),
+    Future: formatDate(tomorrow),
+  };
+};
 
     useEffect(() => {
       fetchBookings();
   }, []);
 
-    // Function to fetch booking
-    const fetchBookings = async () => {
-      setLoading(true);
-      const result = await getBooking(authToken);
-      if (result.success) {
-        console.log("Fetched bookings:", result.data);
-        const assignedBookings = result.data.filter(booking => booking.assignedTo === user);
-        console.log("Assigned bookings:", JSON.stringify(assignedBookings, null, 2));
-        setSchedule(assignedBookings);
-       
+// Function to fetch booking
+const fetchBookings = async () => {
+  setLoading(true);
+  const result = await getBooking(authToken);
+  if (result.success) {
+    console.log("Fetched bookings:", result.data);
+    const assignedBookings = result.data.filter(booking => booking.assignedTo === user);
+    console.log("Assigned bookings:", JSON.stringify(assignedBookings, null, 2));
+    setSchedule(assignedBookings);
+   
 
-      } else {
-          console.error("Error fetching bookings:", result.error);
-      }
-      setLoading(false);
-  };
+  } else {
+      console.error("Error fetching bookings:", result.error);
+  }
+  setLoading(false);
+};
 
   // Function to load the selectedTab jobs
-  const filterJobs = () => {
-    const today = new Date().toISOString().split("T")[0];
-    //const todayDate = new Date(today.toDateString());
+  // Convert both dates to UTC strings before comparing
+  // Modified filterJobs function to show proper date ranges
+const filterJobs = () => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Set to start of day
+  
+  return schedule.filter((job) => {
+      const jobDate = new Date(job.startDate);
+      jobDate.setHours(0, 0, 0, 0); // Set to start of day for comparison
+      
+      // Add debug logging
+      console.log(`Comparing job date ${jobDate.toISOString()} for tab ${selectedTab}`);
+      
+      if (selectedTab === "Today") {
+          return jobDate.getTime() === today.getTime();
+      } else if (selectedTab === "Past") {
+          return jobDate.getTime() < today.getTime();
+      } else if (selectedTab === "Future") {
+          return jobDate.getTime() > today.getTime();
+      }
+      return false;
+  });
+};
+    
+    
 
-    return schedule.filter((job) => {
-      console.log("Job Date (before conversion):", job.startDate);
-      const jobDate = new Date(job.startDate).toISOString().split("T")[0];
-        console.log("Converted Job Date:", jobDate);
 
-        //const jobDateOnly = new Date(jobDate.toDateString());
-
-        if (selectedTab === "Today") {
-          return jobDate == today; // Compare date without time
-        } else if (selectedTab === "Past") {
-          return jobDate < today; // Compare against today's date
-        } else if (selectedTab === "Future") {
-          return jobDate > today; // Compare against today's date
-        }
-
-        return false; 
-    });
-};  
 
 
 console.log("Filtered Jobs:", filterJobs());
 const dates = getDates();
-
-const handleStatusUpdate = async (bookingId, newStatus) => {
-  try {
-      const result = await updateJobStatus(authToken, bookingId, newStatus);
-      if (result.success) {
-          setSchedule(prevSchedule => 
-              prevSchedule.map(job => 
-                  job.id === bookingId ? { ...job, status: newStatus } : job
-              )
-          );
-      }
-  } catch (error) {
-      console.error("Error updating status:", error);
-  }
-};
 
 const isJobEnabled = (startDate, status) => {
   if (status === 'cancelled' || status === 'completed') return false;
@@ -149,7 +141,7 @@ return (
 
                               <TouchableOpacity style={[styles.startButton, !enabled && styles.startButtonDisabled]}
                                   disabled={!enabled}
-                                  onPress={() => handleStatusUpdate(item.id, 'in_progress')}>
+                                  >
                                 <Text style={[styles.startButtonText,
                                                     !enabled && styles.startButtonTextDisabled]}>START</Text>
                               </TouchableOpacity>
@@ -264,7 +256,7 @@ const styles = StyleSheet.create({
   JobIcon: {
     fontSize: 20,
     alignSelf: 'center',
-    color: '#666'
+    //  color: '#666'
   },
   
   startButton: {
