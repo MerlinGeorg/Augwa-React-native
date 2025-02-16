@@ -1,16 +1,22 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { primaryColor, buttonTextColor } from "../assets/styles/color"
+import { Pressable, Text, StyleSheet } from 'react-native';
+import { primaryColor, buttonTextColor } from "../assets/styles/color";
 
 const CustomButton = ({ title, onPress, disabled, style }) => {
   return (
-    <TouchableOpacity
-      style={[styles.button, style, disabled && styles.buttonDisabled]}
+    <Pressable
+      style={({ pressed }) => [
+        styles.button,
+        style,
+        disabled && styles.buttonDisabled,
+        pressed && styles.buttonPressed
+      ]}
       onPress={onPress}
       disabled={disabled}
+      android_ripple={{ color: 'rgba(255, 255, 255, 0.2)' }}
     >
       <Text style={styles.buttonText}>{title}</Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
@@ -26,6 +32,9 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.7,
+  },
+  buttonPressed: {
+    opacity: 0.8,
   },
   buttonText: {
     color: buttonTextColor,

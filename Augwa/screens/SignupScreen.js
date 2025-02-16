@@ -90,6 +90,7 @@ export default function SignupScreen({ navigation }) {
 
   const validateForm = () => {
     const newErrors = {};
+    setErrors({});
     if (!userName) newErrors.userName = "Username is required";
     if (!usernameValidation.length)
       newErrors.userName = "Username must be between 6 and 32 characters";
@@ -105,7 +106,12 @@ export default function SignupScreen({ navigation }) {
       newErrors.password = "Password does not meet requirements";
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return false;
+    }
+    
+    return true;
   };
 
   const enableBiometric = async () => {
@@ -127,13 +133,13 @@ export default function SignupScreen({ navigation }) {
 
   const handleSignup = async () => {
     if (!validateForm()) return;
-
+    
     try {
       setIsLoading(true);
       const result = await Register.signup({
-        username: userName,
+        username: userName.trim(),
         password: password,
-        inviteCode: inviteCode,
+        inviteCode: inviteCode.trim(),
       });
 
       if (result.success) {
@@ -141,7 +147,7 @@ export default function SignupScreen({ navigation }) {
        CustomAlert({
         title: "Success",
         message: "Account created successfully!",
-        onOk: () => setBiometricVisible(true) // Set biometricVisible to true when OK is pressed
+        onOk: () => {setBiometricVisible(true)} // Set biometricVisible to true when OK is pressed
       });
         
       } else {
@@ -275,63 +281,29 @@ export default function SignupScreen({ navigation }) {
       </KeyboardAvoidingView>
 
       {/* Biometric Authentication Modal */}
-      <Modal
-        visible={biometricVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setBiometricVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <FontAwesome5
-              name={biometricType === 'faceId' ? "smile-beam" : "fingerprint"}
-              size={45}
-              color={iconColor}
-              style={styles.biometricIcon}
-            />
+     
+             <CustomModal
+    visible={biometricVisible}
+    onClose={() => setBiometricVisible(false)}
+    title={`Use ${biometricType === 'faceId' ? 'Face ID' : 'Fingerprint'}?`}
+    buttons={[
+      {
+        text: `Yes, enable ${biometricType === 'faceId' ? 'Face ID' : 'Fingerprint'}`,
+        onPress: enableBiometric,
+      },
+      {
+        text: 'Not now',
+        onPress: handleNotNow,
+        style: { backgroundColor: errorGrey },
+      },
+    ]}
+    biometricType={biometricType} // Pass the biometricType here
+  >
+    <Text style={styles.modalText}>
+      Would you like to enable {biometricType === 'faceId' ? 'Face ID' : 'fingerprint'} authentication?
+    </Text>
+  </CustomModal>
 
-            <Text style={styles.modalTitle}>
-              Use {biometricType === 'faceId' ? 'Face ID' : 'Fingerprint'}?
-            </Text>
-            <Text style={styles.modalText}>
-              Would you like to enable {biometricType === 'faceId' ? 'Face ID' : 'fingerprint'} authentication?
-            </Text>
-
-            <TouchableOpacity style={styles.modalButton} onPress={enableBiometric}>
-              <Text style={styles.modalButtonText}>
-                Yes, enable {biometricType === 'faceId' ? 'Face ID' : 'fingerprint'}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.modalCancelButton}
-              onPress={handleNotNow}
-            >
-              <Text style={styles.modalCancelButtonText}>Not now</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-             {/* <CustomModal
-          visible={biometricVisible}
-          onClose={() => setBiometricVisible(false)}
-          title={`Use ${biometricType === 'faceId' ? 'Face ID' : 'Fingerprint'}?`}
-          buttons={[
-            {
-              text: `Yes, enable ${biometricType === 'faceId' ? 'Face ID' : 'Fingerprint'}`,
-              onPress: enableBiometric,
-            },
-            {
-              text: 'Not now',
-              onPress: handleNotNow,
-              style: { backgroundColor: 'gray' },
-            },
-          ]}
-        >
-          <Text style={styles.modalText}>
-            Would you like to enable {biometricType === 'faceId' ? 'Face ID' : 'fingerprint'} authentication?
-          </Text>
-        </CustomModal> */}
 
     </SafeAreaView>
   );
@@ -396,53 +368,7 @@ const styles = StyleSheet.create({
   //   right: scaleSize(15),
   //   padding: scaleSize(10),
   // },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "flex-end",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    backgroundColor: "#fff",
-    padding: scaleSize(20),
-    borderRadius: scaleSize(10),
-    alignItems: "center",
-    width: "100%",
-    maxHeight: "50%",
-  },
-  modalTitle: {
-    fontSize: moderateScale(20),
-    fontWeight: "bold",
-    marginBottom: scaleSize(10),
-  },
-  modalText: {
-    fontSize: moderateScale(16),
-    marginBottom: scaleSize(20),
-    textAlign: "center",
-  },
-  modalButton: {
-    backgroundColor: "#2B3A55",
-    padding: scaleSize(10),
-    borderRadius: scaleSize(8),
-    width: "100%",
-    alignItems: "center",
-    marginBottom: scaleSize(10),
-  },
-  modalButtonText: {
-    color: "#fff",
-    fontSize: moderateScale(16),
-    fontWeight: "600",
-  },
-  modalCancelButton: {
-    padding: scaleSize(10),
-    borderRadius: scaleSize(10),
-    width: "100%",
-    alignItems: "center",
-  },
-  modalCancelButtonText: {
-    color: "#555",
-    fontSize: moderateScale(16),
-  },
+ 
   biometricIcon: {
     marginBottom: scaleSize(20),
   },
