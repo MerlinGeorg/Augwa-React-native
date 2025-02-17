@@ -15,13 +15,13 @@ import { isSearchBarAvailableForCurrentPlatform } from 'react-native-screens';
 
 const DashboardScreen = ({ route, navigation }) => {
   // const [username, setUsername] = useState('')
-  // initially job is not started
-  const [jobStatus, setJobStatus] = useState('')
-  const { authToken } = useContext(AuthContext) // get token from
-  const { userName } = useContext(AuthContext)
-  //console.log("authtoken:", authToken);
-  const [scheduleData, setScheduleData] = useState(null)
-  const [error, setError] = useState(null)
+
+  // Initially job is not started
+  const [ jobStatus, setJobStatus ] = useState('');
+  const { authToken } = useContext(AuthContext); // get token from
+  const { userName } = useContext(AuthContext);
+  const [ scheduleData, setScheduleData ] = useState(null);
+  const [ error, setError ] = useState(null);
 
   const api = axios.create({
     baseURL: API_BASEPATH_DEV,
@@ -30,30 +30,33 @@ const DashboardScreen = ({ route, navigation }) => {
       'X-Domain': X_DOMAIN  // Ensure this header is correct
     }
   });
+
   useEffect(() => {
     if (authToken) {
-      console.log('Fetching with token: ', authToken)
-      fetchJoblist()
+      console.log('Fetching with token: ', authToken);
+      fetchJoblist();
     }
     else {
-      console.log("Now token available")
-      setError('Authentication required')
+      console.log("Now token available");
+      setError('Authentication required');
     }
-  }, [])
+  }, [authToken]);
+
   // useEffect(()=>{
   //   if(scheduleData){
   //     console.log('Processing schedule data...')
   //     process
   //   }
   // }
-
   // )
+
   // decode method
   const decodeJWT = (token) => {
     try {
-      const [header, payload, signature] = token.split('.');
-      // handles playload token
-      const decodedPayload = base64.decode(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      const parts = token.split('.');
+      if (parts.length < 2) return null;
+      
+      const decodedPayload = base64.decode(parts[1].replace(/-/g, '+').replace(/_/g, '/'));
       return JSON.parse(decodedPayload);
     } catch (error) {
       console.error('Failed decode:', error);
@@ -62,16 +65,17 @@ const DashboardScreen = ({ route, navigation }) => {
   };
 
   const payload = decodeJWT(authToken);
-  const accountID = payload.StaffId
-  // console.log(payload);
+  const accountID = payload?.StaffId ?? null;
+  
   console.log(`account id: ${accountID}`);
+
   /////////////////// naviagte to schedule///////////////////
   const gotoSchedule = () => {
     navigation.navigate("schedule")
   }
   //////////////////////////////////////////////////////////
-  const fetchJoblist = async () => {
 
+  const fetchJoblist = async () => {
     try {
       if (!authToken) {
         throw new Error("No authentication token available");
@@ -82,9 +86,10 @@ const DashboardScreen = ({ route, navigation }) => {
         'Authorization': `Bearer ${authToken.substring(0, 10)}...` // Log first 10 chars only
       });
 
-      let allResults = []
-      let page = 1
-      let hasMoreData = true
+      let allResults = [];
+      let page = 1;
+      let hasMoreData = true;
+
       while (hasMoreData) {
         const response = await api.get(`/Booking?page=${page}`, {
           headers: {
@@ -95,14 +100,15 @@ const DashboardScreen = ({ route, navigation }) => {
         });
         if (response.data.results.length > 0) {
 
-          allResults = [...allResults, ...response.data.results]
-          page++
+          allResults = [...allResults, ...response.data.results];
+          page++;
         } else {
-          hasMoreData = false
+          hasMoreData = false;
         }
       }
-      console.log(`All result: ${allResults}`)
-      setScheduleData(allResults)
+
+      console.log(`All result: ${allResults}`);
+      setScheduleData(allResults);
 
       // const response = await api.get('/Booking', {
       //   headers: {
@@ -112,8 +118,6 @@ const DashboardScreen = ({ route, navigation }) => {
       //   }
       // });
       // setScheduleData(response.data.results);
-
-
     } catch (error) {
       if (error.response) {
         // Server responded with error
@@ -132,6 +136,7 @@ const DashboardScreen = ({ route, navigation }) => {
       }
     }
   };
+
   // console.log(scheduleData)
   // only prints out with jdahan account
   // to get client's address
@@ -151,9 +156,11 @@ const DashboardScreen = ({ route, navigation }) => {
   //console.log(scheduleData?.results.filter(staff => staff?.StaffId == accountID));
   // a function to filter the received data by decoded staff id
   // console.log(scheduleData.results[0].staff) // get the stuff from schedule
+
   const today = new Date();
-  let numTaskToday = 0
-  today.setHours(0, 0, 0, 0)
+  let numTaskToday = 0;
+  today.setHours(0, 0, 0, 0);
+
   const matchedSchedules = scheduleData?.filter((schedule) => {
     const isStatusValid = schedule?.status === "Scheduled";
     const hasMatchingStaff = schedule?.staff?.some((task) =>
@@ -167,10 +174,12 @@ const DashboardScreen = ({ route, navigation }) => {
     //   staffEntry?.staff?.id === accountID
     // );
   }) || [];
+
   console.log("total schedules length:", scheduleData?.length);
   //console.log(matchedSchedules)
   //console.log(scheduleData)
   console.log("Matched schedules length:", matchedSchedules?.length);
+
   // button click to start the job
   // since current job is always the first
   const todayTaskList = (matchedSchedules || []).filter((schedule) => {
@@ -184,13 +193,15 @@ const DashboardScreen = ({ route, navigation }) => {
   
     return startDate.getTime() === today.getTime();
   });
+
   // console.log(todayTaskList)
   const current = todayTaskList[0]
-  console.log(current)
+  console.log(current);
   const countTodayTask = ()=>{
-    let numTaskToday = 0
+    let numTaskToday = 0;
     const today = new Date();
-    today.setHours(0, 0, 0, 0)
+    today.setHours(0, 0, 0, 0);
+
     matchedSchedules.forEach((schedule) => {
       const startDate = schedule?.startDate ? new Date(schedule.startDate) : null;
       if (startDate) {
@@ -201,12 +212,12 @@ const DashboardScreen = ({ route, navigation }) => {
         }
       }
     })
-    return numTaskToday
-  }
-  console.log(`number of tasks: ${countTodayTask()}`)
+    return numTaskToday;
+  };
+  console.log(`number of tasks: ${countTodayTask()}`);
   
-// handle if this is null
-// console.log(`current task: ${current}`)
+  // handle if this is null
+  // console.log(`current task: ${current}`)
   const changeStatus = async () => {
     try {
       if (current.status === 'Scheduled') {
@@ -218,12 +229,9 @@ const DashboardScreen = ({ route, navigation }) => {
               'Content-Type': 'application/json',
               'Accept': 'application/json'
             }
-
           }
-          
         );
-      }
-      else if (current.status === 'InProgress') {
+      } else if (current.status === 'InProgress') {
         const response = await api.patch(`/Booking/${current.id}`, 
           {status: 'Completed'},
         {
@@ -232,8 +240,7 @@ const DashboardScreen = ({ route, navigation }) => {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           }
-
-        })
+        });
       }
     } catch (error) {
       if (error.response) {
@@ -249,10 +256,6 @@ const DashboardScreen = ({ route, navigation }) => {
         setError(`Request Error: ${error.message}`);
       }
     }
-
-
-
-
   }
 
   return (
@@ -270,8 +273,6 @@ const DashboardScreen = ({ route, navigation }) => {
               <BellIcon />
             </TouchableOpacity>
           </View>
-
-
         </View>
         {/* end of information area */}
 
@@ -344,10 +345,8 @@ const DashboardScreen = ({ route, navigation }) => {
             </View>
           ))}
         </ScrollView>
-
       </View>
       {/* end of the first section view */}
-
     </View>
   )
 }
@@ -379,7 +378,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginStart: 10,
     color: '#fff'
-
   },
   dashboardAreaStyle: {
     marginTop: 20,
@@ -401,7 +399,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: augwaBlue,
     fontWeight: '500'
-
   },
   jobDescribtionStyle: {
     backgroundColor: "#fff",
@@ -414,7 +411,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginLeft: 5,
     fontSize: 16
-
   },
   btnTitle: {
     fontSize: 20,
@@ -447,8 +443,7 @@ const styles = StyleSheet.create({
     height: 110,
     borderRadius: 20,
     marginLeft: 7
-
   }
+});
 
-})
-export default DashboardScreen
+export default DashboardScreen;
