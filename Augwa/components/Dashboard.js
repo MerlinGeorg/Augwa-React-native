@@ -2,7 +2,7 @@ import axios from 'axios';
 import { API_BASEPATH_DEV, X_DOMAIN } from '@env';
 import { useContext } from 'react';
 import { AuthContext } from '../src/context/AuthContext';
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState} from 'react';
 
 
 const Dashboard = () => {
