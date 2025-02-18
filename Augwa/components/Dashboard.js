@@ -49,17 +49,6 @@ const Dashboard = () => {
           }
           console.log(`All result: ${allResults}`)
           setScheduleData(allResults)
-    
-          // const response = await api.get('/Booking', {
-          //   headers: {
-          //     'Authorization': `Bearer ${authToken}`,
-          //     'Content-Type': 'application/json',
-          //     'Accept': 'application/json'
-          //   }
-          // });
-          // setScheduleData(response.data.results);
-          
-    
         } catch (error) {
           if (error.response) {
             // Server responded with error

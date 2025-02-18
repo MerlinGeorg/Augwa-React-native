@@ -12,6 +12,7 @@ import Message from '../components/Message'
 import BellIcon from '../components/BellIcon'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { isSearchBarAvailableForCurrentPlatform } from 'react-native-screens';
+import Dashboard from '../components/Dashboard'
 
 const DashboardScreen = ({ route, navigation }) => {
   // const [username, setUsername] = useState('')
@@ -40,7 +41,7 @@ const DashboardScreen = ({ route, navigation }) => {
       console.log("Now token available");
       setError('Authentication required');
     }
-  }, [authToken]);
+  }, []); // render whenerer thers's an update
 
   // useEffect(()=>{
   //   if(scheduleData){
@@ -158,9 +159,8 @@ const DashboardScreen = ({ route, navigation }) => {
   // console.log(scheduleData.results[0].staff) // get the stuff from schedule
 
   const today = new Date();
-  let numTaskToday = 0;
   today.setHours(0, 0, 0, 0);
-
+  // fetch today's data only
   const matchedSchedules = scheduleData?.filter((schedule) => {
     const isStatusValid = schedule?.status === "Scheduled";
     const hasMatchingStaff = schedule?.staff?.some((task) =>
