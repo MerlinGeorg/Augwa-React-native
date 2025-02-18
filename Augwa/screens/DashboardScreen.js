@@ -12,7 +12,7 @@ import Message from '../components/Message'
 import BellIcon from '../components/BellIcon'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { isSearchBarAvailableForCurrentPlatform } from 'react-native-screens';
-import Dashboard from '../components/Dashboard'
+import {fetchJoblist} from '../components/FetchList'
 
 const DashboardScreen = ({ route, navigation }) => {
   // const [username, setUsername] = useState('')
@@ -34,15 +34,9 @@ const DashboardScreen = ({ route, navigation }) => {
 
   useEffect(() => {
     if (authToken) {
-      console.log('Fetching with token: ', authToken);
-      fetchJoblist();
+      fetchJoblist(authToken, setScheduleData, setError);
     }
-    else {
-      console.log("Now token available");
-      setError('Authentication required');
-    }
-  }, []); // render whenerer thers's an update
-
+  }, [authToken]);
   // useEffect(()=>{
   //   if(scheduleData){
   //     console.log('Processing schedule data...')
@@ -74,90 +68,6 @@ const DashboardScreen = ({ route, navigation }) => {
   const gotoSchedule = () => {
     navigation.navigate("schedule")
   }
-  //////////////////////////////////////////////////////////
-
-  const fetchJoblist = async () => {
-    try {
-      if (!authToken) {
-        throw new Error("No authentication token available");
-      }
-
-      console.log('Making request to:', `${API_BASEPATH_DEV}/Booking`);
-      console.log('Headers:', {
-        'Authorization': `Bearer ${authToken.substring(0, 10)}...` // Log first 10 chars only
-      });
-
-      let allResults = [];
-      let page = 1;
-      let hasMoreData = true;
-
-      while (hasMoreData) {
-        const response = await api.get(`/Booking?page=${page}`, {
-          headers: {
-            'Authorization': `Bearer ${authToken}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
-        });
-        if (response.data.results.length > 0) {
-
-          allResults = [...allResults, ...response.data.results];
-          page++;
-        } else {
-          hasMoreData = false;
-        }
-      }
-
-      console.log(`All result: ${allResults}`);
-      setScheduleData(allResults);
-
-      // const response = await api.get('/Booking', {
-      //   headers: {
-      //     'Authorization': `Bearer ${authToken}`,
-      //     'Content-Type': 'application/json',
-      //     'Accept': 'application/json'
-      //   }
-      // });
-      // setScheduleData(response.data.results);
-    } catch (error) {
-      if (error.response) {
-        // Server responded with error
-        console.error('Error Response Data:', error.response.data);
-        console.error('Error Response Status:', error.response.status);
-        console.error('Error Response Headers:', error.response.headers);
-        setError(`Server Error: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
-      } else if (error.request) {
-        // Request made but no response
-        console.error('Error Request:', error.request);
-        setError('No response received from server');
-      } else {
-        // Error setting up request
-        console.error('Error Message:', error.message);
-        setError(`Error: ${error.message}`);
-      }
-    }
-  };
-
-  // console.log(scheduleData)
-  // only prints out with jdahan account
-  // to get client's address
-  // console.log(scheduleData?.results?.[0]?.address);
-  // to get the staff information
-  // console.log(scheduleData?.results?.[0]?.staff);
-  // this is what staff obkect looks like:
-  // [{"calendarId": "494264a7-f9b9-4df6-a03f-c8f8c1eb53a8", 
-  //   "staff": {"accountLinked": true, "availability": [Array], 
-  //     "calendar": [Array], "emailAddress": "qyu39@my.centennialcollege.ca", 
-  //     "emailAddressStatus": "Unverifed", "firstName": "qianhui", 
-  //     "id": "7487cc7b-c0e5-4aae-98d5-dd65b00067cb", "lastName": "yu", 
-  //     "phoneNumber": "1111111111", "phoneNumberExtension": "", 
-  //     "phoneNumberStatus": "Unverifed", "roleId": "293e37be-40a7-4c91-964d-5e62dfde3e18", 
-  //     "status": "Active"}}]
-  // const staffSchedule = scheduleData?.results.filter(staff => staff.StaffId == accountID)
-  //console.log(scheduleData?.results.filter(staff => staff?.StaffId == accountID));
-  // a function to filter the received data by decoded staff id
-  // console.log(scheduleData.results[0].staff) // get the stuff from schedule
-
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   // fetch today's data only
