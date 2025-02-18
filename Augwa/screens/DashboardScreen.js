@@ -17,11 +17,11 @@ const DashboardScreen = ({ route, navigation }) => {
   // const [username, setUsername] = useState('')
 
   // Initially job is not started
-  const [ jobStatus, setJobStatus ] = useState('');
+  const [jobStatus, setJobStatus] = useState('');
   const { authToken } = useContext(AuthContext); // get token from
   const { userName } = useContext(AuthContext);
-  const [ scheduleData, setScheduleData ] = useState(null);
-  const [ error, setError ] = useState(null);
+  const [scheduleData, setScheduleData] = useState(null);
+  const [error, setError] = useState(null);
 
   const api = axios.create({
     baseURL: API_BASEPATH_DEV,
@@ -55,7 +55,7 @@ const DashboardScreen = ({ route, navigation }) => {
     try {
       const parts = token.split('.');
       if (parts.length < 2) return null;
-      
+
       const decodedPayload = base64.decode(parts[1].replace(/-/g, '+').replace(/_/g, '/'));
       return JSON.parse(decodedPayload);
     } catch (error) {
@@ -66,7 +66,7 @@ const DashboardScreen = ({ route, navigation }) => {
 
   const payload = decodeJWT(authToken);
   const accountID = payload?.StaffId ?? null;
-  
+
   console.log(`account id: ${accountID}`);
 
   /////////////////// naviagte to schedule///////////////////
@@ -184,20 +184,20 @@ const DashboardScreen = ({ route, navigation }) => {
   // since current job is always the first
   const todayTaskList = (matchedSchedules || []).filter((schedule) => {
     if (!schedule?.startDate) return false; // Skip if startDate is null or undefined
-  
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-  
+
     const startDate = new Date(schedule.startDate);
     startDate.setHours(0, 0, 0, 0); // Normalize startDate to avoid time mismatches
-  
+
     return startDate.getTime() === today.getTime();
   });
 
   // console.log(todayTaskList)
   const current = todayTaskList[0]
   console.log(current);
-  const countTodayTask = ()=>{
+  const countTodayTask = () => {
     let numTaskToday = 0;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -206,7 +206,7 @@ const DashboardScreen = ({ route, navigation }) => {
       const startDate = schedule?.startDate ? new Date(schedule.startDate) : null;
       if (startDate) {
         startDate.setHours(0, 0, 0, 0); // Normalize startDate to midnight
-    
+
         if (startDate.getTime() === today.getTime()) {
           numTaskToday++; // Count tasks for today
         }
@@ -215,14 +215,14 @@ const DashboardScreen = ({ route, navigation }) => {
     return numTaskToday;
   };
   console.log(`number of tasks: ${countTodayTask()}`);
-  
+
   // handle if this is null
   // console.log(`current task: ${current}`)
   const changeStatus = async () => {
     try {
       if (current.status === 'Scheduled') {
-        const response = await api.patch(`/Booking/${current.id}`, 
-          {status: 'InProgress'},
+        const response = await api.patch(`/Booking/${current.id}`,
+          { status: 'InProgress' },
           {
             headers: {
               'Authorization': `Bearer ${authToken}`,
@@ -232,15 +232,15 @@ const DashboardScreen = ({ route, navigation }) => {
           }
         );
       } else if (current.status === 'InProgress') {
-        const response = await api.patch(`/Booking/${current.id}`, 
-          {status: 'Completed'},
-        {
-          headers: {
-            'Authorization': `Bearer ${authToken}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
-        });
+        const response = await api.patch(`/Booking/${current.id}`,
+          { status: 'Completed' },
+          {
+            headers: {
+              'Authorization': `Bearer ${authToken}`,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            }
+          });
       }
     } catch (error) {
       if (error.response) {
@@ -291,16 +291,18 @@ const DashboardScreen = ({ route, navigation }) => {
         {/* jd,  btn */}
         <View style={{ flexDirection: 'row', marginTop: 20, marginLeft: 9 }}>
           <View style={styles.jobDescribtionStyle}>
-            <Text style={styles.jobDescribtionText}>
-              {` ${todayTaskList[0]?.address} ${todayTaskList[0]?.startDate}
-              Status: ${todayTaskList[0]?.status}`
-               
-              }
-            </Text>
+            {todayTaskList[0] ? (
+              <Text style={styles.jobDescribtionText}>
+                {`${todayTaskList[0].address} ${todayTaskList[0].startDate}
+                      Status: ${todayTaskList[0].status}`}
+              </Text>
+            ) : (
+              <Text style={styles.jobDescribtionText}>No task today!</Text>
+            )}
           </View>
           <View style={{ flexDirection: 'column', marginLeft: 12 }}>
             <TouchableOpacity style={[styles.btnStyle, { backgroundColor: augwaBlue }]}
-            onPress={changeStatus}>
+              onPress={changeStatus}>
               <Text style={{ fontSize: 20, color: "white" }}>
                 START JOB</Text>
             </TouchableOpacity>
@@ -326,7 +328,7 @@ const DashboardScreen = ({ route, navigation }) => {
           contentContainerStyle={styles.scrollContainer}>
           {matchedSchedules.slice(1).map((item, index) => (
             <View key={index} style={[styles.jobDescribtionStyle]}>
-              <Text style={styles.jobDescribtionText}>{item.address} {item.startDate}</Text> 
+              <Text style={styles.jobDescribtionText}>{item.address} {item.startDate}</Text>
               {/* <Text style={styles.jobDescribtionText}> {item.startDate}</Text> */}
               <Text style={styles.jobDescribtionText}> {item.status}</Text>
             </View>
@@ -340,7 +342,7 @@ const DashboardScreen = ({ route, navigation }) => {
           contentContainerStyle={styles.scrollContainer}>
           {[`Today's tasks: `, "Weekly tasks ",].map((item, index) => (
             <View key={index} style={[styles.performanceStyle]}>
-              <Text style = {styles.sectionTitle}>{item}</Text>
+              <Text style={styles.sectionTitle}>{item}</Text>
               <Text style={styles.sectionTitle}>{todayTaskList.length}</Text>
             </View>
           ))}
