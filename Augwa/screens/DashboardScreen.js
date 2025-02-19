@@ -97,9 +97,9 @@ const DashboardScreen = ({ route, navigation }) => {
       return scheduleDate >= startOfWeek && scheduleDate <= endOfWeek;
     });
     setWeeklyTasks(weeklyTasks.length);
-    return weeklyTasksNumber;
+    // return weeklyTasksNumber;
   }; 
-  console.log({weeklyTasksNumber});
+  console.log(`weekly tasks number Ho: ${weeklyTasksNumber}`);
   // button click to start the job
   // since current job is always the first
   const todayTaskList = (matchedSchedules || []).filter((schedule) => {
@@ -113,6 +113,11 @@ const DashboardScreen = ({ route, navigation }) => {
 
     return startDate.getTime() === today.getTime();
   });
+  // for performance mapping
+  const performances = [
+    { title: "Today's tasks", count: todayTaskList.length },
+    { title: 'Weekly tasks', count: weeklyTasksNumber }
+  ];
   const current = todayTaskList[0]
   console.log(current);
   const countTodayTask = () => {
@@ -132,7 +137,6 @@ const DashboardScreen = ({ route, navigation }) => {
     })
     return numTaskToday;
   };
-  console.log(`number of tasks: ${countTodayTask()}`);
 
   // handle if this is null
   // console.log(`current task: ${current}`)
@@ -257,10 +261,10 @@ const DashboardScreen = ({ route, navigation }) => {
         <ScrollView horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollContainer}>
-          {[`Today's tasks: `, "Weekly tasks ",].map((item, index) => (
+          {performances.map((item, index) => (
             <View key={index} style={[styles.performanceStyle]}>
-              <Text style={styles.sectionTitle}>{item}</Text>
-              <Text style={styles.sectionTitle}>{todayTaskList.length}</Text>
+              <Text style={styles.sectionTitle}>{item.title}</Text>
+              <Text style={styles.sectionTitle}>{item.count}</Text>
             </View>
           ))}
         </ScrollView>
