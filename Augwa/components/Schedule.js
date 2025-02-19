@@ -40,25 +40,40 @@ export const getBooking = async (authToken) => {
 
         console.log("Fetching Bookings for staff ID:", staffId);
 
-        const response = await api.get('/Booking', {
-            headers: {
-                Authorization: `Bearer ${authToken}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
+        let allBookings = [];
+        let page = 1;
+        let totalPages = 1;
+        const pageSize = 10;
+
+        do {
+            const response = await api.get(`/Booking`, {
+                params: {
+                    StaffId: staffId,
+                    Page: page,
+                    PageSize: pageSize,
+                },
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+
+            const { results, pageCount } = response.data;
+            console.log(`Fetched Page ${page}: ${results.length} records`);
+
+            if (results.length > 0) {
+                allBookings = [...allBookings, ...results];
             }
-        });
 
-        // Filter bookings for the logged-in staff
-        const staffBookings = response.data.results.filter((booking) => 
-            booking.staff?.some((staffEntry) =>
-                staffEntry?.staff?.id === staffId
-            )
-        );
+            totalPages = pageCount;
+            page++; // continue to next page
+        } while (page <= totalPages); // end the while until fetch all pages
 
-        console.log("Staff bookings filtered:", staffBookings.length);
+
         return {
             success: true,
-            data: staffBookings
+            data: allBookings
         };
 
     } catch (error) {

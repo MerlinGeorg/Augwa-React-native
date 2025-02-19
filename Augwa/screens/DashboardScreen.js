@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect , useCallback} from 'react';
 import base64 from 'base-64';
 import axios from "axios"
 import { View, StyleSheet, Text, TouchableOpacity, } from 'react-native';
@@ -12,16 +12,19 @@ import Message from '../components/Message'
 import BellIcon from '../components/BellIcon'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { isSearchBarAvailableForCurrentPlatform } from 'react-native-screens';
+import {fetchJoblist} from '../components/FetchList'
 
 const DashboardScreen = ({ route, navigation }) => {
   // const [username, setUsername] = useState('')
-  // initially job is not started
-  const [jobStatus, setJobStatus] = useState('')
-  const { authToken } = useContext(AuthContext) // get token from
-  const { userName } = useContext(AuthContext)
-  //console.log("authtoken:", authToken);
-  const [scheduleData, setScheduleData] = useState(null)
-  const [error, setError] = useState(null)
+
+  // Initially job is not started
+  const [jobStatus, setJobStatus] = useState('');
+  const { authToken } = useContext(AuthContext); // get token from
+  const { userName } = useContext(AuthContext);
+  const [scheduleData, setScheduleData] = useState(null);
+  const [error, setError] = useState(null);
+  const [weeklyTasksNumber, setWeeklyTasks] = useState(0)
+ // const [btnDisable, setBtnDisable] = useState(false)
 
   const api = axios.create({
     baseURL: API_BASEPATH_DEV,
@@ -30,230 +33,220 @@ const DashboardScreen = ({ route, navigation }) => {
       'X-Domain': X_DOMAIN  // Ensure this header is correct
     }
   });
+
   useEffect(() => {
     if (authToken) {
-      console.log('Fetching with token: ', authToken)
-      fetchJoblist()
+      fetchJoblist(authToken, setScheduleData, setError);
     }
-    else {
-      console.log("Now token available")
-      setError('Authentication required')
+    // getWeeklyTaskCount();
+  }, [authToken]);
+  useEffect(() => {
+    if (scheduleData && userTasks) {
+      getWeeklyTaskCount();
     }
-  }, [])
-  // useEffect(()=>{
-  //   if(scheduleData){
-  //     console.log('Processing schedule data...')
-  //     process
-  //   }
-  // }
-
-  // )
+  }, [scheduleData, userTasks]);
+  useEffect(() => {
+    // This will automatically reset button states when current task changes
+    if (current?.status === 'Completed') {
+      setJobStatus('Completed');
+    } else {
+      setJobStatus(current?.status || '');
+    }
+  }, [current]);
+  
   // decode method
   const decodeJWT = (token) => {
     try {
-      const [header, payload, signature] = token.split('.');
-      // handles playload token
-      const decodedPayload = base64.decode(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      const parts = token.split('.');
+      if (parts.length < 2) return null;
+
+      const decodedPayload = base64.decode(parts[1].replace(/-/g, '+').replace(/_/g, '/'));
       return JSON.parse(decodedPayload);
     } catch (error) {
       console.error('Failed decode:', error);
       return null;
     }
   };
+  // format the time
+  const formatLocalTime = (dateString) => {
+    if (!dateString) return '';
+    
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Invalid Date';
+  
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
 
   const payload = decodeJWT(authToken);
-  const accountID = payload.StaffId
-  // console.log(payload);
+  const accountID = payload?.StaffId ?? null;
+
   console.log(`account id: ${accountID}`);
+
   /////////////////// naviagte to schedule///////////////////
   const gotoSchedule = () => {
-    navigation.navigate("schedule")
+    navigation.navigate("schedule");
   }
-  //////////////////////////////////////////////////////////
-  const fetchJoblist = async () => {
-
-    try {
-      if (!authToken) {
-        throw new Error("No authentication token available");
-      }
-
-      console.log('Making request to:', `${API_BASEPATH_DEV}/Booking`);
-      console.log('Headers:', {
-        'Authorization': `Bearer ${authToken.substring(0, 10)}...` // Log first 10 chars only
-      });
-
-      let allResults = []
-      let page = 1
-      let hasMoreData = true
-      while (hasMoreData) {
-        const response = await api.get(`/Booking?page=${page}`, {
-          headers: {
-            'Authorization': `Bearer ${authToken}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
-        });
-        if (response.data.results.length > 0) {
-
-          allResults = [...allResults, ...response.data.results]
-          page++
-        } else {
-          hasMoreData = false
-        }
-      }
-      console.log(`All result: ${allResults}`)
-      setScheduleData(allResults)
-
-      // const response = await api.get('/Booking', {
-      //   headers: {
-      //     'Authorization': `Bearer ${authToken}`,
-      //     'Content-Type': 'application/json',
-      //     'Accept': 'application/json'
-      //   }
-      // });
-      // setScheduleData(response.data.results);
-
-
-    } catch (error) {
-      if (error.response) {
-        // Server responded with error
-        console.error('Error Response Data:', error.response.data);
-        console.error('Error Response Status:', error.response.status);
-        console.error('Error Response Headers:', error.response.headers);
-        setError(`Server Error: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
-      } else if (error.request) {
-        // Request made but no response
-        console.error('Error Request:', error.request);
-        setError('No response received from server');
-      } else {
-        // Error setting up request
-        console.error('Error Message:', error.message);
-        setError(`Error: ${error.message}`);
-      }
-    }
-  };
   // console.log(scheduleData)
-  // only prints out with jdahan account
-  // to get client's address
-  // console.log(scheduleData?.results?.[0]?.address);
-  // to get the staff information
-  // console.log(scheduleData?.results?.[0]?.staff);
-  // this is what staff obkect looks like:
-  // [{"calendarId": "494264a7-f9b9-4df6-a03f-c8f8c1eb53a8", 
-  //   "staff": {"accountLinked": true, "availability": [Array], 
-  //     "calendar": [Array], "emailAddress": "qyu39@my.centennialcollege.ca", 
-  //     "emailAddressStatus": "Unverifed", "firstName": "qianhui", 
-  //     "id": "7487cc7b-c0e5-4aae-98d5-dd65b00067cb", "lastName": "yu", 
-  //     "phoneNumber": "1111111111", "phoneNumberExtension": "", 
-  //     "phoneNumberStatus": "Unverifed", "roleId": "293e37be-40a7-4c91-964d-5e62dfde3e18", 
-  //     "status": "Active"}}]
-  // const staffSchedule = scheduleData?.results.filter(staff => staff.StaffId == accountID)
-  //console.log(scheduleData?.results.filter(staff => staff?.StaffId == accountID));
-  // a function to filter the received data by decoded staff id
-  // console.log(scheduleData.results[0].staff) // get the stuff from schedule
+
+  const userTasks = scheduleData?.filter(schedule =>
+    schedule?.assignedStaff?.some(task => task?.staff.id === accountID)
+  );
+  // now user tasks are the tasks only belongs to me
   const today = new Date();
-  let numTaskToday = 0
-  today.setHours(0, 0, 0, 0)
-  const matchedSchedules = scheduleData?.filter((schedule) => {
-    const isStatusValid = schedule?.status === "Scheduled";
-    const hasMatchingStaff = schedule?.staff?.some((task) =>
-      task?.staff?.id === accountID
-    ) || false;
+  today.setHours(0, 0, 0, 0);
+  // fetch today's data only
+  const matchedSchedules = userTasks?.filter((schedule) => {
+    const isStatusValid = schedule?.status === "Scheduled"||schedule?.status === "InProgress";
     const startDate = schedule?.startDate ? new Date(schedule.startDate) : null;
     const isDateValid = startDate ? startDate > today : false;
-    return isStatusValid && hasMatchingStaff && isDateValid;
-    // check staff staff.id
-    // return schedule.staff?.some((staffEntry) =>
-    //   staffEntry?.staff?.id === accountID
-    // );
+    return isStatusValid && isDateValid;
   }) || [];
   console.log("total schedules length:", scheduleData?.length);
-  //console.log(matchedSchedules)
-  //console.log(scheduleData)
   console.log("Matched schedules length:", matchedSchedules?.length);
+  // calculate the number of tasks within the week:
+  const getWeeklyTaskCount = async() => {
+    if (!userTasks) return 0;
+    // start of the week
+    const startOfWeek = new Date();
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+    // end of the week
+    const endOfWeek = new Date();
+    endOfWeek.setDate(endOfWeek.getDate() + (6 - endOfWeek.getDay()));
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    // find tasks within the week range
+    const weeklyTasks = userTasks.filter(schedule => {
+      const scheduleDate = new Date(schedule.startDate);
+      return scheduleDate >= startOfWeek && scheduleDate <= endOfWeek;
+    });
+    setWeeklyTasks(weeklyTasks.length);
+    // return weeklyTasksNumber;
+  }; 
+  console.log(`weekly tasks number Ho: ${weeklyTasksNumber}`);
   // button click to start the job
   // since current job is always the first
   const todayTaskList = (matchedSchedules || []).filter((schedule) => {
-    if (!schedule?.startDate) return false; // Skip if startDate is null or undefined
-  
+    if (!schedule?.startDate) return false;
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-  
+
     const startDate = new Date(schedule.startDate);
     startDate.setHours(0, 0, 0, 0); // Normalize startDate to avoid time mismatches
-  
+
     return startDate.getTime() === today.getTime();
   });
-  // console.log(todayTaskList)
+  // for performance mapping
+  const performances = [
+    { title: "Today's tasks left:", count: todayTaskList.length },
+    { title: 'Weekly tasks:\n', count: weeklyTasksNumber }
+  ];
   const current = todayTaskList[0]
-  console.log(current)
-  const countTodayTask = ()=>{
-    let numTaskToday = 0
-    const today = new Date();
-    today.setHours(0, 0, 0, 0)
-    matchedSchedules.forEach((schedule) => {
-      const startDate = schedule?.startDate ? new Date(schedule.startDate) : null;
-      if (startDate) {
-        startDate.setHours(0, 0, 0, 0); // Normalize startDate to midnight
-    
-        if (startDate.getTime() === today.getTime()) {
-          numTaskToday++; // Count tasks for today
-        }
-      }
-    })
-    return numTaskToday
-  }
-  console.log(`number of tasks: ${countTodayTask()}`)
-  
-// handle if this is null
-// console.log(`current task: ${current}`)
+  console.log(current);
   const changeStatus = async () => {
     try {
+      // Verify we have current task
+      if (!current || !current.id) {
+        console.log('No current task available:', current);
+        return;
+      }
+  
       if (current.status === 'Scheduled') {
-        const response = await api.patch(`/Booking/${current.id}`, 
-          {status: 'InProgress'},
+        setJobStatus('Scheduled')
+        const response = await api.post(
+          `/Booking/${current.id}/Start`,
+          {},  
           {
             headers: {
               'Authorization': `Bearer ${authToken}`,
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
             }
-
           }
-          
         );
-      }
+        
+        if (response.status === 200 || response.status === 204) {
+          setJobStatus('InProgress');
+          // re-fetch the job list
+          fetchJoblist(authToken, setScheduleData, setError);
+        }
+      } 
       else if (current.status === 'InProgress') {
-        const response = await api.patch(`/Booking/${current.id}`, 
-          {status: 'Completed'},
-        {
-          headers: {
-            'Authorization': `Bearer ${authToken}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+        const response = await api.post(
+          `/Booking/${current.id}/Complete`,
+          {}, 
+          {
+            headers: {
+              'Authorization': `Bearer ${authToken}`,
+            }
           }
-
-        })
+        );
+        if (response.status === 200 || response.status === 204) {
+          setJobStatus('Completed');
+          // setBtnDisable(true);
+          // Refresh the job list
+          fetchJoblist(authToken, setScheduleData, setError);
+        }
       }
     } catch (error) {
-      if (error.response) {
-        console.error("Error Response Status:", error.response.status);
-        console.error("Error Response Data:", error.response.data); // Important: Check this
-        console.error("Error Response Headers:", error.response.headers);
-        setError(`Server Error: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
-      } else if (error.request) {
-        console.error("No response received:", error.request);
-        setError("No response received from server");
+      console.error('Status change error:', {
+        endpoint: current?.status === 'Scheduled' ? 'Start' : 'Complete',
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
+      
+      if (error.response?.status === 401) {
+        setError('Authentication failed. Please try logging in again.');
       } else {
-        console.error("Request setup error:", error.message);
-        setError(`Request Error: ${error.message}`);
+        setError(`Failed to update status: ${error.message}`);
       }
     }
+  };
+  const renderActionButton = () => {
+    
+    const isCompleted = current?.status === 'Completed'
+    const hasValidTask = current && !isCompleted
 
+    const buttonConfig = {
+      Scheduled: {
+        color: augwaBlue,
+        text: 'START JOB',
+        disabled: false
+      },
+      InProgress: {
+        color: 'orange',
+        text: 'In Progress...',
+        disabled: false
+      },
+      Completed: {
+        color: 'gray',
+        text: 'Finished',
+        disabled: true
+      }
+    };
+    const config = current?.status ? 
+    buttonConfig[current.status] 
+    : { color: 'gray', text: 'No Task', disabled: true };
 
-
-
-  }
+  return (
+    <TouchableOpacity 
+      style={[styles.btnStyle, { 
+        backgroundColor: config.color,
+        opacity: hasValidTask ? 1 : 0.6 
+      }]}
+      onPress={hasValidTask ? changeStatus : null}
+      disabled={!hasValidTask}>
+      <Text style={styles.btnTitle}>{config.text}</Text>
+    </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={[styles.viewStyle]}>
@@ -270,8 +263,6 @@ const DashboardScreen = ({ route, navigation }) => {
               <BellIcon />
             </TouchableOpacity>
           </View>
-
-
         </View>
         {/* end of information area */}
 
@@ -284,29 +275,29 @@ const DashboardScreen = ({ route, navigation }) => {
         {/* section title view */}
         <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: 20 }}>
           <Text style={styles.sectionTitle}>Current Job</Text>
-          <Text style={styles.timeTitle}>{scheduleData?.results?.[0].startDate}</Text>
+          <Text style={styles.timeTitle}>
+            {current ? formatLocalTime(current.startDate) : ''}
+          </Text>
         </View>
         {/* end of section title view */}
         {/* jd,  btn */}
         <View style={{ flexDirection: 'row', marginTop: 20, marginLeft: 9 }}>
           <View style={styles.jobDescribtionStyle}>
-            <Text style={styles.jobDescribtionText}>
-              {` ${todayTaskList[0]?.address} ${todayTaskList[0]?.startDate}
-              Status: ${todayTaskList[0]?.status}`
-               
-              }
-            </Text>
+            {todayTaskList[0] ? (
+              <Text style={styles.jobDescribtionText}>
+                {`${current.address}\n${formatLocalTime(current.startDate)}\n
+                Status: ${current.status}`}
+              </Text>
+            ) : (
+              <Text style={styles.jobDescribtionText}>No task today!</Text>
+            )}
           </View>
           <View style={{ flexDirection: 'column', marginLeft: 12 }}>
-            <TouchableOpacity style={[styles.btnStyle, { backgroundColor: augwaBlue }]}
-            onPress={changeStatus}>
-              <Text style={{ fontSize: 20, color: "white" }}>
-                START JOB</Text>
-            </TouchableOpacity>
+          {renderActionButton()}
             <TouchableOpacity style={[styles.btnStyle, { backgroundColor: navigateColor }]}>
-              <View style={{ flexDirection: "row" }}>
+              <View style={styles.navigateButton}>
                 <Ionicons name="navigate-circle-outline" size={35} color="white" />
-                <Text style={[styles.btnTitle,]}>Navigate</Text>
+                <Text style={styles.btnTitle}>Navigate</Text>
               </View>
             </TouchableOpacity>
             {/* end of two buttons view */}
@@ -325,9 +316,10 @@ const DashboardScreen = ({ route, navigation }) => {
           contentContainerStyle={styles.scrollContainer}>
           {matchedSchedules.slice(1).map((item, index) => (
             <View key={index} style={[styles.jobDescribtionStyle]}>
-              <Text style={styles.jobDescribtionText}>{item.address} {item.startDate}</Text> 
-              {/* <Text style={styles.jobDescribtionText}> {item.startDate}</Text> */}
-              <Text style={styles.jobDescribtionText}> {item.status}</Text>
+              <Text style={styles.jobDescribtionText}>
+              {`${item.address}\n${formatLocalTime(item.startDate)}\n
+              Status: ${item.status}`}
+              </Text>
             </View>
           ))}
         </ScrollView>
@@ -337,17 +329,15 @@ const DashboardScreen = ({ route, navigation }) => {
         <ScrollView horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollContainer}>
-          {[`Today's tasks: `, "Weekly tasks ",].map((item, index) => (
+          {performances.map((item, index) => (
             <View key={index} style={[styles.performanceStyle]}>
-              <Text style = {styles.sectionTitle}>{item}</Text>
-              <Text style={styles.sectionTitle}>{todayTaskList.length}</Text>
+              <Text style={styles.sectionTitle}>{item.title}</Text>
+              <Text style={styles.performanceNumStyle}>{item.count}</Text>
             </View>
           ))}
         </ScrollView>
-
       </View>
       {/* end of the first section view */}
-
     </View>
   )
 }
@@ -379,7 +369,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginStart: 10,
     color: '#fff'
-
   },
   dashboardAreaStyle: {
     marginTop: 20,
@@ -401,7 +390,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: augwaBlue,
     fontWeight: '500'
-
   },
   jobDescribtionStyle: {
     backgroundColor: "#fff",
@@ -414,7 +402,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginLeft: 5,
     fontSize: 16
-
   },
   btnTitle: {
     fontSize: 20,
@@ -447,8 +434,17 @@ const styles = StyleSheet.create({
     height: 110,
     borderRadius: 20,
     marginLeft: 7
-
+  },
+  navigateButton: {
+    flexDirection: "row",
+    alignItems: 'center'
+  },
+  performanceNumStyle:{
+    fontSize: 25,
+    fontWeight: '700',
+    marginLeft: 10
   }
 
-})
-export default DashboardScreen
+});
+
+export default DashboardScreen;
