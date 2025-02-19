@@ -201,9 +201,11 @@ const ScheduleDetailScreen = ({ route }) => {
             {job.notes && job.notes.length > 0 ? (
               job.notes.map((note, index) => (
                 <View key={index} style={styles.note}>
-                  <Text style={styles.noteAuthor}>{note.author}</Text>
-                  <Text style={styles.noteText}>{note.text}</Text>
-                  <Text style={styles.noteDate}>{formatDate(note.date)} {new Date(note.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}</Text>
+                  <View style={styles.row}>
+                    <Text style={styles.noteAuthor}>{note.author}</Text>
+                    <Text style={styles.noteDate}>{formatDate(note.dateCreated)} {new Date(note.dateCreated).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}</Text>
+                  </View>
+                  <Text style={styles.noteText}>{note.content}</Text>
                 </View>
               ))
             ) : (
@@ -357,7 +359,7 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: "row",
-    justifyContent: "flex-start",
+    justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 5,
   },
