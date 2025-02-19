@@ -78,7 +78,7 @@ const DashboardScreen = ({ route, navigation }) => {
   today.setHours(0, 0, 0, 0);
   // fetch today's data only
   const matchedSchedules = userTasks?.filter((schedule) => {
-    const isStatusValid = schedule?.status === "Scheduled";
+    const isStatusValid = schedule?.status === "Scheduled"||schedule?.status === "InProgress";
     const startDate = schedule?.startDate ? new Date(schedule.startDate) : null;
     const isDateValid = startDate ? startDate > today : false;
     return isStatusValid && isDateValid;
@@ -129,26 +129,24 @@ const DashboardScreen = ({ route, navigation }) => {
   const changeStatus = async () => {
     try {
       if (current.status === 'Scheduled') {
-        const response = await api.patch(`/Booking/${current.id}`,
-          { status: 'InProgress' },
+        const response = await api.post(`/Booking/${current.id}/Start`,
+         // { status: 'InProgress' },
           {
             headers: {
               'Authorization': `Bearer ${authToken}`,
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
             }
           }
+          
         );
+        setJobStatus('Start')
       } else if (current.status === 'InProgress') {
-        const response = await api.patch(`/Booking/${current.id}`,
-          { status: 'Completed' },
+        const response = await api.post(`/Booking/${current.id}/Complete`,
           {
             headers: {
               'Authorization': `Bearer ${authToken}`,
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
             }
           });
+          setJobStatus('InProgress')
       }
     } catch (error) {
       if (error.response) {
