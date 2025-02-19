@@ -24,6 +24,7 @@ const DashboardScreen = ({ route, navigation }) => {
   const [scheduleData, setScheduleData] = useState(null);
   const [error, setError] = useState(null);
   const [weeklyTasksNumber, setWeeklyTasks] = useState(0)
+ // const [btnDisable, setBtnDisable] = useState(false)
 
   const api = axios.create({
     baseURL: API_BASEPATH_DEV,
@@ -44,6 +45,14 @@ const DashboardScreen = ({ route, navigation }) => {
       getWeeklyTaskCount();
     }
   }, [scheduleData, userTasks]);
+  useEffect(() => {
+    // This will automatically reset button states when current task changes
+    if (current?.status === 'Completed') {
+      setJobStatus('Completed');
+    } else {
+      setJobStatus(current?.status || '');
+    }
+  }, [current]);
   
   // decode method
   const decodeJWT = (token) => {
@@ -57,6 +66,22 @@ const DashboardScreen = ({ route, navigation }) => {
       console.error('Failed decode:', error);
       return null;
     }
+  };
+  // format the time
+  const formatLocalTime = (dateString) => {
+    if (!dateString) return '';
+    
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Invalid Date';
+  
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
   };
 
   const payload = decodeJWT(authToken);
@@ -121,48 +146,108 @@ const DashboardScreen = ({ route, navigation }) => {
   });
   // for performance mapping
   const performances = [
-    { title: "Today's tasks", count: todayTaskList.length },
-    { title: 'Weekly tasks', count: weeklyTasksNumber }
+    { title: "Today's tasks left:", count: todayTaskList.length },
+    { title: 'Weekly tasks:\n', count: weeklyTasksNumber }
   ];
   const current = todayTaskList[0]
   console.log(current);
   const changeStatus = async () => {
     try {
+      // Verify we have current task
+      if (!current || !current.id) {
+        console.log('No current task available:', current);
+        return;
+      }
+  
       if (current.status === 'Scheduled') {
-        const response = await api.post(`/Booking/${current.id}/Start`,
-         // { status: 'InProgress' },
+        setJobStatus('Scheduled')
+        const response = await api.post(
+          `/Booking/${current.id}/Start`,
+          {},  
           {
             headers: {
               'Authorization': `Bearer ${authToken}`,
             }
           }
-          
         );
-        setJobStatus('Start')
-      } else if (current.status === 'InProgress') {
-        const response = await api.post(`/Booking/${current.id}/Complete`,
+        
+        if (response.status === 200 || response.status === 204) {
+          setJobStatus('InProgress');
+          // re-fetch the job list
+          fetchJoblist(authToken, setScheduleData, setError);
+        }
+      } 
+      else if (current.status === 'InProgress') {
+        const response = await api.post(
+          `/Booking/${current.id}/Complete`,
+          {}, 
           {
             headers: {
               'Authorization': `Bearer ${authToken}`,
             }
-          });
-          setJobStatus('InProgress')
+          }
+        );
+        if (response.status === 200 || response.status === 204) {
+          setJobStatus('Completed');
+          // setBtnDisable(true);
+          // Refresh the job list
+          fetchJoblist(authToken, setScheduleData, setError);
+        }
       }
     } catch (error) {
-      if (error.response) {
-        console.error("Error Response Status:", error.response.status);
-        console.error("Error Response Data:", error.response.data);
-        console.error("Error Response Headers:", error.response.headers);
-        setError(`Server Error: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
-      } else if (error.request) {
-        console.error("No response received:", error.request);
-        setError("No response received from server");
+      console.error('Status change error:', {
+        endpoint: current?.status === 'Scheduled' ? 'Start' : 'Complete',
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
+      
+      if (error.response?.status === 401) {
+        setError('Authentication failed. Please try logging in again.');
       } else {
-        console.error("Request setup error:", error.message);
-        setError(`Request Error: ${error.message}`);
+        setError(`Failed to update status: ${error.message}`);
       }
     }
-  }
+  };
+  const renderActionButton = () => {
+    
+    const isCompleted = current?.status === 'Completed'
+    const hasValidTask = current && !isCompleted
+
+    const buttonConfig = {
+      Scheduled: {
+        color: augwaBlue,
+        text: 'START JOB',
+        disabled: false
+      },
+      InProgress: {
+        color: 'orange',
+        text: 'In Progress...',
+        disabled: false
+      },
+      Completed: {
+        color: 'gray',
+        text: 'Finished',
+        disabled: true
+      }
+    };
+    const config = current?.status ? 
+    buttonConfig[current.status] 
+    : { color: 'gray', text: 'No Task', disabled: true };
+
+  return (
+    <TouchableOpacity 
+      style={[styles.btnStyle, { 
+        backgroundColor: config.color,
+        opacity: hasValidTask ? 1 : 0.6 
+      }]}
+      onPress={hasValidTask ? changeStatus : null}
+      disabled={!hasValidTask}>
+      <Text style={styles.btnTitle}>{config.text}</Text>
+    </TouchableOpacity>
+    );
+  };
+
   return (
     <View style={[styles.viewStyle]}>
       {/* view for the top blue part */}
@@ -190,7 +275,9 @@ const DashboardScreen = ({ route, navigation }) => {
         {/* section title view */}
         <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: 20 }}>
           <Text style={styles.sectionTitle}>Current Job</Text>
-          <Text style={styles.timeTitle}>{scheduleData?.results?.[0].startDate}</Text>
+          <Text style={styles.timeTitle}>
+            {current ? formatLocalTime(current.startDate) : ''}
+          </Text>
         </View>
         {/* end of section title view */}
         {/* jd,  btn */}
@@ -198,23 +285,19 @@ const DashboardScreen = ({ route, navigation }) => {
           <View style={styles.jobDescribtionStyle}>
             {todayTaskList[0] ? (
               <Text style={styles.jobDescribtionText}>
-                {`${todayTaskList[0].address} ${todayTaskList[0].startDate}
-                      Status: ${todayTaskList[0].status}`}
+                {`${current.address}\n${formatLocalTime(current.startDate)}\n
+                Status: ${current.status}`}
               </Text>
             ) : (
               <Text style={styles.jobDescribtionText}>No task today!</Text>
             )}
           </View>
           <View style={{ flexDirection: 'column', marginLeft: 12 }}>
-            <TouchableOpacity style={[styles.btnStyle, { backgroundColor: augwaBlue }]}
-              onPress={changeStatus}>
-              <Text style={{ fontSize: 20, color: "white" }}>
-                START JOB</Text>
-            </TouchableOpacity>
+          {renderActionButton()}
             <TouchableOpacity style={[styles.btnStyle, { backgroundColor: navigateColor }]}>
-              <View style={{ flexDirection: "row" }}>
+              <View style={styles.navigateButton}>
                 <Ionicons name="navigate-circle-outline" size={35} color="white" />
-                <Text style={[styles.btnTitle,]}>Navigate</Text>
+                <Text style={styles.btnTitle}>Navigate</Text>
               </View>
             </TouchableOpacity>
             {/* end of two buttons view */}
@@ -233,9 +316,10 @@ const DashboardScreen = ({ route, navigation }) => {
           contentContainerStyle={styles.scrollContainer}>
           {matchedSchedules.slice(1).map((item, index) => (
             <View key={index} style={[styles.jobDescribtionStyle]}>
-              <Text style={styles.jobDescribtionText}>{item.address} {item.startDate}</Text>
-              {/* <Text style={styles.jobDescribtionText}> {item.startDate}</Text> */}
-              <Text style={styles.jobDescribtionText}> {item.status}</Text>
+              <Text style={styles.jobDescribtionText}>
+              {`${item.address}\n${formatLocalTime(item.startDate)}\n
+              Status: ${item.status}`}
+              </Text>
             </View>
           ))}
         </ScrollView>
@@ -248,7 +332,7 @@ const DashboardScreen = ({ route, navigation }) => {
           {performances.map((item, index) => (
             <View key={index} style={[styles.performanceStyle]}>
               <Text style={styles.sectionTitle}>{item.title}</Text>
-              <Text style={styles.sectionTitle}>{item.count}</Text>
+              <Text style={styles.performanceNumStyle}>{item.count}</Text>
             </View>
           ))}
         </ScrollView>
@@ -350,7 +434,17 @@ const styles = StyleSheet.create({
     height: 110,
     borderRadius: 20,
     marginLeft: 7
+  },
+  navigateButton: {
+    flexDirection: "row",
+    alignItems: 'center'
+  },
+  performanceNumStyle:{
+    fontSize: 25,
+    fontWeight: '700',
+    marginLeft: 10
   }
+
 });
 
 export default DashboardScreen;
