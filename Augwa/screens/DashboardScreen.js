@@ -24,7 +24,7 @@ const DashboardScreen = ({ route, navigation }) => {
   const [scheduleData, setScheduleData] = useState(null);
   const [error, setError] = useState(null);
   const [weeklyTasksNumber, setWeeklyTasks] = useState(0)
-  const [btnDisable, setBtnDisable] = useState(false)
+ // const [btnDisable, setBtnDisable] = useState(false)
 
   const api = axios.create({
     baseURL: API_BASEPATH_DEV,
@@ -45,6 +45,14 @@ const DashboardScreen = ({ route, navigation }) => {
       getWeeklyTaskCount();
     }
   }, [scheduleData, userTasks]);
+  useEffect(() => {
+    // This will automatically reset button states when current task changes
+    if (current?.status === 'Completed') {
+      setJobStatus('Completed');
+    } else {
+      setJobStatus(current?.status || '');
+    }
+  }, [current]);
   
   // decode method
   const decodeJWT = (token) => {
@@ -146,7 +154,7 @@ const DashboardScreen = ({ route, navigation }) => {
   const changeStatus = async () => {
     try {
       // Verify we have current task
-      if (!current || !current.id || btnDisable) {
+      if (!current || !current.id) {
         console.log('No current task available:', current);
         return;
       }
@@ -179,10 +187,9 @@ const DashboardScreen = ({ route, navigation }) => {
             }
           }
         );
-        
         if (response.status === 200 || response.status === 204) {
           setJobStatus('Completed');
-          setBtnDisable(true);
+          // setBtnDisable(true);
           // Refresh the job list
           fetchJoblist(authToken, setScheduleData, setError);
         }
@@ -203,34 +210,41 @@ const DashboardScreen = ({ route, navigation }) => {
     }
   };
   const renderActionButton = () => {
-    if (btnDisable) {
-
-      return (
-        <TouchableOpacity 
-          style={[styles.btnStyle, { backgroundColor: 'gray' }]}
-          disabled={true}>
-          <Text style={styles.btnTitle}>Finished</Text>
-        </TouchableOpacity>
-      );
-    }
+    
+    const isCompleted = current?.status === 'Completed'
+    const hasValidTask = current && !isCompleted
 
     const buttonConfig = {
       Scheduled: {
         color: augwaBlue,
-        text: 'START JOB'
+        text: 'START JOB',
+        disabled: false
       },
       InProgress: {
         color: 'orange',
-        text: 'In Progress...'
+        text: 'In Progress...',
+        disabled: false
+      },
+      Completed: {
+        color: 'gray',
+        text: 'Finished',
+        disabled: true
       }
     };
-    const config = buttonConfig[current?.status] || buttonConfig.Scheduled;
-    return (
-      <TouchableOpacity 
-        style={[styles.btnStyle, { backgroundColor: config.color }]}
-        onPress={changeStatus}>
-        <Text style={styles.btnTitle}>{config.text}</Text>
-      </TouchableOpacity>
+    const config = current?.status ? 
+    buttonConfig[current.status] 
+    : { color: 'gray', text: 'No Task', disabled: true };
+
+  return (
+    <TouchableOpacity 
+      style={[styles.btnStyle, { 
+        backgroundColor: config.color,
+        opacity: hasValidTask ? 1 : 0.6 
+      }]}
+      onPress={hasValidTask ? changeStatus : null}
+      disabled={!hasValidTask}>
+      <Text style={styles.btnTitle}>{config.text}</Text>
+    </TouchableOpacity>
     );
   };
 
