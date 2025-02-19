@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect , useCallback} from 'react';
 import base64 from 'base-64';
 import axios from "axios"
 import { View, StyleSheet, Text, TouchableOpacity, } from 'react-native';
@@ -23,6 +23,7 @@ const DashboardScreen = ({ route, navigation }) => {
   const { userName } = useContext(AuthContext);
   const [scheduleData, setScheduleData] = useState(null);
   const [error, setError] = useState(null);
+  const [weeklyTasksNumber, setWeeklyTasks] = useState(0)
 
   const api = axios.create({
     baseURL: API_BASEPATH_DEV,
@@ -36,15 +37,14 @@ const DashboardScreen = ({ route, navigation }) => {
     if (authToken) {
       fetchJoblist(authToken, setScheduleData, setError);
     }
+    // getWeeklyTaskCount();
   }, [authToken]);
-  // useEffect(()=>{
-  //   if(scheduleData){
-  //     console.log('Processing schedule data...')
-  //     process
-  //   }
-  // }
-  // )
-
+  useEffect(() => {
+    if (scheduleData && userTasks) {
+      getWeeklyTaskCount();
+    }
+  }, [scheduleData, userTasks]);
+  
   // decode method
   const decodeJWT = (token) => {
     try {
@@ -66,34 +66,50 @@ const DashboardScreen = ({ route, navigation }) => {
 
   /////////////////// naviagte to schedule///////////////////
   const gotoSchedule = () => {
-    navigation.navigate("schedule")
+    navigation.navigate("schedule");
   }
+  // console.log(scheduleData)
+
+  const userTasks = scheduleData?.filter(schedule =>
+    schedule?.assignedStaff?.some(task => task?.staff.id === accountID)
+  );
+  // now user tasks are the tasks only belongs to me
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   // fetch today's data only
-  const matchedSchedules = scheduleData?.filter((schedule) => {
-    const isStatusValid = schedule?.status === "Scheduled";
-    const hasMatchingStaff = schedule?.staff?.some((task) =>
-      task?.staff?.id === accountID
-    ) || false;
+  const matchedSchedules = userTasks?.filter((schedule) => {
+    const isStatusValid = schedule?.status === "Scheduled"||schedule?.status === "InProgress";
     const startDate = schedule?.startDate ? new Date(schedule.startDate) : null;
     const isDateValid = startDate ? startDate > today : false;
-    return isStatusValid && hasMatchingStaff && isDateValid;
-    // check staff staff.id
-    // return schedule.staff?.some((staffEntry) =>
-    //   staffEntry?.staff?.id === accountID
-    // );
+    return isStatusValid && isDateValid;
   }) || [];
-
   console.log("total schedules length:", scheduleData?.length);
-  //console.log(matchedSchedules)
-  //console.log(scheduleData)
   console.log("Matched schedules length:", matchedSchedules?.length);
+  // calculate the number of tasks within the week:
+  const getWeeklyTaskCount = async() => {
+    if (!userTasks) return 0;
+    // start of the week
+    const startOfWeek = new Date();
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+    // end of the week
+    const endOfWeek = new Date();
+    endOfWeek.setDate(endOfWeek.getDate() + (6 - endOfWeek.getDay()));
+    endOfWeek.setHours(23, 59, 59, 999);
 
+    // find tasks within the week range
+    const weeklyTasks = userTasks.filter(schedule => {
+      const scheduleDate = new Date(schedule.startDate);
+      return scheduleDate >= startOfWeek && scheduleDate <= endOfWeek;
+    });
+    setWeeklyTasks(weeklyTasks.length);
+    // return weeklyTasksNumber;
+  }; 
+  console.log(`weekly tasks number Ho: ${weeklyTasksNumber}`);
   // button click to start the job
   // since current job is always the first
   const todayTaskList = (matchedSchedules || []).filter((schedule) => {
-    if (!schedule?.startDate) return false; // Skip if startDate is null or undefined
+    if (!schedule?.startDate) return false;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -103,59 +119,39 @@ const DashboardScreen = ({ route, navigation }) => {
 
     return startDate.getTime() === today.getTime();
   });
-
-  // console.log(todayTaskList)
+  // for performance mapping
+  const performances = [
+    { title: "Today's tasks", count: todayTaskList.length },
+    { title: 'Weekly tasks', count: weeklyTasksNumber }
+  ];
   const current = todayTaskList[0]
   console.log(current);
-  const countTodayTask = () => {
-    let numTaskToday = 0;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    matchedSchedules.forEach((schedule) => {
-      const startDate = schedule?.startDate ? new Date(schedule.startDate) : null;
-      if (startDate) {
-        startDate.setHours(0, 0, 0, 0); // Normalize startDate to midnight
-
-        if (startDate.getTime() === today.getTime()) {
-          numTaskToday++; // Count tasks for today
-        }
-      }
-    })
-    return numTaskToday;
-  };
-  console.log(`number of tasks: ${countTodayTask()}`);
-
-  // handle if this is null
-  // console.log(`current task: ${current}`)
   const changeStatus = async () => {
     try {
       if (current.status === 'Scheduled') {
-        const response = await api.patch(`/Booking/${current.id}`,
-          { status: 'InProgress' },
+        const response = await api.post(`/Booking/${current.id}/Start`,
+         // { status: 'InProgress' },
           {
             headers: {
               'Authorization': `Bearer ${authToken}`,
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
             }
           }
+          
         );
+        setJobStatus('Start')
       } else if (current.status === 'InProgress') {
-        const response = await api.patch(`/Booking/${current.id}`,
-          { status: 'Completed' },
+        const response = await api.post(`/Booking/${current.id}/Complete`,
           {
             headers: {
               'Authorization': `Bearer ${authToken}`,
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
             }
           });
+          setJobStatus('InProgress')
       }
     } catch (error) {
       if (error.response) {
         console.error("Error Response Status:", error.response.status);
-        console.error("Error Response Data:", error.response.data); // Important: Check this
+        console.error("Error Response Data:", error.response.data);
         console.error("Error Response Headers:", error.response.headers);
         setError(`Server Error: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
       } else if (error.request) {
@@ -167,7 +163,6 @@ const DashboardScreen = ({ route, navigation }) => {
       }
     }
   }
-
   return (
     <View style={[styles.viewStyle]}>
       {/* view for the top blue part */}
@@ -250,10 +245,10 @@ const DashboardScreen = ({ route, navigation }) => {
         <ScrollView horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollContainer}>
-          {[`Today's tasks: `, "Weekly tasks ",].map((item, index) => (
+          {performances.map((item, index) => (
             <View key={index} style={[styles.performanceStyle]}>
-              <Text style={styles.sectionTitle}>{item}</Text>
-              <Text style={styles.sectionTitle}>{todayTaskList.length}</Text>
+              <Text style={styles.sectionTitle}>{item.title}</Text>
+              <Text style={styles.sectionTitle}>{item.count}</Text>
             </View>
           ))}
         </ScrollView>
