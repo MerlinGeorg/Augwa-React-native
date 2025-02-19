@@ -36,9 +36,15 @@ const DashboardScreen = ({ route, navigation }) => {
   useEffect(() => {
     if (authToken) {
       fetchJoblist(authToken, setScheduleData, setError);
+    }
+    // getWeeklyTaskCount();
+  }, [authToken]);
+  useEffect(() => {
+    if (scheduleData && userTasks) {
       getWeeklyTaskCount();
     }
-  }, [authToken]);
+  }, [scheduleData, userTasks]);
+  
   // decode method
   const decodeJWT = (token) => {
     try {
@@ -80,7 +86,7 @@ const DashboardScreen = ({ route, navigation }) => {
   console.log("total schedules length:", scheduleData?.length);
   console.log("Matched schedules length:", matchedSchedules?.length);
   // calculate the number of tasks within the week:
-  const getWeeklyTaskCount = () => {
+  const getWeeklyTaskCount = async() => {
     if (!userTasks) return 0;
     // start of the week
     const startOfWeek = new Date();
@@ -120,26 +126,6 @@ const DashboardScreen = ({ route, navigation }) => {
   ];
   const current = todayTaskList[0]
   console.log(current);
-  const countTodayTask = () => {
-    let numTaskToday = 0;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    matchedSchedules.forEach((schedule) => {
-      const startDate = schedule?.startDate ? new Date(schedule.startDate) : null;
-      if (startDate) {
-        startDate.setHours(0, 0, 0, 0); // Normalize startDate to midnight
-
-        if (startDate.getTime() === today.getTime()) {
-          numTaskToday++; // Count tasks for today
-        }
-      }
-    })
-    return numTaskToday;
-  };
-
-  // handle if this is null
-  // console.log(`current task: ${current}`)
   const changeStatus = async () => {
     try {
       if (current.status === 'Scheduled') {
