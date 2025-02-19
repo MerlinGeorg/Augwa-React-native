@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import { useFocusEffect } from '@react-navigation/native';
 import { TouchableOpacity, Text, Button, View, StyleSheet, FlatList } from "react-native";
 // import { ScrollView } from 'react-native-gesture-handler';
 // import SearchBar from "../components/SearchBar";
@@ -32,9 +33,11 @@ const ScheduleScreen = ({ navigation }) => {
     };
   };
 
-  useEffect(() => {
-    fetchBookings();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchBookings();
+    }, [])
+  );
 
   // Function to fetch booking
   const fetchBookings = async () => {
@@ -176,7 +179,7 @@ const ScheduleScreen = ({ navigation }) => {
 
                     {/*----- Status -----*/}
                     <View style={styles.jobStatus}>
-                      <Text> {item.status}</Text>
+                      <Text> {item.status == "InProgress" ? "In Progress" : item.status}</Text>
                     </View>
 
                     {/*----- Arrow Icon -----*/}
