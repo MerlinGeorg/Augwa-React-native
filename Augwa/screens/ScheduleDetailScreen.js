@@ -156,7 +156,7 @@ const ScheduleDetailScreen = ({ route }) => {
             </View>
           </View>
 
-          {/*----- Job Date, Time, Staff -----*/}
+          {/*----- Job Date and Time -----*/}
           <View style={styles.card}>
             <View style={styles.row}>
               <Text style={styles.label}>Date:</Text>
@@ -166,11 +166,6 @@ const ScheduleDetailScreen = ({ route }) => {
             <View style={styles.row}>
               <Text style={styles.label}>Time:</Text>
               <Text style={styles.value}>{formatTime(job.startDate, job.endDate)}</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Text style={styles.label}>Staff:</Text>
-              <Text style={styles.value}>{job.assignedStaff?.map(s => `${s.staff.firstName} ${s.staff.lastName}`).join(", ")}</Text>
             </View>
           </View>
 
