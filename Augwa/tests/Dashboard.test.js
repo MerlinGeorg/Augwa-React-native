@@ -96,8 +96,6 @@ describe('DashboardScreen', () => {
       expect(getByText('No task today!')).toBeTruthy();
     });
   });
-
-
   it('navigates to schedule screen when "View all" is pressed', () => {
     const { getByText } = renderComponent();
     const viewAllButton = getByText('View all');
