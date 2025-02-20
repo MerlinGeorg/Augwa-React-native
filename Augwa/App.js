@@ -10,11 +10,12 @@ import React, { useState } from 'react';
 
 // Import screens
 import SignupScreen from './screens/SignupScreen';
-import LoginScreen from './screens/LogInScreen';
+import LoginScreen from './screens/LoginScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import ScheduleScreen from './screens/ScheduleScreen';
 import { augwaBlue } from './assets/styles/color';
 import SuccessScreen from './screens/biometricSuccessScreen';
+import ScheduleDetailScreen from './screens/ScheduleDetailScreen';
 
 // Create navigators
 const Stack = createStackNavigator();
@@ -37,6 +38,7 @@ const LoginStack = () => {
         options={{ gestureEnabled: false }} // Prevent going back to login
       />
       <Stack.Screen name = "schedule" component={ScheduleScreen} />
+      <Stack.Screen name = "schedule_detail" component={ScheduleDetailScreen} />
     </Stack.Navigator>
   );
 };
