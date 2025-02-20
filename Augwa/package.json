@@ -77,7 +77,8 @@
       "node"
     ],
     "moduleNameMapper": {
-      "^react-native-vector-icons/(.*)$": "<rootDir>/__mocks__/react-native-vector-icons.js"
+      "^react-native-vector-icons/(.*)$": "<rootDir>/__mocks__/react-native-vector-icons.js",
+      "\\.svg$": "<rootDir>/__mocks__/svgMock.js"
     }
   },
   "private": true
