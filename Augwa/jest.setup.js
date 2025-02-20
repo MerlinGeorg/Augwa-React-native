@@ -14,6 +14,29 @@ jest.mock('react-native-reanimated', () => {
   return Reanimated;
 });
 
+// Mock react-native-vector-icons
+jest.mock('react-native-vector-icons/FontAwesome5', () => ({
+  default: jest.fn(),
+  getImageSource: jest.fn(),
+}));
+
+jest.mock('react-native-vector-icons/Ionicons', () => ({
+  default: jest.fn(),
+  getImageSource: jest.fn(),
+}));
+
+jest.mock('react-native-vector-icons/MaterialIcons', () => ({
+  default: jest.fn(),
+  getImageSource: jest.fn(),
+}));
+
+// Mock local authentication
+jest.mock('expo-local-authentication', () => ({
+  authenticateAsync: jest.fn(() => Promise.resolve({ success: true })),
+  hasHardwareAsync: jest.fn(() => Promise.resolve(true)),
+  isEnrolledAsync: jest.fn(() => Promise.resolve(true)),
+}));
+
 beforeAll(() => {
   // Mock console.error to suppress the output in tests
   jest.spyOn(console, 'error').mockImplementation(() => {});
