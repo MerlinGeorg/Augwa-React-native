@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import { useFocusEffect } from '@react-navigation/native';
 import { TouchableOpacity, Text, Button, View, StyleSheet, FlatList } from "react-native";
 // import { ScrollView } from 'react-native-gesture-handler';
 // import SearchBar from "../components/SearchBar";
@@ -32,9 +33,11 @@ const ScheduleScreen = ({ navigation }) => {
     };
   };
 
-  useEffect(() => {
-    fetchBookings();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchBookings();
+    }, [])
+  );
 
   // Function to fetch booking
   const fetchBookings = async () => {
@@ -176,7 +179,7 @@ const ScheduleScreen = ({ navigation }) => {
 
                     {/*----- Status -----*/}
                     <View style={styles.jobStatus}>
-                      <Text> {item.status}</Text>
+                      <Text> {item.status == "InProgress" ? "In Progress" : item.status}</Text>
                     </View>
 
                     {/*----- Arrow Icon -----*/}
@@ -293,6 +296,60 @@ const styles = StyleSheet.create({
   startButtonDisabled: {
     backgroundColor: '#cccccc',
   },
+  jobCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent:'space-between',
+      backgroundColor: "#fff",
+      marginLeft: 20,
+      marginRight: 20,
+      marginTop: 10,
+      borderRadius: 5,
+      padding: 10
+  },
+  Container: {
+    flex: 1,
+  },
+  buttonstyle: {
+   
+    justifyContent: 'space-between',
+    flexDirection: 'row'
+  },
+  JobView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    fontSize: 16
+  },
+  JobIcon: {
+    fontSize: 20,
+    alignSelf: 'center',
+    //  color: '#666'
+  },
+  
+  startButton: {
+    backgroundColor: '#177de1',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    marginBottom: 10,
+    alignSelf: 'flex-start',
+},
+startButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
+},
+msgText: {
+  textAlign: 'center',
+  marginTop: 20,
+  fontSize: 16,
+  color: '#666',
+},
+startButtonDisabled: {
+  backgroundColor: '#cccccc',
+},
+  
 })
 
 export default ScheduleScreen;
