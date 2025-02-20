@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals';
 
 describe('test filter tasks only on 2.19', () => {
-  // Set up a fixed date for consistent testing
+  
   const today = new Date('2024-02-19');
   
   beforeEach(() => {
@@ -12,7 +12,7 @@ describe('test filter tasks only on 2.19', () => {
   afterEach(() => {
     jest.useRealTimers();
   });
-  // the original mathod
+  
   const filterSchedules = (userTasks) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
