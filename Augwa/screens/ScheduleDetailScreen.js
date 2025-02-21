@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { TouchableOpacity, Text, View, StyleSheet, ScrollView, Image, Alert, ActivityIndicator } from "react-native";
 import { augwaBlue, dashboardArea } from "../assets/styles/color";
 import { Ionicons } from '@expo/vector-icons';
@@ -7,10 +7,10 @@ import axios from "axios";
 import { API_BASEPATH_DEV, X_DOMAIN } from "@env";
 
 const ScheduleDetailScreen = ({ route }) => {
-  const { authToken, user } = useContext(AuthContext);
-  const { job: initialJob } = route.params;
-  const [job, setJob] = useState(initialJob);
-  const [loading, setLoading] = useState(false);
+  const { authToken } = useContext(AuthContext);
+  const { jobId } = route.params;
+  const [job, setJob] = useState(null);
+  const [loading, setLoading] = useState(true);
   const api = axios.create({
     baseURL: API_BASEPATH_DEV,
     headers: {
@@ -21,7 +21,7 @@ const ScheduleDetailScreen = ({ route }) => {
 
   const fetchUpdatedJob = async () => {
     try {
-      const response = await api.get(`/Booking/${job.id}`, {
+      const response = await api.get(`/Booking/${jobId}`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           'Content-Type': 'application/json',
@@ -32,8 +32,18 @@ const ScheduleDetailScreen = ({ route }) => {
       setJob(response.data);
     } catch (error) {
       console.error("Failed to fetch updated job status:", error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchUpdatedJob();
+  }, []);
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#177de1" style={{ marginTop: 50 }} />;
+  }
 
   // Make sure the job exists
   if (!job) {

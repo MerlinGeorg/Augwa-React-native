@@ -173,7 +173,7 @@ const ScheduleScreen = ({ navigation }) => {
 
                     {/*----- Arrow Icon -----*/}
                     <View style={styles.arrowIcon}>
-                      <TouchableOpacity onPress={() => navigation.navigate("schedule_detail", { job: item })}>
+                      <TouchableOpacity onPress={() => navigation.navigate("schedule_detail", { jobId: item.id })}>
                         <Ionicons name="chevron-forward" style={styles.arrowIcon} />
                       </TouchableOpacity>
                     </View>
