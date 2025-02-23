@@ -295,7 +295,7 @@ const DashboardScreen = ({ route, navigation }) => {
         <ScrollView horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollContainer}>
-          {matchedSchedules.slice(1).map((item, index) => (
+          {matchedSchedules.map((item, index) => (
             <View key={index} style={[styles.jobDescribtionStyle]}>
               <Text style={styles.jobDescribtionText}>
               {`${item.address}\n${formatLocalTime(item.startDate)}\n
