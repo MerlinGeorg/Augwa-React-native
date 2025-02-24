@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useFocusEffect } from '@react-navigation/native';
 import { TouchableOpacity, Text, Button, View, StyleSheet, FlatList } from "react-native";
-// import { ScrollView } from 'react-native-gesture-handler';
-// import SearchBar from "../components/SearchBar";
 import { getBooking } from "../components/Schedule";
 import { augwaBlue, dashboardArea } from "../assets/styles/color";
 import { Ionicons } from '@expo/vector-icons';
@@ -11,8 +9,6 @@ import { AuthContext } from '../src/context/AuthContext';
 const ScheduleScreen = ({ navigation }) => {
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(true);
-  // const [search, setSearch] = useState('')
-  // const [filtersearch, setFilterSearch] = useState([])
   const [selectedTab, setSelectedTab] = useState("Today");
   const { authToken, user } = useContext(AuthContext);
 
@@ -132,13 +128,6 @@ const ScheduleScreen = ({ navigation }) => {
           ))}
         </View>
 
-        {/* Searcbar and menu options */}
-        {/*   <View style = {styles.row}>
-              <TouchableOpacity>
-              <Ionicons name="options-outline" style = {styles.iconStyle}/>
-              </TouchableOpacity>
-            <SearchBar/>
-            </View>  */}
         <View style={styles.Container}>
           {loading ? (
             <Text style={styles.msgText}>Loading jobs...</Text>
@@ -184,7 +173,7 @@ const ScheduleScreen = ({ navigation }) => {
 
                     {/*----- Arrow Icon -----*/}
                     <View style={styles.arrowIcon}>
-                      <TouchableOpacity onPress={() => navigation.navigate("schedule_detail", { job: item })}>
+                      <TouchableOpacity onPress={() => navigation.navigate("schedule_detail", { jobId: item.id })}>
                         <Ionicons name="chevron-forward" style={styles.arrowIcon} />
                       </TouchableOpacity>
                     </View>

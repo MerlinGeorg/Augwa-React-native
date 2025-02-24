@@ -8,29 +8,22 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { API_BASEPATH_DEV, X_DOMAIN } from '@env';
 import { augwaBlue, dashboardArea, errorRed, navigateColor } from "../assets/styles/color";
 import Message from '../components/Message'
-// import Dashboard from '../components/Dashboard'
 import BellIcon from '../components/BellIcon'
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { isSearchBarAvailableForCurrentPlatform } from 'react-native-screens';
 import {fetchJoblist} from '../components/FetchList'
 
 const DashboardScreen = ({ route, navigation }) => {
-  // const [username, setUsername] = useState('')
-
-  // Initially job is not started
   const [jobStatus, setJobStatus] = useState('');
-  const { authToken } = useContext(AuthContext); // get token from
+  const { authToken } = useContext(AuthContext); 
   const { userName } = useContext(AuthContext);
   const [scheduleData, setScheduleData] = useState(null);
   const [error, setError] = useState(null);
   const [weeklyTasksNumber, setWeeklyTasks] = useState(0)
- // const [btnDisable, setBtnDisable] = useState(false)
-
   const api = axios.create({
     baseURL: API_BASEPATH_DEV,
     headers: {
       'Content-Type': 'application/json',
-      'X-Domain': X_DOMAIN  // Ensure this header is correct
+      'X-Domain': X_DOMAIN  
     }
   });
 
@@ -38,7 +31,7 @@ const DashboardScreen = ({ route, navigation }) => {
     if (authToken) {
       fetchJoblist(authToken, setScheduleData, setError);
     }
-    // getWeeklyTaskCount();
+   
   }, [authToken]);
   useEffect(() => {
     if (scheduleData && userTasks) {
@@ -46,7 +39,6 @@ const DashboardScreen = ({ route, navigation }) => {
     }
   }, [scheduleData, userTasks]);
   useEffect(() => {
-    // This will automatically reset button states when current task changes
     if (current?.status === 'Completed') {
       setJobStatus('Completed');
     } else {
@@ -54,7 +46,6 @@ const DashboardScreen = ({ route, navigation }) => {
     }
   }, [current]);
   
-  // decode method
   const decodeJWT = (token) => {
     try {
       const parts = token.split('.');
@@ -67,7 +58,6 @@ const DashboardScreen = ({ route, navigation }) => {
       return null;
     }
   };
-  // format the time
   const formatLocalTime = (dateString) => {
     if (!dateString) return '';
     
@@ -89,19 +79,16 @@ const DashboardScreen = ({ route, navigation }) => {
 
   console.log(`account id: ${accountID}`);
 
-  /////////////////// naviagte to schedule///////////////////
   const gotoSchedule = () => {
     navigation.navigate("schedule");
   }
-  // console.log(scheduleData)
 
   const userTasks = scheduleData?.filter(schedule =>
     schedule?.assignedStaff?.some(task => task?.staff.id === accountID)
   );
-  // now user tasks are the tasks only belongs to me
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  // fetch today's data only
+
   const matchedSchedules = userTasks?.filter((schedule) => {
     const isStatusValid = schedule?.status === "Scheduled"||schedule?.status === "InProgress";
     const startDate = schedule?.startDate ? new Date(schedule.startDate) : null;
@@ -110,29 +97,28 @@ const DashboardScreen = ({ route, navigation }) => {
   }) || [];
   console.log("total schedules length:", scheduleData?.length);
   console.log("Matched schedules length:", matchedSchedules?.length);
-  // calculate the number of tasks within the week:
+  
   const getWeeklyTaskCount = async() => {
     if (!userTasks) return 0;
-    // start of the week
+   
     const startOfWeek = new Date();
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
     startOfWeek.setHours(0, 0, 0, 0);
-    // end of the week
+   
     const endOfWeek = new Date();
     endOfWeek.setDate(endOfWeek.getDate() + (6 - endOfWeek.getDay()));
     endOfWeek.setHours(23, 59, 59, 999);
 
-    // find tasks within the week range
+    
     const weeklyTasks = userTasks.filter(schedule => {
       const scheduleDate = new Date(schedule.startDate);
       return scheduleDate >= startOfWeek && scheduleDate <= endOfWeek;
     });
     setWeeklyTasks(weeklyTasks.length);
-    // return weeklyTasksNumber;
+   
   }; 
   console.log(`weekly tasks number Ho: ${weeklyTasksNumber}`);
-  // button click to start the job
-  // since current job is always the first
+  
   const todayTaskList = (matchedSchedules || []).filter((schedule) => {
     if (!schedule?.startDate) return false;
 
@@ -140,11 +126,11 @@ const DashboardScreen = ({ route, navigation }) => {
     today.setHours(0, 0, 0, 0);
 
     const startDate = new Date(schedule.startDate);
-    startDate.setHours(0, 0, 0, 0); // Normalize startDate to avoid time mismatches
+    startDate.setHours(0, 0, 0, 0); 
 
     return startDate.getTime() === today.getTime();
   });
-  // for performance mapping
+ 
   const performances = [
     { title: "Today's tasks left:", count: todayTaskList.length },
     { title: 'Weekly tasks:\n', count: weeklyTasksNumber }
@@ -153,7 +139,7 @@ const DashboardScreen = ({ route, navigation }) => {
   console.log(current);
   const changeStatus = async () => {
     try {
-      // Verify we have current task
+     
       if (!current || !current.id) {
         console.log('No current task available:', current);
         return;
@@ -173,7 +159,7 @@ const DashboardScreen = ({ route, navigation }) => {
         
         if (response.status === 200 || response.status === 204) {
           setJobStatus('InProgress');
-          // re-fetch the job list
+          
           fetchJoblist(authToken, setScheduleData, setError);
         }
       } 
@@ -189,8 +175,7 @@ const DashboardScreen = ({ route, navigation }) => {
         );
         if (response.status === 200 || response.status === 204) {
           setJobStatus('Completed');
-          // setBtnDisable(true);
-          // Refresh the job list
+         
           fetchJoblist(authToken, setScheduleData, setError);
         }
       }
@@ -250,7 +235,7 @@ const DashboardScreen = ({ route, navigation }) => {
 
   return (
     <View style={[styles.viewStyle]}>
-      {/* view for the top blue part */}
+     
       <View style={{ backgroundColor: augwaBlue, marginTop: 70 }}>
         <View style={styles.greetingArea}>
           <Text style={styles.greetings}>Welcome, </Text>
@@ -264,23 +249,20 @@ const DashboardScreen = ({ route, navigation }) => {
             </TouchableOpacity>
           </View>
         </View>
-        {/* end of information area */}
-
-        {/* display username */}
+       
         <Text style={styles.usernameStyle}> {userName} !</Text>
       </View>
 
-      {/* beginning of the dashboard view */}
+    
       <View style={styles.dashboardAreaStyle}>
-        {/* section title view */}
+       
         <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: 20 }}>
           <Text style={styles.sectionTitle}>Current Job</Text>
           <Text style={styles.timeTitle}>
             {current ? formatLocalTime(current.startDate) : ''}
           </Text>
         </View>
-        {/* end of section title view */}
-        {/* jd,  btn */}
+      
         <View style={{ flexDirection: 'row', marginTop: 20, marginLeft: 9 }}>
           <View style={styles.jobDescribtionStyle}>
             {todayTaskList[0] ? (
@@ -300,11 +282,10 @@ const DashboardScreen = ({ route, navigation }) => {
                 <Text style={styles.btnTitle}>Navigate</Text>
               </View>
             </TouchableOpacity>
-            {/* end of two buttons view */}
+          
           </View>
         </View>
-        {/* end of Current job section btn view */}
-        {/* section upcoming job view */}
+       
         <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: 20 }}>
           <Text style={styles.sectionTitle}>Upcoming Jobs</Text>
           <TouchableOpacity style={{ marginLeft: 150, marginTop: 5 }} onPress={gotoSchedule}>
@@ -314,7 +295,7 @@ const DashboardScreen = ({ route, navigation }) => {
         <ScrollView horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollContainer}>
-          {matchedSchedules.slice(1).map((item, index) => (
+          {matchedSchedules.map((item, index) => (
             <View key={index} style={[styles.jobDescribtionStyle]}>
               <Text style={styles.jobDescribtionText}>
               {`${item.address}\n${formatLocalTime(item.startDate)}\n
@@ -337,7 +318,7 @@ const DashboardScreen = ({ route, navigation }) => {
           ))}
         </ScrollView>
       </View>
-      {/* end of the first section view */}
+     
     </View>
   )
 }
@@ -349,7 +330,7 @@ const styles = StyleSheet.create({
   },
   greetingArea: {
     flexDirection: 'row',
-    // backgroundColor: augwaBlue,
+    
   },
   iconSection: {
     marginLeft: 150,
@@ -372,7 +353,6 @@ const styles = StyleSheet.create({
   },
   dashboardAreaStyle: {
     marginTop: 20,
-    // flex: 1,
     height: '85%',
     backgroundColor: dashboardArea,
     borderRadius: 30,

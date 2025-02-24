@@ -1,16 +1,20 @@
-import React, { useState, useContext } from "react";
-import { TouchableOpacity, Text, View, StyleSheet, ScrollView, Image, Alert, ActivityIndicator } from "react-native";
+import React, { useEffect, useState, useContext } from "react";
+import { TouchableOpacity, Text, View, StyleSheet, ScrollView, Image, Alert, ActivityIndicator, Modal, TextInput } from "react-native";
 import { augwaBlue, dashboardArea } from "../assets/styles/color";
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../src/context/AuthContext';
 import axios from "axios";
 import { API_BASEPATH_DEV, X_DOMAIN } from "@env";
+import { launchImageLibrary } from "react-native-image-picker";
 
 const ScheduleDetailScreen = ({ route }) => {
-  const { authToken, user } = useContext(AuthContext);
-  const { job: initialJob } = route.params;
-  const [job, setJob] = useState(initialJob);
-  const [loading, setLoading] = useState(false);
+  const { authToken } = useContext(AuthContext);
+  const { jobId } = route.params;
+  const [job, setJob] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [noteContent, setNoteContent] = useState("");
+  const [imageData, setImageData] = useState(null);
   const api = axios.create({
     baseURL: API_BASEPATH_DEV,
     headers: {
@@ -21,7 +25,7 @@ const ScheduleDetailScreen = ({ route }) => {
 
   const fetchUpdatedJob = async () => {
     try {
-      const response = await api.get(`/Booking/${job.id}`, {
+      const response = await api.get(`/Booking/${jobId}`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           'Content-Type': 'application/json',
@@ -32,8 +36,18 @@ const ScheduleDetailScreen = ({ route }) => {
       setJob(response.data);
     } catch (error) {
       console.error("Failed to fetch updated job status:", error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchUpdatedJob();
+  }, []);
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#177de1" style={{ marginTop: 50 }} />;
+  }
 
   // Make sure the job exists
   if (!job) {
@@ -139,6 +153,57 @@ const ScheduleDetailScreen = ({ route }) => {
     }
   };
 
+  // Pick the image
+  const pickImage = () => {
+    launchImageLibrary({ mediaType: 'photo', includeBase64: true }, (response) => {
+      if (response.didCancel) return;
+      if (response.errorMessage) {
+        console.error("Image Picker Error:", response.errorMessage);
+        return;
+      }
+
+      if (response.assets && response.assets.length > 0) {
+        setImageData(response.assets[0].base64); // Store base64 image
+      }
+    });
+  };
+
+  // Add notes
+  const handleAddNote = async () => {
+    if (!noteContent.trim() && !imageData) {
+      Alert.alert("Error", "Please enter note content or select an image.");
+      return;
+    }
+
+    try {
+      const payload = {
+        content: noteContent,
+        imageData: imageData || null,
+        visibility: "Private",
+      };
+
+      const response = await api.post(`/Booking/${jobId}/Notes`, payload, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        }
+      });
+
+      if (response.status === 200) {
+        console.log("Note added successfully!");
+        // Close the modal and reset the note and image
+        setModalVisible(false);
+        setNoteContent("");
+        setImageData(null);
+
+        // Update the screen
+        fetchUpdatedJob();
+      }
+    } catch (error) {
+      console.error("Failed to add note:", error);
+    }
+  };
+
+
   return (
     <View style={styles.viewStyle}>
       <View style={{ backgroundColor: augwaBlue, marginTop: 40 }}>
@@ -156,7 +221,7 @@ const ScheduleDetailScreen = ({ route }) => {
             </View>
           </View>
 
-          {/*----- Job Date, Time, Staff -----*/}
+          {/*----- Job Date and Time -----*/}
           <View style={styles.card}>
             <View style={styles.row}>
               <Text style={styles.label}>Date:</Text>
@@ -166,11 +231,6 @@ const ScheduleDetailScreen = ({ route }) => {
             <View style={styles.row}>
               <Text style={styles.label}>Time:</Text>
               <Text style={styles.value}>{formatTime(job.startDate, job.endDate)}</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Text style={styles.label}>Staff:</Text>
-              <Text style={styles.value}>{job.assignedStaff?.map(s => `${s.staff.firstName} ${s.staff.lastName}`).join(", ")}</Text>
             </View>
           </View>
 
@@ -197,21 +257,56 @@ const ScheduleDetailScreen = ({ route }) => {
 
           {/*----- Notes Section -----*/}
           <View style={styles.card}>
-            <Text style={styles.label}>Notes:</Text>
+            <View style={styles.notesHeader}>
+              <Text style={styles.label}>Notes:</Text>
+              <TouchableOpacity onPress={() => setModalVisible(true)}>
+                <Ionicons name="add-circle-outline" size={26} color="blue" />
+              </TouchableOpacity>
+            </View>
+
             {job.notes && job.notes.length > 0 ? (
               job.notes.map((note, index) => (
                 <View key={index} style={styles.note}>
                   <View style={styles.row}>
                     <Text style={styles.noteAuthor}>{note.author}</Text>
-                    <Text style={styles.noteDate}>{formatDate(note.dateCreated)} {new Date(note.dateCreated).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}</Text>
+                    <Text style={styles.noteDate}>{new Date(note.dateCreated).toLocaleString()}</Text>
                   </View>
                   <Text style={styles.noteText}>{note.content}</Text>
+                  {note.imageData && <Image source={{ uri: `data:image/png;base64,${note.imageData}` }} style={styles.noteImage} />}
                 </View>
               ))
             ) : (
               <Text>No notes available</Text>
             )}
           </View>
+
+          {/*----- Modal for Adding Notes -----*/}
+          <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Add Note</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter note..."
+                  value={noteContent}
+                  onChangeText={setNoteContent}
+                />
+                <TouchableOpacity style={styles.imageButton} onPress={pickImage}>
+                  <Ionicons name="image-outline" size={24} color="white" />
+                  <Text style={styles.imageButtonText}>Pick an Image</Text>
+                </TouchableOpacity>
+                {imageData && <Image source={{ uri: `data:image/png;base64,${imageData}` }} style={styles.previewImage} />}
+                <View style={styles.buttonRow}>
+                  <TouchableOpacity style={styles.cancelNoteButton} onPress={() => setModalVisible(false)}>
+                    <Text style={styles.cancelNoteButtonText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.addButton} onPress={handleAddNote}>
+                    <Text style={styles.addButtonText}>Add</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
         </ScrollView>
       </View>
     </View>
@@ -362,6 +457,76 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 5,
+  },
+  notesHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center"
+  },
+  noteImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    width: "80%",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 10,
+    borderRadius: 5,
+    height: 80,
+    marginBottom: 10,
+  },
+  previewImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  imageButton: { 
+    flexDirection: "row", 
+    alignItems: "center", 
+    backgroundColor: "#4CD964", 
+    padding: 10, 
+    borderRadius: 5, 
+    marginBottom: 10 
+  },
+  imageButtonText: { 
+    color: "#FFF", 
+    marginLeft: 10 
+  },
+  cancelNoteButton: { 
+    backgroundColor: "#FF5A5F", 
+    padding: 10, 
+    borderRadius: 5 
+  },
+  cancelNoteButtonText: { 
+    color: "#FFF" 
+  },
+  addButton: { 
+    backgroundColor: "#177de1", 
+    padding: 10, 
+    borderRadius: 5 
+  },
+  addButtonText: { 
+    color: "#FFF" 
   },
 })
 
