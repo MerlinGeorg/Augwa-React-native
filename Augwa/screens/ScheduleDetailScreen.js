@@ -6,6 +6,7 @@ import { AuthContext } from '../src/context/AuthContext';
 import axios from "axios";
 import { API_BASEPATH_DEV, X_DOMAIN } from "@env";
 import { launchImageLibrary } from "react-native-image-picker";
+import { openMapsWithDirections} from "../components/NativeMap";
 
 const ScheduleDetailScreen = ({ route }) => {
   const { authToken } = useContext(AuthContext);
@@ -32,8 +33,9 @@ const ScheduleDetailScreen = ({ route }) => {
           'Accept': 'application/json'
         }
       });
-
+console.log("jobId: ", jobId)
       setJob(response.data);
+      
     } catch (error) {
       console.error("Failed to fetch updated job status:", error);
     } finally {
@@ -82,6 +84,8 @@ const ScheduleDetailScreen = ({ route }) => {
         </TouchableOpacity>
       );
     } else if (job.status === "InProgress") {
+      console.log("job: ",job)
+      
       return (
         <>
           <TouchableOpacity style={styles.completeButton} onPress={() => handleAction("complete")}>
@@ -203,6 +207,15 @@ const ScheduleDetailScreen = ({ route }) => {
     }
   };
 
+  //pass data to map
+  const handleGetDirections = () => {
+    openMapsWithDirections({
+       latitude: job.latitude,
+       longitude: job.longitude,
+      // address: job.address
+    })
+  }
+
 
   return (
     <View style={styles.viewStyle}>
@@ -250,7 +263,7 @@ const ScheduleDetailScreen = ({ route }) => {
               <Text>{job.address}</Text>
             </View>
             {/* <Image source={{ uri: `https://maps.googleapis.com/maps/api/staticmap?center=${job.latitude},${job.longitude}&zoom=15&size=300x150&maptype=roadmap&key=YOUR_GOOGLE_MAPS_API_KEY` }} style={styles.mapImage} /> */}
-            <TouchableOpacity>
+            <TouchableOpacity onPress={handleGetDirections}>
               <Text style={styles.getDirections}>Get Directions <Ionicons name="open-outline" size={16} color="blue" /></Text>
             </TouchableOpacity>
           </View>
