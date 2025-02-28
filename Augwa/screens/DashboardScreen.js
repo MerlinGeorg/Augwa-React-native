@@ -10,7 +10,8 @@ import { augwaBlue, dashboardArea, errorRed, navigateColor } from "../assets/sty
 import Message from '../components/Message'
 import BellIcon from '../components/BellIcon'
 import Ionicons from '@expo/vector-icons/Ionicons';
-import {fetchJoblist} from '../components/FetchList'
+import {fetchJoblist} from '../components/FetchList';
+import MapView from 'react-native-maps';
 
 const DashboardScreen = ({ route, navigation }) => {
   const [jobStatus, setJobStatus] = useState('');
