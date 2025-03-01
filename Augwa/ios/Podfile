@@ -13,8 +13,12 @@ install! 'cocoapods',
 
 prepare_react_native_project!
 
+use_modular_headers!
+
 target 'Augwa' do
   use_expo_modules!
+  pod 'Firebase/Core'
+  pod 'Firebase/Messaging'
 
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
     config_command = ['node', '-e', "process.argv=['', '', 'config'];require('@react-native-community/cli').run()"];
