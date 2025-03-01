@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "427111088608",
+    "project_id": "augwa-460da",
+    "storage_bucket": "augwa-460da.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:427111088608:android:3a95083856a3e15696ab85",
+        "android_client_info": {
+          "package_name": "com.anonymous.Augwa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKDPwVSylg_Tg91ni-3T48lgrWBjJcZ3Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

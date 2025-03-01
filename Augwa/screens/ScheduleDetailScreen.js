@@ -357,24 +357,6 @@ const ScheduleDetailScreen = ({ route }) => {
 
                  <ExpandableNote key={index} note={note} />
                 
-                // <View key={index} style={styles.note}>
-                //   <View style={styles.row}>
-                //     <Text style={styles.noteAuthor}>{note.author}</Text>
-                //     <Text style={styles.noteDate}>
-                //       {new Date(note.dateCreated).toLocaleString()}
-                //     </Text>
-                //   </View>
-                //   <Text style={styles.noteText}>{note.content}</Text>
-                //   { note.imageUrl ? (
-                     
-                //         <Image
-                //           source={{ uri: note.imageUrl }}
-                //           style={styles.noteImage}
-                //         />
-                      
-                //   ) : null }
-                  
-                // </View>
               )) 
             ) : (
               <Text>No notes available</Text>

@@ -7,15 +7,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthContext } from './src/context/AuthContext';
 import React, { useState } from 'react';
-
+import * as Notifications from 'expo-notifications';
 // Import screens
 import SignupScreen from './screens/SignupScreen';
-import LoginScreen from './screens/LoginScreen';
+import LoginScreen from './screens/LogInScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import ScheduleScreen from './screens/ScheduleScreen';
 import { augwaBlue } from './assets/styles/color';
 import SuccessScreen from './screens/biometricSuccessScreen';
 import ScheduleDetailScreen from './screens/ScheduleDetailScreen';
+import SettingScreen from './screens/SettingScreen'
 
 // Create navigators
 const Stack = createStackNavigator();
@@ -113,7 +114,7 @@ const DashboardTabs = () => {
       />
       <Tab.Screen 
         name="Settings" 
-        component={DashboardScreen}
+        component={SettingScreen}
         options={{ title: 'Settings' }}
       />
     </Tab.Navigator>
