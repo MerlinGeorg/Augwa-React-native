@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthContext } from './src/context/AuthContext';
 import React, { useState } from 'react';
-
+import * as Notifications from 'expo-notifications';
 // Import screens
 import SignupScreen from './screens/SignupScreen';
 import LoginScreen from './screens/LogInScreen';
