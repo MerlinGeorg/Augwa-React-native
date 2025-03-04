@@ -31,51 +31,51 @@ const SettingsScreen = ({navigation }) => {
 
     const handleLogout = async () => {
         console.log("Logged out")
-        // Alert.alert("Logout", "Are you sure you want to logout?", [
-        //     {
-        //         text: "Cancel",
-        //         style: "cancel"
-        //     },
-        //     {
-        //         text: "Logout",
-        //         onPress: async () => {
-        //             try {
-        //                 const token = await SecureStore.getItemAsync('authToken');
-        //                 console.log("Retrieved Token: ", token);
-        //                 if (!token) {
-        //                     Alert.alert('Error', 'No authentication token found.');
-        //                     return;
-        //                 }
+        Alert.alert("Logout", "Are you sure you want to logout?", [
+            {
+                text: "Cancel",
+                style: "cancel"
+            },
+            {
+                text: "Logout",
+                onPress: async () => {
+                    try {
+                        const token = await SecureStore.getItemAsync('authToken');
+                        console.log("Retrieved Token: ", token);
+                        if (!token) {
+                            Alert.alert('Error', 'No authentication token found.');
+                            return;
+                        }
     
-        //                 // Use the axios instance without duplicating the base URL
-        //                 const response = await api.post("/Auth/Logout", {}, {
-        //                     headers: {
-        //                         'Authorization': `Bearer ${token}`,
-        //                         'Content-Type': 'application/json',
-        //                         'X-Domain': X_DOMAIN
-        //                     },
-        //                 });
+                        // Use the axios instance without duplicating the base URL
+                        const response = await api.post("/Auth/Logout", {}, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json',
+                                'X-Domain': X_DOMAIN
+                            },
+                        });
                         
-        //                 console.log('Logout Response:', response.data);
+                        console.log('Logout Response:', response.data);
     
-        //                 // Check response and clear data
-        //                 await SecureStore.deleteItemAsync('authToken');
-        //                 setAuthToken(null);
-        //                 setUserName(null);
+                        // Check response and clear data
+                        await SecureStore.deleteItemAsync('authToken');
+                        setAuthToken(null);
+                        setUserName(null);
     
-        //                 // Navigate to login screen
-        //                 navigation.reset({
-        //                     index: 0,
-        //                     routes: [{ name: 'login' }]
-        //                 });
+                        // Navigate to login screen
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'login' }]
+                        });
     
-        //             } catch (error) {
-        //                 console.error('Logout error:', error.response?.data || error.message || error);
-        //                 Alert.alert('Error', error.response?.data?.message || 'An error occurred during logout. Please try again.');
-        //             }
-        //         }
-        //     }
-        // ]);
+                    } catch (error) {
+                        console.error('Logout error:', error.response?.data || error.message || error);
+                        Alert.alert('Error', error.response?.data?.message || 'An error occurred during logout. Please try again.');
+                    }
+                }
+            }
+        ]);
     };
 
     return (

@@ -49,8 +49,17 @@ const DashboardScreen = ({ route, navigation }) => {
   
   const decodeJWT = (token) => {
     try {
+      // First, check if token is null or undefined
+      if (!token) {
+        console.log('No token provided for decoding');
+        return null;
+      }
+
       const parts = token.split('.');
-      if (parts.length < 2) return null;
+      if (parts.length < 2) {
+        console.log('Invalid token format');
+        return null;
+      }
 
       const decodedPayload = base64.decode(parts[1].replace(/-/g, '+').replace(/_/g, '/'));
       return JSON.parse(decodedPayload);
@@ -75,7 +84,7 @@ const DashboardScreen = ({ route, navigation }) => {
     });
   };
 
-  const payload = decodeJWT(authToken);
+  const payload = authToken ? decodeJWT(authToken) : null;
   const accountID = payload?.StaffId ?? null;
 
   console.log(`account id: ${accountID}`);
