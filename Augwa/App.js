@@ -16,7 +16,8 @@ import ScheduleScreen from './screens/ScheduleScreen';
 import { augwaBlue } from './assets/styles/color';
 import SuccessScreen from './screens/biometricSuccessScreen';
 import ScheduleDetailScreen from './screens/ScheduleDetailScreen';
-import SettingScreen from './screens/SettingScreen'
+import SettingsScreen from './screens/SettingsScreen';
+import MapScreen from './screens/MapScreen';
 
 // Create navigators
 const Stack = createStackNavigator();
@@ -109,12 +110,12 @@ const DashboardTabs = () => {
       />
       <Tab.Screen 
         name="Map" 
-        component={DashboardScreen}
+        component={MapScreen}
         options={{ title: 'Map' }}
       />
       <Tab.Screen 
         name="Settings" 
-        component={SettingScreen}
+        component={SettingsScreen}
         options={{ title: 'Settings' }}
       />
     </Tab.Navigator>
