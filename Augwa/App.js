@@ -16,7 +16,6 @@ import ScheduleScreen from './screens/ScheduleScreen';
 import { augwaBlue } from './assets/styles/color';
 import SuccessScreen from './screens/biometricSuccessScreen';
 import ScheduleDetailScreen from './screens/ScheduleDetailScreen';
-import SettingScreen from './screens/SettingScreen'
 import SettingsScreen from './screens/SettingsScreen';
 
 // Create navigators
