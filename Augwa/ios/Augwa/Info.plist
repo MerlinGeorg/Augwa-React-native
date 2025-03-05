@@ -35,7 +35,7 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>com.anonymous.Augwa</string>
+          <string>com.augwa.app</string>
         </array>
       </dict>
     </array>
