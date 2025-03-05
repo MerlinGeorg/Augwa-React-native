@@ -159,11 +159,11 @@ const DashboardScreen = ({ route, navigation }) => {
   };
   // open native map:
   const openMap = useCallback(async (latitude, longitude) => {
-    // Log raw coordinates for debugging
-    console.log('Raw Coordinates:', { 
-      latitude, 
-      longitude, 
-      platform: Platform.OS 
+    // Extensive logging for debugging
+    console.log('Map Opening Process Started', {
+      inputLatitude: latitude,
+      inputLongitude: longitude,
+      platform: Platform.OS
     });
   
     // Validate and parse coordinates
@@ -174,7 +174,7 @@ const DashboardScreen = ({ route, navigation }) => {
     if (isNaN(parsedLat) || isNaN(parsedLong)) {
       console.error('Invalid coordinates:', { latitude, longitude });
       Alert.alert(
-        'Navigation Error', 
+        'Navigation Error',
         'Invalid location coordinates',
         [{ text: 'OK', style: 'cancel' }]
       );
@@ -183,12 +183,12 @@ const DashboardScreen = ({ route, navigation }) => {
   
     // Ensure coordinates are within valid ranges
     if (
-      parsedLat < -90 || parsedLat > 90 || 
+      parsedLat < -90 || parsedLat > 90 ||
       parsedLong < -180 || parsedLong > 180
     ) {
       console.error('Coordinates out of valid range:', { parsedLat, parsedLong });
       Alert.alert(
-        'Navigation Error', 
+        'Navigation Error',
         'Location coordinates are out of valid range',
         [{ text: 'OK', style: 'cancel' }]
       );
@@ -196,52 +196,51 @@ const DashboardScreen = ({ route, navigation }) => {
     }
   
     try {
-      // Multiple map opening strategies for Android
-      const androidSchemes = [
-        `geo:${parsedLat},${parsedLong}?q=${parsedLat},${parsedLong}`, // Standard geo
-        `google.navigation:q=${parsedLat},${parsedLong}`, // Google Maps navigation
-        `https://www.google.com/maps/search/?api=1&query=${parsedLat},${parsedLong}` // Web fallback
-      ];
+      // Multiple map opening strategies
+      const mapSchemes = {
+        ios: [
+          `maps://app?daddr=${parsedLat},${parsedLong}`,
+          `https://maps.apple.com/?daddr=${parsedLat},${parsedLong}`,
+          `https://www.google.com/maps/search/?api=1&query=${parsedLat},${parsedLong}`
+        ],
+        android: [
+          `geo:${parsedLat},${parsedLong}?q=${parsedLat},${parsedLong}`,
+          `google.navigation:q=${parsedLat},${parsedLong}`,
+          `https://www.google.com/maps/search/?api=1&query=${parsedLat},${parsedLong}`
+        ]
+      };
   
-      // iOS remains the same
-      const scheme = Platform.select({
-        ios: `maps://app?daddr=${parsedLat},${parsedLong}`,
-        android: androidSchemes[0] // Primary Android scheme
-      });
+      const currentPlatformSchemes = Platform.OS === 'ios' ? mapSchemes.ios : mapSchemes.android;
   
-      // Try opening native map apps
-      if (Platform.OS === 'android') {
-        for (const mapScheme of androidSchemes) {
-          try {
-            const canOpen = await Linking.canOpenURL(mapScheme);
-            console.log(`Can open ${mapScheme}:`, canOpen);
+      // Try each map scheme
+      for (const scheme of currentPlatformSchemes) {
+        try {
+          const canOpen = await Linking.canOpenURL(scheme);
+          console.log(`Attempting scheme: ${scheme}`, `Can open: ${canOpen}`);
   
-            if (canOpen) {
-              await Linking.openURL(mapScheme);
-              return; // Exit if successfully opened
-            }
-          } catch (schemeError) {
-            console.error(`Error with scheme ${mapScheme}:`, schemeError);
+          if (canOpen) {
+            await Linking.openURL(scheme);
+            console.log('Map opened successfully with scheme:', scheme);
+            return;
           }
+        } catch (schemeError) {
+          console.error(`Error with scheme ${scheme}:`, schemeError);
         }
-      } else {
-        // iOS path
-        await Linking.openURL(scheme);
       }
   
-      // Final fallback to web maps
-      await Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${parsedLat},${parsedLong}`);
+      // If no scheme works, throw an error
+      throw new Error('No map application could be opened');
   
     } catch (error) {
       console.error('Comprehensive Map Opening Error:', {
-        error: error.message,
+        errorMessage: error.message,
         latitude: parsedLat,
         longitude: parsedLong,
         platform: Platform.OS
       });
   
       Alert.alert(
-        'Navigation Error', 
+        'Navigation Error',
         'Could not open maps application',
         [{ text: 'OK', style: 'cancel' }]
       );
