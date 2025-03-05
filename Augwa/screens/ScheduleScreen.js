@@ -116,9 +116,9 @@ const ScheduleScreen = ({ navigation }) => {
 
   return (
     <View style={styles.viewStyle}>
-      <View style={{ backgroundColor: augwaBlue, marginTop: 40 }}>
+      {/* <View style={{ backgroundColor: augwaBlue, marginTop: 40 }}>
         <Text style={styles.Title}>Schedule</Text>
-      </View>
+      </View> */}
       <View style={styles.dashboardAreaStyle}>
         <View style={styles.tabNavigation}>
           {Object.entries(dates).map(([tab, date]) => (

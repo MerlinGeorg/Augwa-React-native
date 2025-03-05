@@ -28,16 +28,18 @@ const LoginStack = () => {
   return (
     <Stack.Navigator 
       screenOptions={{ 
-        headerShown: false,
-        cardStyle: { backgroundColor: '#fff' }
+        headerShown: true,
+        headerTintColor:'#fff',
+        headerStyle:{backgroundColor:augwaBlue},
+        cardStyle: { backgroundColor: augwaBlue }
       }}
     >
       
-      <Stack.Screen name="login" component={LoginScreen} />
-      <Stack.Screen name="signup" component={SignupScreen} />
+      <Stack.Screen name="login" component={LoginScreen} options={{headerShown:false}}/>
+      <Stack.Screen name="signup" component={SignupScreen} options={{headerShown:false}}/>
       <Stack.Screen name="biometrysuccess" component={SuccessScreen} />
       <Stack.Screen name="dashboard" component={DashboardTabs}
-        options={{ gestureEnabled: false }} // Prevent going back to login
+        options={{headerShown:false}} // Prevent going back to login
       />
       <Stack.Screen name = "schedule" component={ScheduleScreen} />
       <Stack.Screen name = "schedule_detail" component={ScheduleDetailScreen} />

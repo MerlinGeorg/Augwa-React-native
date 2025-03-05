@@ -1,4 +1,5 @@
-import React, { useState, useEffect , useCallback} from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Linking, Platform} from 'react-native';
 import base64 from 'base-64';
 import axios from "axios"
 import { View, StyleSheet, Text, TouchableOpacity, } from 'react-native';
@@ -10,12 +11,12 @@ import { augwaBlue, dashboardArea, errorRed, navigateColor } from "../assets/sty
 import Message from '../components/Message'
 import BellIcon from '../components/BellIcon'
 import Ionicons from '@expo/vector-icons/Ionicons';
-import {fetchJoblist} from '../components/FetchList';
+import { fetchJoblist } from '../components/FetchList';
 import MapView from 'react-native-maps';
 
 const DashboardScreen = ({ route, navigation }) => {
   const [jobStatus, setJobStatus] = useState('');
-  const { authToken } = useContext(AuthContext); 
+  const { authToken } = useContext(AuthContext);
   const { userName } = useContext(AuthContext);
   const [scheduleData, setScheduleData] = useState(null);
   const [error, setError] = useState(null);
@@ -24,21 +25,21 @@ const DashboardScreen = ({ route, navigation }) => {
     baseURL: API_BASEPATH_DEV,
     headers: {
       'Content-Type': 'application/json',
-      'X-Domain': X_DOMAIN  
+      'X-Domain': X_DOMAIN
     }
   });
-
   useEffect(() => {
     if (authToken) {
       fetchJoblist(authToken, setScheduleData, setError);
     }
-   
-  }, []); // there was authToken inside []
+  }, [authToken]); // there was authToken inside []
+
   useEffect(() => {
     if (scheduleData && userTasks) {
       getWeeklyTaskCount();
     }
   }, [scheduleData, userTasks]);
+
   useEffect(() => {
     if (current?.status === 'Completed') {
       setJobStatus('Completed');
@@ -46,7 +47,7 @@ const DashboardScreen = ({ route, navigation }) => {
       setJobStatus(current?.status || '');
     }
   }, [current]);
-  
+
   const decodeJWT = (token) => {
     try {
       // First, check if token is null or undefined
@@ -70,10 +71,10 @@ const DashboardScreen = ({ route, navigation }) => {
   };
   const formatLocalTime = (dateString) => {
     if (!dateString) return '';
-    
+
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return 'Invalid Date';
-  
+
     return date.toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -93,42 +94,45 @@ const DashboardScreen = ({ route, navigation }) => {
     navigation.navigate("schedule");
   }
 
-  const userTasks = scheduleData?.filter(schedule =>
-    schedule?.assignedStaff?.some(task => task?.staff.id === accountID)
-  );
+  const userTasks = useMemo(() => {
+    return scheduleData?.filter(schedule =>
+      schedule?.assignedStaff?.some(task => task?.staff.id === accountID)
+    ) || [];
+  }, [scheduleData, accountID]);
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   const matchedSchedules = userTasks?.filter((schedule) => {
-    const isStatusValid = schedule?.status === "Scheduled"||schedule?.status === "InProgress";
+    const isStatusValid = schedule?.status === "Scheduled" || schedule?.status === "InProgress";
     const startDate = schedule?.startDate ? new Date(schedule.startDate) : null;
     const isDateValid = startDate ? startDate > today : false;
     return isStatusValid && isDateValid;
   }) || [];
   console.log("total schedules length:", scheduleData?.length);
   console.log("Matched schedules length:", matchedSchedules?.length);
-  
-  const getWeeklyTaskCount = async() => {
+
+  const getWeeklyTaskCount = async () => {
     if (!userTasks) return 0;
-   
+
     const startOfWeek = new Date();
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
     startOfWeek.setHours(0, 0, 0, 0);
-   
+
     const endOfWeek = new Date();
     endOfWeek.setDate(endOfWeek.getDate() + (6 - endOfWeek.getDay()));
     endOfWeek.setHours(23, 59, 59, 999);
 
-    
+
     const weeklyTasks = userTasks.filter(schedule => {
       const scheduleDate = new Date(schedule.startDate);
       return scheduleDate >= startOfWeek && scheduleDate <= endOfWeek;
     });
     setWeeklyTasks(weeklyTasks.length);
-   
-  }; 
+
+  };
   console.log(`weekly tasks number Ho: ${weeklyTasksNumber}`);
-  
+
   const todayTaskList = (matchedSchedules || []).filter((schedule) => {
     if (!schedule?.startDate) return false;
 
@@ -136,47 +140,91 @@ const DashboardScreen = ({ route, navigation }) => {
     today.setHours(0, 0, 0, 0);
 
     const startDate = new Date(schedule.startDate);
-    startDate.setHours(0, 0, 0, 0); 
+    startDate.setHours(0, 0, 0, 0);
 
     return startDate.getTime() === today.getTime();
   });
- 
+
   const performances = [
     { title: "Today's tasks left:", count: todayTaskList.length },
     { title: 'Weekly tasks:\n', count: weeklyTasksNumber }
   ];
   const current = todayTaskList[0]
-  console.log(current);
+  //console.log(current.client.latitude);
+  // console.log(current.latitude)
+  // test map plist file
+  const checkMapSupport = async () => {
+    const supported = await Linking.canOpenURL('maps://');
+    console.log('support ios map? : ', supported);
+  };
+  // open native map:
+  const openMap = useCallback(async (latitude, longitude) => {
+    try {
+      // Check if latitude and longitude are valid
+      if (!latitude || !longitude) {
+        console.error('Invalid coordinates');
+        return;
+      }
+  
+      // Platform-specific URL schemes
+      const scheme = Platform.select({
+        ios: `maps://app?daddr=${latitude},${longitude}`,
+        android: `geo:${latitude},${longitude}?q=${latitude},${longitude}`
+      });
+  
+      // Fallback to Google Maps web URL if native app fails
+      const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+  
+      // Try opening the native map app
+      const canOpenNativeMap = await Linking.canOpenURL(scheme);
+      
+      if (canOpenNativeMap) {
+        await Linking.openURL(scheme);
+      } else {
+        // Fallback to web maps
+        await Linking.openURL(googleMapsUrl);
+      }
+    } catch (error) {
+      console.error('Error opening map:', error);
+      
+      // Additional fallback to web maps
+      try {
+        await Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`);
+      } catch (webError) {
+        console.error('Failed to open even web maps:', webError);
+      }
+    }
+  }, []);
   const changeStatus = async () => {
     try {
-     
+
       if (!current || !current.id) {
         console.log('No current task available:', current);
         return;
       }
-  
+
       if (current.status === 'Scheduled') {
         setJobStatus('Scheduled')
         const response = await api.post(
           `/Booking/${current.id}/Start`,
-          {},  
+          {},
           {
             headers: {
               'Authorization': `Bearer ${authToken}`,
             }
           }
         );
-        
+
         if (response.status === 200 || response.status === 204) {
           setJobStatus('InProgress');
-          
+
           fetchJoblist(authToken, setScheduleData, setError);
         }
-      } 
+      }
       else if (current.status === 'InProgress') {
         const response = await api.post(
           `/Booking/${current.id}/Complete`,
-          {}, 
+          {},
           {
             headers: {
               'Authorization': `Bearer ${authToken}`,
@@ -185,7 +233,7 @@ const DashboardScreen = ({ route, navigation }) => {
         );
         if (response.status === 200 || response.status === 204) {
           setJobStatus('Completed');
-         
+
           fetchJoblist(authToken, setScheduleData, setError);
         }
       }
@@ -196,7 +244,7 @@ const DashboardScreen = ({ route, navigation }) => {
         data: error.response?.data,
         message: error.message
       });
-      
+
       if (error.response?.status === 401) {
         setError('Authentication failed. Please try logging in again.');
       } else {
@@ -205,7 +253,7 @@ const DashboardScreen = ({ route, navigation }) => {
     }
   };
   const renderActionButton = () => {
-    
+
     const isCompleted = current?.status === 'Completed'
     const hasValidTask = current && !isCompleted
 
@@ -226,26 +274,26 @@ const DashboardScreen = ({ route, navigation }) => {
         disabled: true
       }
     };
-    const config = current?.status ? 
-    buttonConfig[current.status] 
-    : { color: 'gray', text: 'No Task', disabled: true };
+    const config = current?.status ?
+      buttonConfig[current.status]
+      : { color: 'gray', text: 'No Task', disabled: true };
 
-  return (
-    <TouchableOpacity 
-      style={[styles.btnStyle, { 
-        backgroundColor: config.color,
-        opacity: hasValidTask ? 1 : 0.6 
-      }]}
-      onPress={hasValidTask ? changeStatus : null}
-      disabled={!hasValidTask}>
-      <Text style={styles.btnTitle}>{config.text}</Text>
-    </TouchableOpacity>
+    return (
+      <TouchableOpacity
+        style={[styles.btnStyle, {
+          backgroundColor: config.color,
+          opacity: hasValidTask ? 1 : 0.6
+        }]}
+        onPress={hasValidTask ? changeStatus : null}
+        disabled={!hasValidTask}>
+        <Text style={styles.btnTitle}>{config.text}</Text>
+      </TouchableOpacity>
     );
   };
 
   return (
     <View style={[styles.viewStyle]}>
-     
+
       <View style={{ backgroundColor: augwaBlue, marginTop: 70 }}>
         <View style={styles.greetingArea}>
           <Text style={styles.greetings}>Welcome, </Text>
@@ -259,20 +307,20 @@ const DashboardScreen = ({ route, navigation }) => {
             </TouchableOpacity>
           </View>
         </View>
-       
+
         <Text style={styles.usernameStyle}> {userName} !</Text>
       </View>
 
-    
+
       <View style={styles.dashboardAreaStyle}>
-       
+
         <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: 20 }}>
           <Text style={styles.sectionTitle}>Current Job</Text>
           <Text style={styles.timeTitle}>
             {current ? formatLocalTime(current.startDate) : ''}
           </Text>
         </View>
-      
+
         <View style={{ flexDirection: 'row', marginTop: 20, marginLeft: 9 }}>
           <View style={styles.jobDescribtionStyle}>
             {todayTaskList[0] ? (
@@ -285,17 +333,21 @@ const DashboardScreen = ({ route, navigation }) => {
             )}
           </View>
           <View style={{ flexDirection: 'column', marginLeft: 12 }}>
-          {renderActionButton()}
-            <TouchableOpacity style={[styles.btnStyle, { backgroundColor: navigateColor }]}>
+            {renderActionButton()}
+            <TouchableOpacity style={[styles.btnStyle,
+            { backgroundColor: navigateColor }]}
+              onPress={() => openMap(current?.latitude, 
+              current?.longitude)
+              }>
               <View style={styles.navigateButton}>
                 <Ionicons name="navigate-circle-outline" size={35} color="white" />
                 <Text style={styles.btnTitle}>Navigate</Text>
               </View>
             </TouchableOpacity>
-          
+
           </View>
         </View>
-       
+
         <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: 20 }}>
           <Text style={styles.sectionTitle}>Upcoming Jobs</Text>
           <TouchableOpacity style={{ marginLeft: 150, marginTop: 5 }} onPress={gotoSchedule}>
@@ -308,7 +360,7 @@ const DashboardScreen = ({ route, navigation }) => {
           {matchedSchedules.map((item, index) => (
             <View key={index} style={[styles.jobDescribtionStyle]}>
               <Text style={styles.jobDescribtionText}>
-              {`${item.address}\n${formatLocalTime(item.startDate)}\n
+                {`${item.address}\n${formatLocalTime(item.startDate)}\n
               Status: ${item.status}`}
               </Text>
             </View>
@@ -328,7 +380,7 @@ const DashboardScreen = ({ route, navigation }) => {
           ))}
         </ScrollView>
       </View>
-     
+
     </View>
   )
 }
@@ -340,7 +392,7 @@ const styles = StyleSheet.create({
   },
   greetingArea: {
     flexDirection: 'row',
-    
+
   },
   iconSection: {
     marginLeft: 150,
@@ -429,11 +481,31 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: 'center'
   },
-  performanceNumStyle:{
+  performanceNumStyle: {
     fontSize: 25,
     fontWeight: '700',
     marginLeft: 10
-  }
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  retryText: {
+    color: augwaBlue,
+    fontWeight: 'bold',
+  },
 
 });
 
