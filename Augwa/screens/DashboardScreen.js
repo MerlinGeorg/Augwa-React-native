@@ -1,4 +1,4 @@
-import React, { useState, useEffect , useCallback} from 'react';
+import React, { useState, useEffect , useCallback, useMemo} from 'react';
 import base64 from 'base-64';
 import axios from "axios"
 import { View, StyleSheet, Text, TouchableOpacity, } from 'react-native';
@@ -32,13 +32,14 @@ const DashboardScreen = ({ route, navigation }) => {
     if (authToken) {
       fetchJoblist(authToken, setScheduleData, setError);
     }
-   
-  }, []); // there was authToken inside []
+  }, [authToken]); // there was authToken inside []
+
   useEffect(() => {
     if (scheduleData && userTasks) {
       getWeeklyTaskCount();
     }
   }, [scheduleData, userTasks]);
+  
   useEffect(() => {
     if (current?.status === 'Completed') {
       setJobStatus('Completed');
@@ -84,9 +85,12 @@ const DashboardScreen = ({ route, navigation }) => {
     navigation.navigate("schedule");
   }
 
-  const userTasks = scheduleData?.filter(schedule =>
-    schedule?.assignedStaff?.some(task => task?.staff.id === accountID)
-  );
+  const userTasks = useMemo(() => {
+    return scheduleData?.filter(schedule =>
+      schedule?.assignedStaff?.some(task => task?.staff.id === accountID)
+    ) || [];
+  }, [scheduleData, accountID]);
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -424,7 +428,27 @@ const styles = StyleSheet.create({
     fontSize: 25,
     fontWeight: '700',
     marginLeft: 10
-  }
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  retryText: {
+    color: augwaBlue,
+    fontWeight: 'bold',
+  },
 
 });
 
