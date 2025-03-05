@@ -159,40 +159,92 @@ const DashboardScreen = ({ route, navigation }) => {
   };
   // open native map:
   const openMap = useCallback(async (latitude, longitude) => {
-    try {
-      // Check if latitude and longitude are valid
-      if (!latitude || !longitude) {
-        console.error('Invalid coordinates');
-        return;
-      }
+    // Log raw coordinates for debugging
+    console.log('Raw Coordinates:', { 
+      latitude, 
+      longitude, 
+      platform: Platform.OS 
+    });
   
-      // Platform-specific URL schemes
+    // Validate and parse coordinates
+    const parsedLat = parseFloat(latitude);
+    const parsedLong = parseFloat(longitude);
+  
+    // Comprehensive coordinate validation
+    if (isNaN(parsedLat) || isNaN(parsedLong)) {
+      console.error('Invalid coordinates:', { latitude, longitude });
+      Alert.alert(
+        'Navigation Error', 
+        'Invalid location coordinates',
+        [{ text: 'OK', style: 'cancel' }]
+      );
+      return;
+    }
+  
+    // Ensure coordinates are within valid ranges
+    if (
+      parsedLat < -90 || parsedLat > 90 || 
+      parsedLong < -180 || parsedLong > 180
+    ) {
+      console.error('Coordinates out of valid range:', { parsedLat, parsedLong });
+      Alert.alert(
+        'Navigation Error', 
+        'Location coordinates are out of valid range',
+        [{ text: 'OK', style: 'cancel' }]
+      );
+      return;
+    }
+  
+    try {
+      // Multiple map opening strategies for Android
+      const androidSchemes = [
+        `geo:${parsedLat},${parsedLong}?q=${parsedLat},${parsedLong}`, // Standard geo
+        `google.navigation:q=${parsedLat},${parsedLong}`, // Google Maps navigation
+        `https://www.google.com/maps/search/?api=1&query=${parsedLat},${parsedLong}` // Web fallback
+      ];
+  
+      // iOS remains the same
       const scheme = Platform.select({
-        ios: `maps://app?daddr=${latitude},${longitude}`,
-        android: `geo:${latitude},${longitude}?q=${latitude},${longitude}`
+        ios: `maps://app?daddr=${parsedLat},${parsedLong}`,
+        android: androidSchemes[0] // Primary Android scheme
       });
   
-      // Fallback to Google Maps web URL if native app fails
-      const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+      // Try opening native map apps
+      if (Platform.OS === 'android') {
+        for (const mapScheme of androidSchemes) {
+          try {
+            const canOpen = await Linking.canOpenURL(mapScheme);
+            console.log(`Can open ${mapScheme}:`, canOpen);
   
-      // Try opening the native map app
-      const canOpenNativeMap = await Linking.canOpenURL(scheme);
-      
-      if (canOpenNativeMap) {
-        await Linking.openURL(scheme);
+            if (canOpen) {
+              await Linking.openURL(mapScheme);
+              return; // Exit if successfully opened
+            }
+          } catch (schemeError) {
+            console.error(`Error with scheme ${mapScheme}:`, schemeError);
+          }
+        }
       } else {
-        // Fallback to web maps
-        await Linking.openURL(googleMapsUrl);
+        // iOS path
+        await Linking.openURL(scheme);
       }
+  
+      // Final fallback to web maps
+      await Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${parsedLat},${parsedLong}`);
+  
     } catch (error) {
-      console.error('Error opening map:', error);
-      
-      // Additional fallback to web maps
-      try {
-        await Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`);
-      } catch (webError) {
-        console.error('Failed to open even web maps:', webError);
-      }
+      console.error('Comprehensive Map Opening Error:', {
+        error: error.message,
+        latitude: parsedLat,
+        longitude: parsedLong,
+        platform: Platform.OS
+      });
+  
+      Alert.alert(
+        'Navigation Error', 
+        'Could not open maps application',
+        [{ text: 'OK', style: 'cancel' }]
+      );
     }
   }, []);
   const changeStatus = async () => {
