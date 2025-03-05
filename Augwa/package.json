@@ -38,10 +38,12 @@
     "react-native-camera": "^4.2.1",
     "react-native-encrypted-storage": "^4.0.3",
     "react-native-gesture-handler": "~2.20.2",
+    "react-native-get-random-values": "^1.11.0",
+    "react-native-google-places-autocomplete": "^2.5.7",
     "react-native-image-picker": "^8.2.0",
     "react-native-keychain": "^9.2.2",
     "react-native-local-authentication": "^0.1.1",
-    "react-native-maps": "^1.18.0",
+    "react-native-maps": "1.18.0",
     "react-native-maps-directions": "^1.9.0",
     "react-native-modalize": "^2.1.1",
     "react-native-push-notification": "^8.1.1",
@@ -54,6 +56,7 @@
     "react-native-vector-icons": "^10.2.0",
     "tailwindcss": "^4.0.6",
     "twrnc": "^4.6.1",
+    "uuid": "^11.1.0",
     "xmldom": "^0.6.0"
   },
   "devDependencies": {
