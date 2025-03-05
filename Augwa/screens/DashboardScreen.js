@@ -158,22 +158,43 @@ const DashboardScreen = ({ route, navigation }) => {
     console.log('support ios map? : ', supported);
   };
   // open native map:
-  const openMap = async (latitude, longitude) => {
-    const scheme = Platform.select({
-      ios: 'map://?q',
-      android: 'geo'
-    })
-
-    const addressURL = Platform.select({
-      ios: `maps://?q=${latitude},${longitude}`,
-      android: `geo:${latitude},${longitude}`
-    })
-
-    await openURL(addressURL).catch(err=>{
-      console.error('Failed to open map: ', err)
-      Linking.openURL(`https://maps.google.com/?q=${latitude},${longitude}`)
-    })
-  }
+  const openMap = useCallback(async (latitude, longitude) => {
+    try {
+      // Check if latitude and longitude are valid
+      if (!latitude || !longitude) {
+        console.error('Invalid coordinates');
+        return;
+      }
+  
+      // Platform-specific URL schemes
+      const scheme = Platform.select({
+        ios: `maps://app?daddr=${latitude},${longitude}`,
+        android: `geo:${latitude},${longitude}?q=${latitude},${longitude}`
+      });
+  
+      // Fallback to Google Maps web URL if native app fails
+      const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+  
+      // Try opening the native map app
+      const canOpenNativeMap = await Linking.canOpenURL(scheme);
+      
+      if (canOpenNativeMap) {
+        await Linking.openURL(scheme);
+      } else {
+        // Fallback to web maps
+        await Linking.openURL(googleMapsUrl);
+      }
+    } catch (error) {
+      console.error('Error opening map:', error);
+      
+      // Additional fallback to web maps
+      try {
+        await Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`);
+      } catch (webError) {
+        console.error('Failed to open even web maps:', webError);
+      }
+    }
+  }, []);
   const changeStatus = async () => {
     try {
 
