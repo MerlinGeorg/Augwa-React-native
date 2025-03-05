@@ -1,4 +1,4 @@
-package com.anonymous.Augwa
+package com.augwa.app
 
 import android.os.Build
 import android.os.Bundle

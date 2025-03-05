@@ -1,4 +1,4 @@
-package com.augwa.app
+package com.anonymous.Augwa
 
 import android.app.Application
 import android.content.res.Configuration
