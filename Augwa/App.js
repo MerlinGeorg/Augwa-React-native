@@ -8,7 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthContext } from './src/context/AuthContext';
 import React, { useState } from 'react';
 import * as Notifications from 'expo-notifications';
-// Import screens
+
 import SignupScreen from './screens/SignupScreen';
 import LoginScreen from './screens/LoginScreen';
 import DashboardScreen from './screens/DashboardScreen';
@@ -19,35 +19,32 @@ import ScheduleDetailScreen from './screens/ScheduleDetailScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import MapScreen from './screens/MapScreen';
 
-// Create navigators
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Authentication Stack Navigator
-const LoginStack = () => {
+
+const ScheduleStack = () => {
   return (
-    <Stack.Navigator 
-      screenOptions={{ 
-        headerShown: true,
-        headerTintColor:'#fff',
-        headerStyle:{backgroundColor:augwaBlue},
-        cardStyle: { backgroundColor: augwaBlue }
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: augwaBlue },
+        headerTintColor: '#fff',
       }}
     >
-      
-      <Stack.Screen name="login" component={LoginScreen} options={{headerShown:false}}/>
-      <Stack.Screen name="signup" component={SignupScreen} options={{headerShown:false}}/>
-      <Stack.Screen name="biometrysuccess" component={SuccessScreen} />
-      <Stack.Screen name="dashboard" component={DashboardTabs}
-        options={{headerShown:false}} // Prevent going back to login
+      <Stack.Screen 
+        name="ScheduleMain" 
+        component={ScheduleScreen} 
+        options={{ headerShown: false }}
       />
-      <Stack.Screen name = "schedule" component={ScheduleScreen} />
-      <Stack.Screen name = "schedule_detail" component={ScheduleDetailScreen} />
+      <Stack.Screen 
+        name="ScheduleDetail" 
+        component={ScheduleDetailScreen} 
+        options={{ title: 'Details' }}
+      />
     </Stack.Navigator>
   );
 };
 
-// Bottom Tab Navigator (Dashboard)
 const DashboardTabs = () => {
   return (
     <Tab.Navigator
@@ -57,19 +54,19 @@ const DashboardTabs = () => {
 
           switch (route.name) {
             case 'Home':
-              iconName = 'home-outline'
+              iconName = 'home-outline';
               break;
             case 'Schedule':
-              iconName = 'calendar'
+              iconName = 'calendar';
               break;
             case 'Map':
-              iconName = 'location'
+              iconName = 'location';
               break;
             case 'Settings':
-              iconName = 'settings'
+              iconName = 'settings';
               break;
             default:
-              iconName = 'help-outline'
+              iconName = 'help-outline';
           }
 
           return <Ionicons name={iconName} size={30} color={color} />;
@@ -107,7 +104,8 @@ const DashboardTabs = () => {
       />
       <Tab.Screen 
         name="Schedule" 
-        component={ScheduleScreen}
+        component={ScheduleStack}
+
         options={{ title: 'Schedule' }}
       />
       <Tab.Screen 
@@ -124,12 +122,45 @@ const DashboardTabs = () => {
   );
 };
 
-// Main App Component
-export default function App() {
-  const [authToken, setAuthToken] = useState(null)
-  const [userName, setUserName] = useState(null)
+const LoginStack = () => {
   return (
-    <AuthContext.Provider value = {{authToken, setAuthToken, userName, setUserName}}>
+    <Stack.Navigator 
+      screenOptions={{ 
+        headerShown: true,
+        headerTintColor: '#fff',
+        headerStyle: { backgroundColor: augwaBlue },
+        cardStyle: { backgroundColor: augwaBlue }
+      }}
+    >
+      <Stack.Screen 
+        name="login" 
+        component={LoginScreen} 
+        options={{ headerShown: false }} 
+      />
+      <Stack.Screen 
+        name="signup" 
+        component={SignupScreen} 
+        options={{ headerShown: false }} 
+      />
+      <Stack.Screen 
+        name="biometrysuccess" 
+        component={SuccessScreen} 
+      />
+      <Stack.Screen 
+        name="dashboard" 
+        component={DashboardTabs}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
+};
+
+export default function App() {
+  const [authToken, setAuthToken] = useState(null);
+  const [userName, setUserName] = useState(null);
+
+  return (
+    <AuthContext.Provider value={{ authToken, setAuthToken, userName, setUserName }}>
       <SafeAreaProvider>
         <NavigationContainer>
           <StatusBar style="light" />
@@ -137,7 +168,6 @@ export default function App() {
         </NavigationContainer>
       </SafeAreaProvider>
     </AuthContext.Provider>
-    
   );
 }
 
