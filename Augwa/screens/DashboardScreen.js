@@ -91,7 +91,7 @@ const DashboardScreen = ({ route, navigation }) => {
   console.log(`account id: ${accountID}`);
 
   const gotoSchedule = () => {
-    navigation.navigate("schedule");
+    navigation.navigate("Schedule");
   }
 
   const userTasks = useMemo(() => {

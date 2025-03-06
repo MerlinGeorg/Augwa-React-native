@@ -249,9 +249,9 @@ const ScheduleDetailScreen = ({ route }) => {
 
   return (
     <SafeAreaView style={styles.viewStyle}>
-      <View style={{ backgroundColor: augwaBlue, marginTop: 40 }}>
+      {/* <View style={{ backgroundColor: augwaBlue, marginTop: 40 }}>
         <Text style={styles.Title}>Job Details</Text>
-      </View>
+      </View> */}
 
       <View style={styles.dashboardAreaStyle}>
         <ScrollView style={styles.container} contentContainerStyle = { styles.scrollContainer}>
