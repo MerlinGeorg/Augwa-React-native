@@ -6,7 +6,7 @@ import * as ImagePicker from "expo-image-picker";
 
 export const CameraImagePicker = async (setImageData) => {
 
-    if (Platform.OS === "android") {
+    if (Platform.OS !== "web") {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== "granted") {
         Alert.alert(
