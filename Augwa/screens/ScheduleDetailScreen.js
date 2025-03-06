@@ -320,7 +320,7 @@ const ScheduleDetailScreen = ({ route }) => {
             <Text style={styles.label}>Job Details:</Text>
             {job.items && job.items.length > 0 ? (
               job.items.map((item, index) => (
-                <View>
+                <View key={index}>
                   <View style={styles.row}>
                     <Text style={styles.jobLabel}>Job</Text>
                     <Text style={styles.jobValue}>{item.name}</Text>
