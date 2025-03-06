@@ -25,7 +25,12 @@
       "permissions": [
         "USE_BIOMETRIC",
         "USE_FINGERPRINT"
-      ]
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyAsyvdLD1_-6nU-5W94QrlJZtDw4-kLALQ"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
