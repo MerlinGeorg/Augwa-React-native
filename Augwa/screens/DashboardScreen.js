@@ -343,14 +343,16 @@ const DashboardScreen = ({ route, navigation }) => {
   };
   // render navigate button
   const renderNavigateButton = () => {
+    const isCompleted = current?.status === 'Completed'
     const hasValidTask = current && !isCompleted
+    const buttonConfig = {
+      disabled: false,
+      color: augwaBlue
+    };
     const config = current?
       buttonConfig
       : { color: 'gray', disabled: true };
-      const buttonConfig = {
-        disabled: false,
-        backgroundColor: augwaBlue
-      };
+      
 
     return (
       <TouchableOpacity style={[styles.btnStyle,
@@ -358,7 +360,7 @@ const DashboardScreen = ({ route, navigation }) => {
           opacity: hasValidTask ? 1 : 0.6
         }]}
         // onPress = {()=>openMap(current?.latitude, current?.longitude)}
-          onPress={hasValidTask? openMap(current?.latitude, current?.longitude) : null}
+          onPress={hasValidTask? ()=>openMap(current?.latitude, current?.longitude) : null}
           disabled={!hasValidTask}>
           <View style={styles.navigateButton}>
             <Ionicons name="navigate-circle-outline" size={35} color="white" />
