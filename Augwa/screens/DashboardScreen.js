@@ -341,6 +341,32 @@ const DashboardScreen = ({ route, navigation }) => {
       </TouchableOpacity>
     );
   };
+  // render navigate button
+  const renderNavigateButton = () => {
+    const hasValidTask = current && !isCompleted
+    const config = current?
+      buttonConfig
+      : { color: 'gray', disabled: true };
+      const buttonConfig = {
+        disabled: false,
+        backgroundColor: augwaBlue
+      };
+
+    return (
+      <TouchableOpacity style={[styles.btnStyle,
+        { backgroundColor: config.color,
+          opacity: hasValidTask ? 1 : 0.6
+        }]}
+        // onPress = {()=>openMap(current?.latitude, current?.longitude)}
+          onPress={hasValidTask? openMap(current?.latitude, current?.longitude) : null}
+          disabled={!hasValidTask}>
+          <View style={styles.navigateButton}>
+            <Ionicons name="navigate-circle-outline" size={35} color="white" />
+            <Text style={styles.btnTitle}>Navigate</Text>
+          </View>
+        </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={[styles.viewStyle]}>
@@ -385,16 +411,7 @@ const DashboardScreen = ({ route, navigation }) => {
           </View>
           <View style={{ flexDirection: 'column', marginLeft: 12 }}>
             {renderActionButton()}
-            <TouchableOpacity style={[styles.btnStyle,
-            { backgroundColor: navigateColor }]}
-              onPress={() => openMap(current?.latitude, 
-              current?.longitude)
-              }>
-              <View style={styles.navigateButton}>
-                <Ionicons name="navigate-circle-outline" size={35} color="white" />
-                <Text style={styles.btnTitle}>Navigate</Text>
-              </View>
-            </TouchableOpacity>
+            {renderNavigateButton()}
 
           </View>
         </View>
