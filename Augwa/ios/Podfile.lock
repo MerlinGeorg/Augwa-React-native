@@ -1630,34 +1630,6 @@ PODS:
     - React-Core
   - react-native-encrypted-storage (4.0.3):
     - React-Core
-  - react-native-geo-fencing (0.1.0):
-    - GoogleMaps
-    - React
-  - react-native-geolocation (3.4.0):
-    - DoubleConversion
-    - glog
-    - hermes-engine
-    - RCT-Folly (= 2024.01.01.00)
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - Yoga
-  - react-native-geolocation-service (5.3.1):
-    - React
-  - react-native-get-random-values (1.11.0):
-    - React-Core
   - react-native-image-picker (8.2.0):
     - DoubleConversion
     - glog
@@ -2040,10 +2012,10 @@ PODS:
     - Yoga
   - RNCPushNotificationIOS (1.11.0):
     - React-Core
-  - RNFBApp (21.11.0):
+  - RNFBApp (21.12.0):
     - Firebase/CoreOnly (= 11.8.0)
     - React-Core
-  - RNFBMessaging (21.11.0):
+  - RNFBMessaging (21.12.0):
     - Firebase/Messaging (= 11.8.0)
     - FirebaseCoreExtension
     - React-Core
@@ -2378,10 +2350,6 @@ DEPENDENCIES:
   - react-native-biometrics (from `../node_modules/react-native-biometrics`)
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-encrypted-storage (from `../node_modules/react-native-encrypted-storage`)
-  - react-native-geo-fencing (from `../node_modules/react-native-geo-fencing`)
-  - "react-native-geolocation (from `../node_modules/@react-native-community/geolocation`)"
-  - react-native-geolocation-service (from `../node_modules/react-native-geolocation-service`)
-  - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-maps (from `../node_modules/react-native-maps`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -2569,14 +2537,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-camera"
   react-native-encrypted-storage:
     :path: "../node_modules/react-native-encrypted-storage"
-  react-native-geo-fencing:
-    :path: "../node_modules/react-native-geo-fencing"
-  react-native-geolocation:
-    :path: "../node_modules/@react-native-community/geolocation"
-  react-native-geolocation-service:
-    :path: "../node_modules/react-native-geolocation-service"
-  react-native-get-random-values:
-    :path: "../node_modules/react-native-get-random-values"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
   react-native-maps:
@@ -2741,11 +2701,7 @@ SPEC CHECKSUMS:
   react-native-biometrics: 43ed5b828646a7862dbc7945556446be00798e7d
   react-native-camera: 079d80421f0572d6b4e836908114d614d0adb553
   react-native-encrypted-storage: 569d114e329b1c2c2d9f8c84bcdbe4478dda2258
-  react-native-geo-fencing: b951b1f634d29275ac211c24f99cdd584043a746
-  react-native-geolocation: 19e121dda71716926a4558790f69344951f2a3ce
-  react-native-geolocation-service: 32b2c2a3b91e70ce2a8d0c684801aaeb0a07e0ec
-  react-native-get-random-values: d16467cf726c618e9c7a8c3c39c31faa2244bbba
-  react-native-image-picker: 379ae0fbe413c643132eaaf89d46e71b6a6077e3
+  react-native-image-picker: 732212151b686ff27ff57a7ea90f5d07d1a0c813
   react-native-maps: 3b0c8378ff774053bdd8954c820e987fdd7b4d72
   react-native-safe-area-context: db6ad47f9354809886d34e349a0809b0580712ea
   React-nativeconfig: 014403841159c621de6d2f888ad829aac530f93e
@@ -2778,15 +2734,14 @@ SPEC CHECKSUMS:
   RNBackgroundGeolocation: 487a18057a109cb72e9bf83c469db57ba82b5b23
   RNCAsyncStorage: d2806c4f4c8555fb3ca3fe5759e2f5e5ef74efe4
   RNCPushNotificationIOS: 6c4ca3388c7434e4a662b92e4dfeeee858e6f440
-  RNFBApp: b5626640e0f4b4fe5be4f44375df703c0d62ee4b
-  RNFBMessaging: 8e38f5ca846497f8a9c91d33f311c00ca52d119c
-  RNGestureHandler: 1e33ee267aaf61bbab6089d32df3b38c3024e3dd
-  RNKeychain: 63ca1ceb8362b775749ae3b5b6105ae26de4afd7
-  RNPermissions: f96c5715f18ec1a90d436213284c991788a467d2
-  RNReanimated: 23d4dd74e67d9eb5648839dcaabc00be8aba6af4
-  RNScreens: f5762e2dd74e365dcee2007dc96942a528ac25d4
-  RNSVG: 1a20ceaeef28cc2e6d74ba0d31fe19a9860f9bda
-  RNVectorIcons: 959270651e3b1bd49d6c469fc9ac52149f67f55c
+  RNFBApp: fd5bf956d6114cd3172680ab9c2185143faaa385
+  RNFBMessaging: 387873ff9c0deb29ec76b1a5c492d06012af58f4
+  RNGestureHandler: 16ef3dc2d7ecb09f240f25df5255953c4098819b
+  RNKeychain: 2b7e8a3e99060ee0d65a51b69187f188e3d58968
+  RNReanimated: a2692304a6568bc656c04c8ffea812887d37436e
+  RNScreens: 351f431ef2a042a1887d4d90e1c1024b8ae9d123
+  RNSVG: bbbdd17e8730c0f2a9cb416e5f37be87e29ebc90
+  RNVectorIcons: a24016b773380b1aa37fca501ec6b94a951890a0
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   TouchID: 6d9af299007675845fe9e23bd2701f4354613366
   TSBackgroundFetch: 5a0e4d83d4c586edb0cf63c93682e8f09c5d8b16
