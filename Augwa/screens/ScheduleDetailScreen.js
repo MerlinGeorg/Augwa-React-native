@@ -23,6 +23,7 @@ import { openMapsWithDirections } from "../components/NativeMap";
 import { ExpandableNote } from "../components/ExpandableNote";
 import { CameraImagePicker } from "../components/CameraImagePicker";
 import CustomAlert from "../components/CustomAlert";
+import useMotionDetection from "../components/useMotionDetection"; 
 
 const ScheduleDetailScreen = ({ route }) => {
   const { authToken } = useContext(AuthContext);
@@ -246,6 +247,22 @@ const ScheduleDetailScreen = ({ route }) => {
       // address: job.address
     });
   };
+
+  const handleMotionDetected = async () => {
+    if (job?.status === "Scheduled") {
+      try {
+        await api.post(`/Booking/${jobId}/Start`, payload, {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
+        fetchUpdatedJob();
+        console.log("Job marked as En Route");
+      } catch (error) {
+        console.error("Failed to update job status:", error);
+      }
+    }
+  };
+
+  useMotionDetection(handleMotionDetected);
 
   return (
     <SafeAreaView style={styles.viewStyle}>
