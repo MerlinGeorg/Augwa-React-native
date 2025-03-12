@@ -62,7 +62,8 @@
     "tailwindcss": "^4.0.6",
     "twrnc": "^4.6.1",
     "uuid": "^11.1.0",
-    "xmldom": "^0.6.0"
+    "xmldom": "^0.6.0",
+    "expo-sensors": "~14.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
