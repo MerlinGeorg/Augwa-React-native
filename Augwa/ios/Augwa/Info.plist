@@ -84,6 +84,12 @@
 	<array>
 		<string>MKDirectionsModePlane</string>
 	</array>
+	<key>CFBundleGetInfoString</key>
+	<string></string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Need location for geofencing</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Need location for geofencing</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 </dict>
