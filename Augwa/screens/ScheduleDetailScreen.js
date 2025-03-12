@@ -23,7 +23,7 @@ import { openMapsWithDirections } from "../components/NativeMap";
 import { ExpandableNote } from "../components/ExpandableNote";
 import { CameraImagePicker } from "../components/CameraImagePicker";
 import CustomAlert from "../components/CustomAlert";
-import useMotionDetection from "../components/useMotionDetection"; 
+import useMotionDetection from "../components/MotionDetection"; 
 
 const ScheduleDetailScreen = ({ route }) => {
   const { authToken } = useContext(AuthContext);
