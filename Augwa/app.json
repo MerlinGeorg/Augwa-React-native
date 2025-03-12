@@ -14,7 +14,12 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.augwa.app"
+      "bundleIdentifier": "com.augwa.app",
+      "infoPlist": {
+        "UIBackgroundModes": ["location"],
+        "NSLocationWhenInUseUsageDescription": "We need your location to provide services",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "We need your location to provide background services"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -24,7 +29,8 @@
       "package": "com.augwa.app",
       "permissions": [
         "USE_BIOMETRIC",
-        "USE_FINGERPRINT"
+        "USE_FINGERPRINT",
+        "ACCESS_BACKGROUND_LOCATION"
       ],
       "config": {
         "googleMaps": {
@@ -38,7 +44,13 @@
     "plugins": [
       "expo-asset",
       "expo-secure-store",
-      "expo-location"
+      [
+        "expo-location",
+        {
+          "isAndroidBackgroundLocationEnabled": true,
+          "locationAlwaysAndWhenInUsePermission": "We need your location to provide background services"
+        }
+      ]
     ],
     "packagerOpts": {
       "sourceExts": [

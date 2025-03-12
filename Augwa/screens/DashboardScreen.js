@@ -13,6 +13,7 @@ import BellIcon from '../components/BellIcon'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { fetchJoblist } from '../components/FetchList';
 import MapView from 'react-native-maps';
+import GeofencingComponent from '../components/GeoFencing';
 
 const DashboardScreen = ({ route, navigation }) => {
   const [jobStatus, setJobStatus] = useState('');
@@ -21,6 +22,8 @@ const DashboardScreen = ({ route, navigation }) => {
   const [scheduleData, setScheduleData] = useState(null);
   const [error, setError] = useState(null);
   const [weeklyTasksNumber, setWeeklyTasks] = useState(0)
+  const [taskLatitude, setTaskLatitude] = useState(null)
+  const [taskLongitude, setTaskLongitude] = useState(null)
   const api = axios.create({
     baseURL: API_BASEPATH_DEV,
     headers: {
@@ -303,6 +306,10 @@ const DashboardScreen = ({ route, navigation }) => {
       }
     }
   };
+  const destination = {
+    latitude: taskLatitude ,  
+    longitude: taskLongitude  
+  };
   const renderActionButton = () => {
 
     const isCompleted = current?.status === 'Completed'
@@ -360,7 +367,9 @@ const DashboardScreen = ({ route, navigation }) => {
           opacity: hasValidTask ? 1 : 0.6
         }]}
         // onPress = {()=>openMap(current?.latitude, current?.longitude)}
-          onPress={hasValidTask? ()=>openMap(current?.latitude, current?.longitude) : null}
+          onPress={hasValidTask? ()=>{openMap(current?.latitude, current?.longitude);
+            setTaskLatitude(current?.latitude); setTaskLongitude(current?.longitude)
+          } : null}
           disabled={!hasValidTask}>
           <View style={styles.navigateButton}>
             <Ionicons name="navigate-circle-outline" size={35} color="white" />
@@ -399,6 +408,7 @@ const DashboardScreen = ({ route, navigation }) => {
             {current ? formatLocalTime(current.startDate) : ''}
           </Text>
         </View>
+        <GeofencingComponent destination={destination} radius={50} />
 
         <View style={{ flexDirection: 'row', marginTop: 20, marginLeft: 9 }}>
           <View style={styles.jobDescribtionStyle}>
