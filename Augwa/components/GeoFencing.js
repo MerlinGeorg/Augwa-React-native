@@ -61,9 +61,21 @@ useEffect(() => {
       }
   
       setHasPermission(true);
-      // ... rest of your code
+      await Location.startLocationUpdatesAsync(GEOFENCING_TASK, {
+        accuracy: Location.Accuracy.High,
+        distanceInterval: 10, // Update every 10 meters
+        foregroundService: {
+          notificationTitle: 'Location Tracking',
+          notificationBody: 'Active geofencing monitoring',
+        },
+      });
     };
+    
     startGeofencing();
+    return () => {
+      // Cleanup: Stop location updates when component unmounts
+      Location.stopLocationUpdatesAsync(GEOFENCING_TASK);
+    };
   }, []);
   // Check geofence when location updates
   useEffect(() => {
@@ -97,7 +109,7 @@ useEffect(() => {
       Alert.alert('Geofence Alert', 'You entered the 50m area!');
     } else {
       // Optional: Alert on exit
-      // Alert.alert('Geofence Alert', 'You exited the 50m area!');
+      Alert.alert('Geofence Alert', 'You exited the 50m area!');
     }
   };
 
