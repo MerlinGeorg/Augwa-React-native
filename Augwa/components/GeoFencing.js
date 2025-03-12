@@ -1,70 +1,107 @@
+// components/GeofencingComponent.js
 import React, { useEffect, useState } from 'react';
-import { Alert, PermissionsAndroid, Platform } from 'react-native';
-import Geolocation from 'react-native-geolocation-service';
 import * as Location from 'expo-location';
+import * as TaskManager from 'expo-task-manager';
+import { Alert } from 'react-native';
+
+const GEOFENCING_TASK = 'geofencing-task';
+
+// Define the background task
+TaskManager.defineTask(GEOFENCING_TASK, ({ data: { locations }, error }) => {
+  if (error) {
+    console.error('Geofencing task error:', error);
+    return;
+  }
+  
+  const [location] = locations;
+  if (location) {
+    // This will trigger the geofence check even when app is in background
+    console.log('Background location update:', location.coords);
+  }
+});
 
 const GeofencingComponent = ({ destination, radius = 50 }) => {
   const [hasPermission, setHasPermission] = useState(false);
-
-  // Request background location permissions
-  useEffect(() => {
-    const requestPermissions = async () => {
-      if (Platform.OS === 'android') {
-        const granted = await PermissionsAndroid.requestMultiple([
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
-        ]);
-        setHasPermission(
-          granted['android.permission.ACCESS_FINE_LOCATION'] === 'granted' &&
-          granted['android.permission.ACCESS_BACKGROUND_LOCATION'] === 'granted'
-        );
-      } else {
-        const { status } = await Location.requestBackgroundPermissionsAsync();
-        setHasPermission(status === 'granted');
+  // Request permissions and start tracking
+useEffect(() => {
+    const startGeofencing = async () => {
+      // Common foreground permission request
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      
+      if (status !== 'granted') {
+        Alert.alert('Permission denied', 'Location permission is required');
+        return;
       }
+  
+      // Platform-specific background handling
+      if (Platform.OS === 'android') {
+        const bgPerm = await Location.getBackgroundPermissionsAsync();
+        if (!bgPerm.granted) {
+          Alert.alert(
+            'Background Location Required',
+            'Enable "Allow all the time" in location settings',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Open Settings', onPress: () => Linking.openSettings() }
+            ]
+          );
+        }
+      } else if (Platform.OS === 'ios') {
+        const { status: bgStatus } = await Location.requestBackgroundPermissionsAsync();
+        if (bgStatus !== 'granted') {
+          Alert.alert(
+            'Background Location Required',
+            'To enable background tracking:\n1. Open Settings\n2. Tap Privacy\n3. Tap Location Services\n4. Select "Always"',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Open Settings', onPress: () => Linking.openURL('app-settings:') }
+            ]
+          );
+        }
+      }
+  
+      setHasPermission(true);
+      // ... rest of your code
     };
-
-    requestPermissions();
+    startGeofencing();
   }, []);
-
-  // Start geofencing when permissions are granted
+  // Check geofence when location updates
   useEffect(() => {
     if (!hasPermission || !destination) return;
 
-    // Configure geofencing
-    const watchId = Geolocation.watchPosition(
-      position => {
-        const { latitude, longitude } = position.coords;
-        checkGeofence(latitude, longitude);
-      },
-      error => console.error(error),
+    const subscription = Location.watchPositionAsync(
       {
-        enableHighAccuracy: true,
-        distanceFilter: 10,
-        interval: 5000,
-        fastestInterval: 2000,
-        showsBackgroundLocationIndicator: true,
+        accuracy: Location.Accuracy.High,
+        distanceInterval: 10,
+      },
+      (location) => {
+        checkGeofence(location.coords);
       }
     );
 
-    return () => Geolocation.clearWatch(watchId);
+    return () => subscription.remove();
   }, [hasPermission, destination]);
 
-  // Check if user is inside geofence
-  const checkGeofence = (lat, lng) => {
+  // Geofence check logic
+  const checkGeofence = (coords) => {
+    if (!destination) return;
+
     const distance = calculateDistance(
-      lat,
-      lng,
+      coords.latitude,
+      coords.longitude,
       destination.latitude,
       destination.longitude
     );
 
     if (distance <= radius) {
       Alert.alert('Geofence Alert', 'You entered the 50m area!');
+    } else {
+      // Optional: Alert on exit
+      // Alert.alert('Geofence Alert', 'You exited the 50m area!');
     }
   };
 
-  // Haversine formula to calculate distance
+  // Haversine formula
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371e3; // Earth radius in meters
     const φ1 = (lat1 * Math.PI) / 180;
@@ -72,10 +109,11 @@ const GeofencingComponent = ({ destination, radius = 50 }) => {
     const Δφ = ((lat2 - lat1) * Math.PI) / 180;
     const Δλ = ((lon2 - lon1) * Math.PI) / 180;
 
-    const a =
-      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+              Math.cos(φ1) * Math.cos(φ2) *
+              Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    
     return R * c;
   };
 

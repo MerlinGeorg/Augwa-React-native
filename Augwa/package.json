@@ -63,7 +63,8 @@
     "tailwindcss": "^4.0.6",
     "twrnc": "^4.6.1",
     "uuid": "^11.1.0",
-    "xmldom": "^0.6.0"
+    "xmldom": "^0.6.0",
+    "expo-task-manager": "~12.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
