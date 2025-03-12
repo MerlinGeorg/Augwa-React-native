@@ -39,6 +39,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We need your location to detect when you enter important areas</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>LSMinimumSystemVersion</key>
