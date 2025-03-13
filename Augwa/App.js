@@ -59,9 +59,9 @@ const DashboardTabs = () => {
             case 'Schedule':
               iconName = 'calendar';
               break;
-            case 'Map':
-              iconName = 'location';
-              break;
+            // case 'Map':
+            //   iconName = 'location';
+            //   break;
             case 'Settings':
               iconName = 'settings';
               break;
@@ -108,11 +108,11 @@ const DashboardTabs = () => {
 
         options={{ title: 'Schedule' }}
       />
-      <Tab.Screen 
+      {/* <Tab.Screen 
         name="Map" 
         component={MapScreen}
         options={{ title: 'Map' }}
-      />
+      /> */}
       <Tab.Screen 
         name="Settings" 
         component={SettingsScreen}
