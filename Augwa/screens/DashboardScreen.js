@@ -1,25 +1,19 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Linking, Platform } from "react-native";
-import base64 from "base-64";
-import axios from "axios";
-import { View, StyleSheet, Text, TouchableOpacity, Alert } from "react-native";
-import { useContext } from "react";
-import { AuthContext } from "../src/context/AuthContext";
-import { ScrollView } from "react-native-gesture-handler";
-import { API_BASEPATH_DEV } from "@env";
-import {
-  augwaBlue,
-  dashboardArea,
-  errorRed,
-  navigateColor,
-} from "../assets/styles/color";
-import Message from "../components/Message";
-import BellIcon from "../components/BellIcon";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { fetchJoblist } from "../components/FetchList";
-import MapView from "react-native-maps";
-import GeofencingComponent from "../components/GeoFencing";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Linking, Platform} from 'react-native';
+import base64 from 'base-64';
+import axios from "axios"
+import { View, StyleSheet, Text, TouchableOpacity, } from 'react-native';
+import { useContext } from 'react';
+import { AuthContext } from '../src/context/AuthContext';
+import { ScrollView } from 'react-native-gesture-handler';
+import { API_BASEPATH_DEV, X_DOMAIN } from '@env';
+import { augwaBlue, dashboardArea, errorRed, navigateColor } from "../assets/styles/color";
+import Message from '../components/Message'
+import BellIcon from '../components/BellIcon'
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { fetchJoblist } from '../components/FetchList';
+import MapView from 'react-native-maps';
+import GeofencingComponent from '../components/GeoFencing';
 
 const DashboardScreen = ({ route, navigation }) => {
   const [jobStatus, setJobStatus] = useState("");
@@ -692,6 +686,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     width: "auto",
     height: "15 %",
+    borderRadius: 20,
+  },
+  noJobsText: {
+    backgroundColor: 'white',
+    fontSize: 16,
+    textAlign: 'center',
+  margin: 10,
+  padding: 20,
+  backgroundColor: "#fff",
+    width: 'auto',
+    height: '15 %',
     borderRadius: 20,
   },
   greetings: {
