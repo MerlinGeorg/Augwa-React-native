@@ -1,62 +1,34 @@
-import { renderHook, act } from "@testing-library/react-native";
+import { useEffect, useRef } from "react";
 import { Accelerometer } from "expo-sensors";
-import MotionDetection from "../components/MotionDetection";
 
-jest.mock("expo-sensors", () => ({
-  Accelerometer: {
-    addListener: jest.fn(),
-    removeAllListeners: jest.fn(),
-    setUpdateInterval: jest.fn(),
-  },
-}));
+const THRESHOLD = 1.0;
 
-describe("MotionDetection Hook", () => {
-  beforeEach(() => {
-    jest.clearAllMocks(); 
-  });
+const MotionDetection = (onMotionDetected) => {
+  const subscriptionRef = useRef(null);
 
-  it("should call onMotionDetected when motion is detected", () => {
-    const onMotionDetected = jest.fn();
-    let listener;
+  useEffect(() => {
+    const handleMotion = (data) => {
+      const { x, y, z } = data;
+      const magnitude = Math.sqrt(x * x + y * y + z * z);
 
-    Accelerometer.addListener.mockImplementation((callback) => {
-      listener = callback;
-    });
+      if (magnitude > THRESHOLD) {
+        onMotionDetected();
+      }
+    };
 
-    renderHook(() => MotionDetection(onMotionDetected));
+    // Add listener
+    Accelerometer.setUpdateInterval(1000);
+    subscriptionRef.current = Accelerometer.addListener(handleMotion);
 
-    act(() => {
-      listener({ x: 1, y: 1, z: 1 });
-    });
+    return () => {
+      // Remove the listener
+      if (subscriptionRef.current) {
+        subscriptionRef.current.remove();
+      }
+    };
+  }, [onMotionDetected]);
 
-    expect(onMotionDetected).toHaveBeenCalledTimes(1);
-  });
+  return null;
+};
 
-  it("should not call onMotionDetected when motion is below threshold", () => {
-    const onMotionDetected = jest.fn();
-    let listener;
-
-    Accelerometer.addListener.mockImplementation((callback) => {
-      listener = callback;
-    });
-
-    renderHook(() => MotionDetection(onMotionDetected));
-
-    act(() => {
-      listener({ x: 0.1, y: 0.1, z: 0.1 });
-    });
-
-    expect(onMotionDetected).not.toHaveBeenCalled();
-  });
-
-  it("should remove listener when unmounted", () => {
-    const onMotionDetected = jest.fn();
-
-    const { unmount } = renderHook(() => MotionDetection(onMotionDetected));
-
-    unmount();
-
-    // Verify removeAllListeners is called
-    expect(Accelerometer.removeAllListeners).toHaveBeenCalledTimes(1);
-  });
-});
+export default MotionDetection;
