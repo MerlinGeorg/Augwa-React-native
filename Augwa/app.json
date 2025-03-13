@@ -30,7 +30,10 @@
       "permissions": [
         "USE_BIOMETRIC",
         "USE_FINGERPRINT",
-        "ACCESS_BACKGROUND_LOCATION"
+        "ACCESS_BACKGROUND_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+
       ],
       "config": {
         "googleMaps": {
@@ -59,6 +62,11 @@
         "svgx"
       ],
       "transformer": "node_modules/react-native-svg-transformer/index.js"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "fa6baf12-1483-4c1c-983a-756a93896f95"
+      }
     }
   }
 }
