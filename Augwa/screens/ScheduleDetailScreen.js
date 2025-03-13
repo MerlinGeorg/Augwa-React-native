@@ -24,6 +24,8 @@ import { ExpandableNote } from "../components/ExpandableNote";
 import { CameraImagePicker } from "../components/CameraImagePicker";
 import CustomAlert from "../components/CustomAlert";
 
+import useMotionDetection from "../components/MotionDetection"; 
+
 const ScheduleDetailScreen = ({ route }) => {
   const { authToken } = useContext(AuthContext);
   const { jobId } = route.params;
@@ -247,11 +249,27 @@ const ScheduleDetailScreen = ({ route }) => {
     });
   };
 
+  const handleMotionDetected = async () => {
+    if (job?.status === "Scheduled") {
+      try {
+        await api.post(`/Booking/${jobId}/Start`, payload, {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
+        fetchUpdatedJob();
+        console.log("Job marked as En Route");
+      } catch (error) {
+        console.error("Failed to update job status:", error);
+      }
+    }
+  };
+
+  useMotionDetection(handleMotionDetected);
+
   return (
     <SafeAreaView style={styles.viewStyle}>
-      <View style={{ backgroundColor: augwaBlue, marginTop: 40 }}>
+      {/* <View style={{ backgroundColor: augwaBlue, marginTop: 40 }}>
         <Text style={styles.Title}>Job Details</Text>
-      </View>
+      </View> */}
 
       <View style={styles.dashboardAreaStyle}>
         <ScrollView style={styles.container} contentContainerStyle = { styles.scrollContainer}>
