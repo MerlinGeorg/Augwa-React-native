@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useContext, useCallback } from "react";
 import {
   TouchableOpacity,
@@ -266,9 +267,22 @@ const ScheduleDetailScreen = ({ route }) => {
       address: job.address
     });
   };
-  // console.log("address: ",job.latitude)
-  // console.log("address: ",job.longitude)
-  // console.log("address: ",job.address)
+
+  const handleMotionDetected = async () => {
+    if (job?.status === "Scheduled") {
+      try {
+        await api.post(`/Booking/${jobId}/Start`, payload, {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
+        fetchUpdatedJob();
+        console.log("Job marked as En Route");
+      } catch (error) {
+        console.error("Failed to update job status:", error);
+      }
+    }
+  };
+
+  useMotionDetection(handleMotionDetected);
 
   return (
     <SafeAreaView style={styles.viewStyle}>
