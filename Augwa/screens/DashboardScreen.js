@@ -1,25 +1,20 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Linking, Platform } from "react-native";
-import base64 from "base-64";
-import axios from "axios";
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
-import { useContext } from "react";
-import { AuthContext } from "../src/context/AuthContext";
-import { ScrollView } from "react-native-gesture-handler";
-import { API_BASEPATH_DEV } from "@env";
-import {
-  augwaBlue,
-  dashboardArea,
-  errorRed,
-  navigateColor,
-} from "../assets/styles/color";
-import Message from "../components/Message";
-import BellIcon from "../components/BellIcon";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { fetchJoblist } from "../components/FetchList";
-import MapView from "react-native-maps";
-import GeofencingComponent from "../components/GeoFencing";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Linking, Platform} from 'react-native';
+import base64 from 'base-64';
+import axios from "axios"
+import { View, StyleSheet, Text, TouchableOpacity, } from 'react-native';
+import { useContext } from 'react';
+import { AuthContext } from '../src/context/AuthContext';
+import { ScrollView } from 'react-native-gesture-handler';
+import { API_BASEPATH_DEV, X_DOMAIN } from '@env';
+import { augwaBlue, dashboardArea, errorRed, navigateColor } from "../assets/styles/color";
+import Message from '../components/Message'
+import BellIcon from '../components/BellIcon'
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { fetchJoblist } from '../components/FetchList';
+import MapView from 'react-native-maps';
+import GeofencingComponent from '../components/GeoFencing';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const DashboardScreen = ({ route, navigation }) => {
   const [jobStatus, setJobStatus] = useState("");
@@ -158,8 +153,7 @@ const DashboardScreen = ({ route, navigation }) => {
 
     return startDate.getTime() === today.getTime();
   });
-  // console.log("todayTaskList: ", todayTaskList);
-  // console.log("matchedSchedules: ", matchedSchedules);
+
   const performances = [
     { title: "Open daily task:", count: todayTaskList.length },
     { title: "Weekly tasks:", count: weeklyTasksNumber },
@@ -342,9 +336,9 @@ const DashboardScreen = ({ route, navigation }) => {
         disabled: true,
       },
     };
-    const config = current?.status
-      ? buttonConfig[current.status]
-      : { color: "gray", text: "Start", disabled: true };
+    const config = current?.status ?
+      buttonConfig[current.status]
+      : { color: 'gray', text: 'No Task', disabled: true };
 
     return (
       <TouchableOpacity
@@ -379,31 +373,24 @@ const DashboardScreen = ({ route, navigation }) => {
           { backgroundColor: config.color, opacity: hasValidTask ? 1 : 0.6 },
         ]}
         // onPress = {()=>openMap(current?.latitude, current?.longitude)}
-        onPress={
-          hasValidTask
-            ? () => {
-                openMap(current?.latitude, current?.longitude);
-                setTaskLatitude(current?.latitude);
-                setTaskLongitude(current?.longitude);
-              }
-            : null
-        }
-        disabled={!hasValidTask}
-      >
-        <View style={styles.navigateButton}>
-          <Ionicons name="navigate-circle-outline" size={30} color="white" />
-          <Text style={styles.btnTitle}>Navigate</Text>
-        </View>
-      </TouchableOpacity>
+          onPress={hasValidTask? ()=>{openMap(current?.latitude, current?.longitude);
+            setTaskLatitude(current?.latitude); setTaskLongitude(current?.longitude)
+          } : null}
+          disabled={!hasValidTask}>
+          <View style={styles.navigateButton}>
+            <Ionicons name="navigate-circle-outline" size={35} color="white" />
+            <Text style={styles.btnTitle}>Navigate</Text>
+          </View>
+        </TouchableOpacity>
     );
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <View>
-          <View style={styles.greetingArea}>
-            <Text style={styles.greetings}>Welcome, </Text>
+    <View style={[styles.viewStyle]}>
+
+      <View style={{ backgroundColor: augwaBlue, marginTop: 70 }}>
+        <View style={styles.greetingArea}>
+          <Text style={styles.greetings}>Welcome, </Text>
 
             <View style={styles.iconSection}>
               <TouchableOpacity>
@@ -418,106 +405,72 @@ const DashboardScreen = ({ route, navigation }) => {
           <Text style={styles.usernameStyle}> {userName} !</Text>
         </View>
 
-        <View style={styles.dashboardAreaStyle}>
-          <View
-            style={[
-              styles.currentJobContainer,
-              { borderRadius: 15, marginTop: 10, paddingBottom: 10 },
-            ]}
-          >
-            <Text style={styles.sectionTitle}>Current Job</Text>
-          </View>
-          <GeofencingComponent destination={destination} radius={50} />
+      <View style={styles.dashboardAreaStyle}>
 
-          <View style={{ flexDirection: "row", marginLeft: 9 }}>
-            <View style={styles.jobDescribtionStyle}>
-              {todayTaskList[0] ? (
-                <Text style={styles.jobDescribtionText}>
-                  {current.address}{"\n\n"}
-                  <Text style={styles.timeTitle}>
-                    {current ? formatLocalTime(current.startDate) : ""}
-                  </Text>
-                </Text>
-              ) : (
-                <Text style={styles.jobDescribtionText}>No task today!</Text>
-              )}
-            </View>
-            <View style={{ flexDirection: "column", marginLeft: 12 }}>
-              {renderActionButton()}
-              {renderNavigateButton()}
-            </View>
-          </View>
-
-          <View
-            style={{
-              flexDirection: "row",
-              marginTop: 15,
-              justifyContent: "space-between",
-            }}
-          >
-            <Text style={styles.sectionTitle}>Upcoming Jobs</Text>
-            <TouchableOpacity
-              style={{ marginRight: 15, marginTop: 5 }}
-              onPress={gotoSchedule}
-            >
-              <Text style={styles.bluBtntext}>View all</Text>
-            </TouchableOpacity>
-          </View>
-          {matchedSchedules.length === 0 ? (
-            <Text style={styles.noJobsText}>No jobs available</Text>
-          ) : (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.scrollContainer}
-            >
-              {matchedSchedules.map((item, index) => (
-                <View key={index} style={[styles.jobDescribtionStyle]}>
-                  <Text style={styles.jobDescribtionText}>
-                    {`${item.address}\n\n`}
-              <Text style={styles.timeTitle}>{`${formatLocalTime(item.startDate)}\n
-              Status: ${item.status}`}</Text>
-                  </Text>
-                </View>
-              ))}
-            </ScrollView>
-          )}
-
-          <View style={{ marginLeft: 5, flexDirection: "row"}}>
-          {/* <View style={styles.performanceOverviewContainer}> */}
-            <Text style={styles.sectionTitle}>Performance Overview</Text>
-          </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContainer}
-          >
-            {performances.map((item, index) => (
-              <View key={index} style={[styles.performanceStyle]}>
-                <Text style={styles.sectionTitle}>{item.title} </Text>
-                <Text style={styles.performanceNumStyle}>{item.count}</Text>
-              </View>
-            ))}
-          </ScrollView>
+        <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: 20 }}>
+          <Text style={styles.sectionTitle}>Current Job</Text>
+          <Text style={styles.timeTitle}>
+            {current ? formatLocalTime(current.startDate) : ''}
+          </Text>
         </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
+        <GeofencingComponent destination={destination} radius={50} />
+
+        <View style={{ flexDirection: 'row', marginTop: 20, marginLeft: 9 }}>
+          <View style={styles.jobDescribtionStyle}>
+            {todayTaskList[0] ? (
+              <Text style={styles.jobDescribtionText}>
+                {`${current.address}\n${formatLocalTime(current.startDate)}\n
+                Status: ${current.status}`}
+              </Text>
+            ) : (
+              <Text style={styles.jobDescribtionText}>No task today!</Text>
+            )}
+          </View>
+          <View style={{ flexDirection: 'column', marginLeft: 12 }}>
+            {renderActionButton()}
+            {renderNavigateButton()}
+
+          </View>
+        </View>
+
+        <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: 20 }}>
+          <Text style={styles.sectionTitle}>Upcoming Jobs</Text>
+          <TouchableOpacity style={{ marginLeft: 150, marginTop: 5 }} onPress={gotoSchedule}>
+            <Text style={styles.bluBtntext}>View all</Text>
+          </TouchableOpacity>
+        </View>
+        <ScrollView horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContainer}>
+          {matchedSchedules.map((item, index) => (
+            <View key={index} style={[styles.jobDescribtionStyle]}>
+              <Text style={styles.jobDescribtionText}>
+                {`${item.address}\n${formatLocalTime(item.startDate)}\n
+              Status: ${item.status}`}
+              </Text>
+            </View>
+          ))}
+        </ScrollView>
+        <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: -30 }}>
+          <Text style={styles.sectionTitle}>Performance Overview</Text>
+        </View>
+        <ScrollView horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContainer}>
+          {performances.map((item, index) => (
+            <View key={index} style={[styles.performanceStyle]}>
+              <Text style={styles.sectionTitle}>{item.title}</Text>
+              <Text style={styles.performanceNumStyle}>{item.count}</Text>
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+
+    </View>
+  )
+}
 
 const styles = StyleSheet.create({
-  container: {
-    // borderRadius: 30, // Curved edges
-    backgroundColor: augwaBlue,
-    // paddingHorizontal: 15
-  },
-  headerContainer: {
-    // paddingTop:
-    //marginTop: 20,
-    //   // borderBottomLeftRadius: 25, // Add this for curved bottom-left corner
-    //   // borderBottomRightRadius: 25, // Add this for curved bottom-right corner
-    //   // paddingBottom: 20, // Ensure there's enough space for the curve
-  },
   viewStyle: {
     flex: 1,
     backgroundColor: augwaBlue,
@@ -544,7 +497,6 @@ const styles = StyleSheet.create({
   upcomingJobsContainer: {
     marginTop: 10, // Reduced gap between Current Job and Upcoming Jobs
   },
- 
   greetings: {
     marginTop: 15,
     marginStart: 10,
@@ -581,17 +533,16 @@ const styles = StyleSheet.create({
   },
   jobDescribtionStyle: {
     backgroundColor: "#fff",
-    width: 200,
-    height: 130,
+    width: 210,
+    height: 125,
     borderRadius: 20,
     marginLeft: 10,
     
   },
   jobDescribtionText: {
-    // marginTop: 10,
-    padding: 10,
-    fontSize: 16,
-    alignItems: "center",
+    marginTop: 10,
+    marginLeft: 5,
+    fontSize: 16
   },
   btnTitle: {
     fontSize: 18,
@@ -604,10 +555,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 10,
-    padding: 10,
-    minWidth:120,
-    width: "90%",
-    height: 50,
+    width: 150,
+    height: 50
   },
   bluBtntext: {
     marginTop: -5,
@@ -625,24 +574,13 @@ const styles = StyleSheet.create({
   },
   performanceStyle: {
     width: 150,
-    height: 90,
-    marginHorizontal: 15,
-    padding: 10,
-    backgroundColor: "white",
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 3, // Shadow for Android
-    shadowColor: "#000", // Shadow for iOS
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
+    height: 110,
+    borderRadius: 20,
+    marginLeft: 7
   },
   navigateButton: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    //   paddingHorizontal: 10
+    alignItems: 'center'
   },
   performanceNumStyle: {
     fontSize: 25,
