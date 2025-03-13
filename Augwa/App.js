@@ -10,7 +10,7 @@ import React, { useState } from 'react';
 import * as Notifications from 'expo-notifications';
 
 import SignupScreen from './screens/SignupScreen';
-import LoginScreen from './screens/LoginScreen';
+import LoginScreen from './screens/LogInScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import ScheduleScreen from './screens/ScheduleScreen';
 import { augwaBlue } from './assets/styles/color';
@@ -18,6 +18,7 @@ import SuccessScreen from './screens/biometricSuccessScreen';
 import ScheduleDetailScreen from './screens/ScheduleDetailScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import MapScreen from './screens/MapScreen';
+import ProfileScreen from './screens/ProfileScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -41,6 +42,9 @@ const ScheduleStack = () => {
         component={ScheduleDetailScreen} 
         options={{ title: 'Details' }}
       />
+      <Stack.Screen name = "schedule" component={ScheduleScreen} />
+      <Stack.Screen name = "schedule_detail" component={ScheduleDetailScreen} />
+      <Stack.Screen name = "ProfileScreen" component={ProfileScreen} />
     </Stack.Navigator>
   );
 };
