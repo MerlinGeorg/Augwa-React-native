@@ -5,7 +5,7 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import * as SecureStore from 'expo-secure-store';
 import { AuthContext } from "../src/context/AuthContext";
 import axios from "axios";
-import { API_BASEPATH_DEV } from '@env';
+import { API_BASEPATH_DEV, X_DOMAIN } from '@env';
 import ProfileScreen from "./ProfileScreen";
 
 const SettingCard = ({ icon, title, onPress }) => (
