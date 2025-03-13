@@ -314,7 +314,7 @@ const ScheduleDetailScreen = ({ route }) => {
             <View style={styles.row}>
               <Text style={styles.label}>Client:</Text>
               <Text style={styles.value}>
-                {job.client.fullName} ({job.client.companyName})
+                {job.client.firstName} {job.client.lastName}
               </Text>
             </View>
           </View>
