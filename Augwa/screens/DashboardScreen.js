@@ -14,6 +14,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { fetchJoblist } from '../components/FetchList';
 import MapView from 'react-native-maps';
 import GeofencingComponent from '../components/GeoFencing';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const DashboardScreen = ({ route, navigation }) => {
   const [jobStatus, setJobStatus] = useState('');
@@ -147,7 +148,7 @@ const DashboardScreen = ({ route, navigation }) => {
 
     return startDate.getTime() === today.getTime();
   });
-
+console.log("matchedSchedules: ",matchedSchedules)
   const performances = [
     { title: "Today's tasks left:", count: todayTaskList.length },
     { title: 'Weekly tasks:\n', count: weeklyTasksNumber }
@@ -334,7 +335,7 @@ const DashboardScreen = ({ route, navigation }) => {
     };
     const config = current?.status ?
       buttonConfig[current.status]
-      : { color: 'gray', text: 'No Task', disabled: true };
+      : { color: 'gray', text: 'Start', disabled: true };
 
     return (
       <TouchableOpacity
@@ -372,7 +373,7 @@ const DashboardScreen = ({ route, navigation }) => {
           } : null}
           disabled={!hasValidTask}>
           <View style={styles.navigateButton}>
-            <Ionicons name="navigate-circle-outline" size={35} color="white" />
+            <Ionicons name="navigate-circle-outline" size={30} color="white" />
             <Text style={styles.btnTitle}>Navigate</Text>
           </View>
         </TouchableOpacity>
@@ -380,9 +381,12 @@ const DashboardScreen = ({ route, navigation }) => {
   };
 
   return (
-    <View style={[styles.viewStyle]}>
+    
+    <SafeAreaView style={{ flex: 1 }}>
+    <ScrollView contentContainerStyle={styles.container}>
 
-      <View style={{ backgroundColor: augwaBlue, marginTop: 70 }}>
+
+      <View >
         <View style={styles.greetingArea}>
           <Text style={styles.greetings}>Welcome, </Text>
 
@@ -402,7 +406,7 @@ const DashboardScreen = ({ route, navigation }) => {
 
       <View style={styles.dashboardAreaStyle}>
 
-        <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: 20 }}>
+        <View style={[styles.currentJobContainer, { borderRadius: 15 , marginTop: 15}]}>
           <Text style={styles.sectionTitle}>Current Job</Text>
           <Text style={styles.timeTitle}>
             {current ? formatLocalTime(current.startDate) : ''}
@@ -410,7 +414,7 @@ const DashboardScreen = ({ route, navigation }) => {
         </View>
         <GeofencingComponent destination={destination} radius={50} />
 
-        <View style={{ flexDirection: 'row', marginTop: 20, marginLeft: 9 }}>
+        <View style={{ flexDirection: 'row',  marginLeft: 9 }}>
           <View style={styles.jobDescribtionStyle}>
             {todayTaskList[0] ? (
               <Text style={styles.jobDescribtionText}>
@@ -428,13 +432,16 @@ const DashboardScreen = ({ route, navigation }) => {
           </View>
         </View>
 
-        <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: 20 }}>
+        <View style={{ flexDirection: 'row', marginTop: 20, justifyContent: 'space-between' }}>
           <Text style={styles.sectionTitle}>Upcoming Jobs</Text>
-          <TouchableOpacity style={{ marginLeft: 150, marginTop: 5 }} onPress={gotoSchedule}>
+          <TouchableOpacity style={{ marginRight: 15, marginTop: 5 }} onPress={gotoSchedule}>
             <Text style={styles.bluBtntext}>View all</Text>
           </TouchableOpacity>
         </View>
-        <ScrollView horizontal
+        {matchedSchedules.length === 0 ? (
+           <Text style={styles.noJobsText}>No jobs available</Text>
+        ) : (
+          <ScrollView horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollContainer}>
           {matchedSchedules.map((item, index) => (
@@ -446,12 +453,17 @@ const DashboardScreen = ({ route, navigation }) => {
             </View>
           ))}
         </ScrollView>
-        <View style={{ marginLeft: 5, flexDirection: 'row', marginTop: -30 }}>
+        )
+
+        }
+        
+        <View style={{ marginLeft: 5, flexDirection: 'row' }}>
           <Text style={styles.sectionTitle}>Performance Overview</Text>
         </View>
         <ScrollView horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContainer}>
+          contentContainerStyle={{paddingHorizontal: 10, // Add padding to prevent cutoff at edges
+            alignItems: 'center',}}>
           {performances.map((item, index) => (
             <View key={index} style={[styles.performanceStyle]}>
               <Text style={styles.sectionTitle}>{item.title}</Text>
@@ -460,12 +472,25 @@ const DashboardScreen = ({ route, navigation }) => {
           ))}
         </ScrollView>
       </View>
-
-    </View>
+</ScrollView>
+    </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
+  
+  container: {
+   // borderRadius: 30, // Curved edges
+    backgroundColor: augwaBlue,
+   // paddingHorizontal: 15
+  },
+   headerContainer: {
+    // paddingTop:
+  //marginTop: 20,
+  //   // borderBottomLeftRadius: 25, // Add this for curved bottom-left corner
+  //   // borderBottomRightRadius: 25, // Add this for curved bottom-right corner
+  //   // paddingBottom: 20, // Ensure there's enough space for the curve
+   },
   viewStyle: {
     flex: 1,
     backgroundColor: augwaBlue,
@@ -478,6 +503,17 @@ const styles = StyleSheet.create({
     marginLeft: 150,
     marginTop: 20,
     flexDirection: "row"
+  },
+  noJobsText: {
+    backgroundColor: 'white',
+    fontSize: 16,
+    textAlign: 'center',
+  margin: 10,
+  padding: 20,
+  backgroundColor: "#fff",
+    width: 'auto',
+    height: '15 %',
+    borderRadius: 20,
   },
   greetings: {
     marginTop: 15,
@@ -515,15 +551,16 @@ const styles = StyleSheet.create({
   },
   jobDescribtionStyle: {
     backgroundColor: "#fff",
-    width: 210,
-    height: 125,
+    width: 200,
+    height: 150,
     borderRadius: 20,
     marginLeft: 10
   },
   jobDescribtionText: {
-    marginTop: 10,
-    marginLeft: 5,
-    fontSize: 16
+   // marginTop: 10,
+   padding:10,
+    fontSize: 16,
+    alignItems: 'center'
   },
   btnTitle: {
     fontSize: 20,
@@ -536,7 +573,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 10,
-    width: 150,
+    padding: 10,
+    width: '90%',
     height: 50
   },
   bluBtntext: {
@@ -551,15 +589,25 @@ const styles = StyleSheet.create({
     height: 70,
   },
   performanceStyle: {
-    backgroundColor: "#fff",
     width: 150,
-    height: 110,
-    borderRadius: 20,
-    marginLeft: 7
+  height: 100,
+  marginHorizontal: 15,
+  padding: 15,
+  backgroundColor: 'white',
+  borderRadius: 10,
+  justifyContent: 'center',
+  alignItems: 'center',
+  elevation: 3, // Shadow for Android
+  shadowColor: '#000', // Shadow for iOS
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.2,
+  shadowRadius: 3,
   },
   navigateButton: {
     flexDirection: "row",
-    alignItems: 'center'
+    alignItems: 'center',
+    justifyContent: 'center',
+ //   paddingHorizontal: 10
   },
   performanceNumStyle: {
     fontSize: 25,
