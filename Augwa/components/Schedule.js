@@ -1,6 +1,16 @@
 import axios from "axios";
 import { API_BASEPATH_DEV } from "@env";
+import { API_BASEPATH_DEV } from "@env";
 import base64 from 'base-64';
+
+const { domain } = useContext(AuthContext);
+const api = axios.create({
+    baseURL: API_BASEPATH_DEV,
+    headers: {
+        "Content-Type": "application/json",
+        "X-Domain": domain,
+    },
+});
 
 const decodeJWT = (token) => {
     try {

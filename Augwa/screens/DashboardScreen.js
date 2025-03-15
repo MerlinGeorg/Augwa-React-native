@@ -16,7 +16,7 @@ import MapView from 'react-native-maps';
 import GeofencingComponent from '../components/GeoFencing';
 
 const DashboardScreen = ({ route, navigation }) => {
-  const [jobStatus, setJobStatus] = useState('');
+  const [jobStatus, setJobStatus] = useState("");
   const { authToken } = useContext(AuthContext);
   const { userName } = useContext(AuthContext);
   const [scheduleData, setScheduleData] = useState(null);
