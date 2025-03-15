@@ -10,7 +10,7 @@ import React, { useState } from 'react';
 import * as Notifications from 'expo-notifications';
 
 import SignupScreen from './screens/SignupScreen';
-import LoginScreen from './screens/LogInScreen';
+import LoginScreen from './screens/LoginScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import ScheduleScreen from './screens/ScheduleScreen';
 import { augwaBlue } from './assets/styles/color';

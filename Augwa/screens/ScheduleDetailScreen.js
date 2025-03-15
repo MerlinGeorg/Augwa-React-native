@@ -267,6 +267,9 @@ const ScheduleDetailScreen = ({ route }) => {
       address: job.address
     });
   };
+  // console.log("address: ",job.latitude)
+  // console.log("address: ",job.longitude)
+  // console.log("address: ",job.address)
 
   const handleMotionDetected = async () => {
     if (job?.status === "Scheduled") {
