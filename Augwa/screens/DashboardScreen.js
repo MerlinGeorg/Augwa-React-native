@@ -16,24 +16,20 @@ import MapView from 'react-native-maps';
 import GeofencingComponent from '../components/GeoFencing';
 
 const DashboardScreen = ({ route, navigation }) => {
-  const [jobStatus, setJobStatus] = useState("");
-  const { authToken, userName, domain } = useContext(AuthContext);
+  const [jobStatus, setJobStatus] = useState('');
+  const { authToken } = useContext(AuthContext);
+  const { userName } = useContext(AuthContext);
   const [scheduleData, setScheduleData] = useState(null);
   const [error, setError] = useState(null);
-  const [weeklyTasksNumber, setWeeklyTasks] = useState(0);
-  const [taskLatitude, setTaskLatitude] = useState(null);
-  const [taskLongitude, setTaskLongitude] = useState(null);
-  const [onBreak, setOnBreak] = useState(false);
-  const [onMealBreak, setOnMealBreak] = useState(false);
-  const [clockIn, setClockIn] = useState(false);
-
-  // const [bookingStart, set]
+  const [weeklyTasksNumber, setWeeklyTasks] = useState(0)
+  const [taskLatitude, setTaskLatitude] = useState(null)
+  const [taskLongitude, setTaskLongitude] = useState(null)
   const api = axios.create({
     baseURL: API_BASEPATH_DEV,
     headers: {
-      "Content-Type": "application/json",
-      "X-Domain": domain,
-    },
+      'Content-Type': 'application/json',
+      'X-Domain': X_DOMAIN
+    }
   });
   useEffect(() => {
     if (authToken) {
@@ -101,10 +97,7 @@ const DashboardScreen = ({ route, navigation }) => {
 
   const gotoSchedule = () => {
     navigation.navigate("Schedule");
-  };
-  // const timeTracking = async() => {
-
-  // }
+  }
 
   const userTasks = useMemo(() => {
     return (
@@ -348,9 +341,9 @@ const DashboardScreen = ({ route, navigation }) => {
         disabled: true,
       },
     };
-    const config = current?.status ?
-      buttonConfig[current.status]
-      : { color: 'gray', text: 'Start', disabled: true };
+    const config = current?.status
+      ? buttonConfig[current.status]
+      : { color: "gray", text: "Start", disabled: true };
 
     return (
       <TouchableOpacity
@@ -648,11 +641,11 @@ const DashboardScreen = ({ route, navigation }) => {
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
-
+  
   container: {
     // borderRadius: 30, // Curved edges
     backgroundColor: augwaBlue,
@@ -675,7 +668,7 @@ const styles = StyleSheet.create({
   iconSection: {
     marginLeft: 150,
     marginTop: 20,
-    flexDirection: "row",
+    flexDirection: "row"
   },
   noJobsText: {
     backgroundColor: "white",
@@ -688,17 +681,10 @@ const styles = StyleSheet.create({
     height: "15 %",
     borderRadius: 20,
   },
-  noJobsText: {
-    backgroundColor: 'white',
-    fontSize: 16,
-    textAlign: 'center',
-  margin: 10,
-  padding: 20,
-  backgroundColor: "#fff",
-    width: 'auto',
-    height: '15 %',
-    borderRadius: 20,
+  upcomingJobsContainer: {
+    marginTop: 10, // Reduced gap between Current Job and Upcoming Jobs
   },
+ 
   greetings: {
     marginTop: 15,
     marginStart: 10,
@@ -745,7 +731,7 @@ const styles = StyleSheet.create({
     // marginTop: 10,
     padding: 10,
     fontSize: 16,
-    alignItems: 'center'
+    alignItems: "center",
   },
   btnTitle: {
     fontSize: 18,
