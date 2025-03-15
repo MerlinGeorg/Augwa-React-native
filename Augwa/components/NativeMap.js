@@ -11,16 +11,23 @@ import { Platform, Linking, Alert } from 'react-native';
  * @param {string} mode - Travel mode: 'driving', 'walking', 'bicycling', 'transit'
  */
 export const openMapsWithDirections = (destination, mode = 'driving') => {
-  const { latitude, longitude } = destination;
+  const { latitude, longitude, address } = destination;
 
   if(!latitude || !longitude) {
     Alert.alert("Error", "Location coordinates are missing");
     return;
   }
 
+  const encodedAddress = encodeURIComponent(address || latitude, longitude)
+
   const url = Platform.select({
-    ios: `maps:?daddr=${latitude},${longitude}&dirflag=${getModeParamForAppleMaps(mode)}`,
-    android: `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&mode=${getModeParamForAppleMaps(mode)}`
+    //manual navigation
+    // ios: `maps:?daddr=${latitude},${longitude}&dirflag=${getModeParamForAppleMaps(mode)}`,
+    // android: `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&mode=${getModeParamForAppleMaps(mode)}`
+
+    //direct navigation
+    ios: `http://maps.apple.com/?daddr=${encodedAddress}&dirflg=${getModeParamForAppleMaps(mode)}`,
+    android: `google.navigation:q=${encodedAddress}&mode=${getModeParamForGoogleMaps(mode)}`
   });
 
   // Check if the device can handle the deep link
@@ -29,7 +36,7 @@ export const openMapsWithDirections = (destination, mode = 'driving') => {
       return Linking.openURL(url);
     } else {
       // Fallback to web URL if deep links not supported
-      const webUrl  = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&travelmode=${getModeParamForGoogleMaps(mode)}`;
+      const webUrl  = `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}&travelmode=${getModeParamForGoogleMaps(mode)}`;
       return Linking.openURL(webUrl);
     }
   }).catch((err) => {
