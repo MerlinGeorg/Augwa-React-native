@@ -17,16 +17,15 @@ import { useNavigation } from '@react-navigation/native';
 import { BiometricAuth } from "../components/BiometricAuth";
 
 const LoginScreen = (props) => {
-  const {setAuthToken} = useContext(AuthContext);
-  const {setUserName} = useContext(AuthContext) // newly added for username
+  const { setAuthToken, setUserName, setDomain } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [domain, setDomainInput] = useState('');
   const [userName, setUserNameInput] = useState('');
   const [password, setPassword] = useState('');
   const [biometricType, setBiometricType] = useState(null);
   const [isBiometricAvailable, setIsBiometricAvailable] = useState(false);
   const navigation = useNavigation();
-
 
   useEffect(() => {
     checkBiometricSupport();
@@ -53,13 +52,16 @@ const LoginScreen = (props) => {
       if (credentials) {
         // Use the stored credentials to login
         const result = await Login.login({
+          domain: credentials.domain,
           username: credentials.username,
           password: credentials.password
         });
 
         if (result.success) {
           await SecureStore.setItemAsync('authToken', result.data.token);
+          console.log(`LoginScreen domain: ${domain}`);
           setAuthToken(result.data.token);
+          setDomain(domain);
           Alert.alert('Success', 'You have successfully loggedin.');
           props.navigation.navigate('dashboard');
         } else {
@@ -72,23 +74,25 @@ const LoginScreen = (props) => {
     }
   };
 
-  const handleLogin = async() => {
+  const handleLogin = async () => {
     const credentials = {
+      domain: domain,
       username: userName,
       password: password
     };
-    
+
     try {
-      if (!credentials.username || !credentials.password) {
+      if (!credentials.domain || !credentials.username || !credentials.password) {
         Alert.alert("Please fill in all fields!");
         return;
       }
-      
+
       const result = await Login.login(credentials);
-      if(result.success) {
+      if (result.success) {
         await SecureStore.setItemAsync('authToken', result.data.token);
         setAuthToken(result.data.token);
         setUserName(userName)
+        setDomain(domain);
         Alert.alert('Success', 'You have successfully loggedin.');
         props.navigation.navigate('dashboard');
       } else {
@@ -106,7 +110,7 @@ const LoginScreen = (props) => {
             Alert.alert('Login failed, please try again');
         }
       }
-    } catch(error) {
+    } catch (error) {
       console.error('System error:', error);
       Alert.alert("A system error occurred, Restart the app");
     }
@@ -122,7 +126,7 @@ const LoginScreen = (props) => {
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-          <ScrollView 
+          <ScrollView
             contentContainerStyle={styles.scrollContent}
             bounces={false}
             showsVerticalScrollIndicator={false}
@@ -148,12 +152,22 @@ const LoginScreen = (props) => {
               </TouchableOpacity>
             )}
 
-            <View style={{marginTop: 20}}>
+            <View style={{ marginTop: 20 }}>
+              <TextInput
+                style={styles.inputView}
+                value={domain}
+                onChangeText={setDomainInput}
+                placeholder='Domain: '
+                placeholderTextColor={textInputBorderColor}
+                autoCapitalize="none"
+                autoCorrect={false}
+                returnKeyType="next"
+              />
               <TextInput
                 style={styles.inputView}
                 value={userName}
                 onChangeText={setUserNameInput}
-                placeholder='Username: ' 
+                placeholder='Username: '
                 placeholderTextColor={textInputBorderColor}
                 autoCapitalize="none"
                 autoCorrect={false}
