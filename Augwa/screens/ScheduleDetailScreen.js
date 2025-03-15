@@ -262,10 +262,13 @@ const ScheduleDetailScreen = ({ route }) => {
   const handleGetDirections = () => {
     openMapsWithDirections({
       latitude: job.latitude,
-      longitude: job.longitude,
-      // address: job.address
+      longitude: job.longitude,    
+      address: job.address
     });
   };
+  // console.log("address: ",job.latitude)
+  // console.log("address: ",job.longitude)
+  // console.log("address: ",job.address)
 
   return (
     <SafeAreaView style={styles.viewStyle}>
