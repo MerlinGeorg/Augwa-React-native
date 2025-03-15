@@ -6,7 +6,7 @@ import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { useContext } from "react";
 import { AuthContext } from "../src/context/AuthContext";
 import { ScrollView } from "react-native-gesture-handler";
-import { API_BASEPATH_DEV, X_DOMAIN } from "@env";
+import { API_BASEPATH_DEV } from "@env";
 import {
   augwaBlue,
   dashboardArea,
@@ -23,8 +23,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const DashboardScreen = ({ route, navigation }) => {
   const [jobStatus, setJobStatus] = useState("");
-  const { authToken } = useContext(AuthContext);
-  const { userName } = useContext(AuthContext);
+  const { authToken, userName, domain } = useContext(AuthContext);
   const [scheduleData, setScheduleData] = useState(null);
   const [error, setError] = useState(null);
   const [weeklyTasksNumber, setWeeklyTasks] = useState(0);
@@ -33,9 +32,9 @@ const DashboardScreen = ({ route, navigation }) => {
   const api = axios.create({
     baseURL: API_BASEPATH_DEV,
     headers: {
-      'Content-Type': 'application/json',
-      'X-Domain': X_DOMAIN
-    }
+      "Content-Type": "application/json",
+      "X-Domain": domain,
+    },
   });
   useEffect(() => {
     if (authToken) {

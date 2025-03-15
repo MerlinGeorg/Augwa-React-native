@@ -5,10 +5,21 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import * as SecureStore from 'expo-secure-store';
 import { AuthContext } from "../src/context/AuthContext";
 import axios from "axios";
-import { API_BASEPATH_DEV, X_DOMAIN } from '@env';
+import { API_BASEPATH_DEV } from '@env';
 import ProfileScreen from "./ProfileScreen";
 
 const SettingCard = ({ icon, title, onPress }) => (
+  <TouchableOpacity style={styles.card} onPress={onPress}>
+    <View style={styles.sectionView}>
+      <FontAwesome5 name={icon} size={20} style={styles.icon} />
+      <Text style={styles.cardText}>{title}</Text>
+    </View>
+    <FontAwesome5 name="chevron-right" size={16} style={styles.arrowIcon} />
+  </TouchableOpacity>
+);
+
+const SettingsScreen = ({ navigation }) => {
+  const { setAuthToken, setUserName, domain } = useContext(AuthContext);
   <TouchableOpacity style={styles.card} onPress={onPress}>
     <View style={styles.sectionView}>
       <FontAwesome5 name={icon} size={20} style={styles.icon} />
@@ -91,7 +102,7 @@ const SettingsScreen = ({ navigation }) => {
         <Text style={styles.sectionTitle}>Account Info</Text>
 
                  {/* ----Settings List---- */}
-                <SettingCard icon="user-circle" title="Profile" onPress={() => {}} />
+                <SettingCard icon="user-circle" title="Profile" onPress={() => navigation.navigate(ProfileScreen)} />
                 <SettingCard icon="bell" title="Notification Preferences" onPress={() => {}} />
 
         {/* ----Logout Button---- */}
