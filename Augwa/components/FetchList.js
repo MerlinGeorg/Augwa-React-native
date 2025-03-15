@@ -1,12 +1,12 @@
 import axios from 'axios';
-import { API_BASEPATH_DEV, X_DOMAIN } from '@env';
+import { API_BASEPATH_DEV } from '@env';
 
-export const fetchJoblist = async (token, setScheduleData, setError) => {
+export const fetchJoblist = async (token, domain, setScheduleData, setError) => {
   const api = axios.create({
     baseURL: API_BASEPATH_DEV,
     headers: {
       'Content-Type': 'application/json',
-      'X-Domain': X_DOMAIN
+      'X-Domain': domain
     }
   });
 

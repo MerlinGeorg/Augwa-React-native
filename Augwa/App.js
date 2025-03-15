@@ -162,9 +162,10 @@ const LoginStack = () => {
 export default function App() {
   const [authToken, setAuthToken] = useState(null);
   const [userName, setUserName] = useState(null);
+  const [domain, setDomain] = useState(null);
 
   return (
-    <AuthContext.Provider value={{ authToken, setAuthToken, userName, setUserName }}>
+    <AuthContext.Provider value={{ authToken, setAuthToken, userName, setUserName, domain, setDomain }}>
       <SafeAreaProvider>
         <NavigationContainer>
           <StatusBar style="light" />

@@ -17,7 +17,7 @@ import { augwaBlue, dashboardArea } from "../assets/styles/color";
 import { Ionicons } from "@expo/vector-icons";
 import { AuthContext } from "../src/context/AuthContext";
 import axios from "axios";
-import { API_BASEPATH_DEV, X_DOMAIN } from "@env";
+import { API_BASEPATH_DEV } from "@env";
 //import * as ImagePicker from "expo-image-picker";
 import { openMapsWithDirections } from "../components/NativeMap";
 import { ExpandableNote } from "../components/ExpandableNote";
@@ -27,7 +27,7 @@ import CustomAlert from "../components/CustomAlert";
 import MotionDetection from "../components/MotionDetection"; 
 
 const ScheduleDetailScreen = ({ route }) => {
-  const { authToken } = useContext(AuthContext);
+  const { authToken, domain } = useContext(AuthContext);
   const { jobId } = route.params;
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -38,7 +38,7 @@ const ScheduleDetailScreen = ({ route }) => {
     baseURL: API_BASEPATH_DEV,
     headers: {
       "Content-Type": "application/json",
-      "X-Domain": X_DOMAIN,
+      "X-Domain": domain,
     },
   });
 

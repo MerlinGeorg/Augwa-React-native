@@ -12,7 +12,7 @@ const ScheduleScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]); 
   const [agendaItems, setAgendaItems] = useState({});
-  const { authToken, user } = useContext(AuthContext);
+  const { authToken, user, domain } = useContext(AuthContext);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -24,7 +24,7 @@ const ScheduleScreen = ({ navigation }) => {
   const fetchBookings = async () => {
     setLoading(true);
 
-    const result = await getBooking(authToken);
+    const result = await getBooking(authToken, domain);
 
     if (result.success) {
       const assignedBookings = result.data.filter(booking => booking.assignedTo === user);

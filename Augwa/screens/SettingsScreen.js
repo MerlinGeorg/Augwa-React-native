@@ -5,103 +5,103 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import * as SecureStore from 'expo-secure-store';
 import { AuthContext } from "../src/context/AuthContext";
 import axios from "axios";
-import { API_BASEPATH_DEV, X_DOMAIN } from '@env';
+import { API_BASEPATH_DEV } from '@env';
 import ProfileScreen from "./ProfileScreen";
 
 const SettingCard = ({ icon, title, onPress }) => (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
-      <View style={styles.sectionView}>
-        <FontAwesome5 name={icon} size={20} style={styles.icon} />
-        <Text style={styles.cardText}>{title}</Text>
-      </View>
-      <FontAwesome5 name="chevron-right" size={16} style={styles.arrowIcon} />
-    </TouchableOpacity>
-  );
+  <TouchableOpacity style={styles.card} onPress={onPress}>
+    <View style={styles.sectionView}>
+      <FontAwesome5 name={icon} size={20} style={styles.icon} />
+      <Text style={styles.cardText}>{title}</Text>
+    </View>
+    <FontAwesome5 name="chevron-right" size={16} style={styles.arrowIcon} />
+  </TouchableOpacity>
+);
+
+const SettingsScreen = ({ navigation }) => {
+  const { setAuthToken, setUserName, domain } = useContext(AuthContext);
 
   const api = axios.create({
     baseURL: API_BASEPATH_DEV,
     headers: {
-        'Content-Type': 'application/json',
-        'X-Domain': X_DOMAIN  
+      'Content-Type': 'application/json',
+      'X-Domain': domain
     }
-});
+  });
 
-
-const SettingsScreen = ({navigation }) => {
-    const { setAuthToken, setUserName } = useContext(AuthContext);
-
-    const handleLogout = async () => {
-        console.log("Logged out")
-        Alert.alert("Logout", "Are you sure you want to logout?", [
-            {
-                text: "Cancel",
-                style: "cancel"
-            },
-            {
-                text: "Logout",
-                onPress: async () => {
-                    try {
-                        const token = await SecureStore.getItemAsync('authToken');
-                        console.log("Retrieved Token: ", token);
-                        if (!token) {
-                            Alert.alert('Error', 'No authentication token found.');
-                            return;
-                        }
-    
-                        // Use the axios instance without duplicating the base URL
-                        const response = await api.post("/Auth/Logout", {}, {
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json',
-                                'X-Domain': X_DOMAIN
-                            },
-                        });
-                        
-                        console.log('Logout Response:', response.data);
-    
-                        // Check response and clear data
-                        await SecureStore.deleteItemAsync('authToken');
-                        setAuthToken(null);
-                        setUserName(null);
-    
-                        // Navigate to login screen
-                        navigation.reset({
-                            index: 0,
-                            routes: [{ name: 'login' }]
-                        });
-    
-                    } catch (error) {
-                        console.error('Logout error:', error.response?.data || error.message || error);
-                        Alert.alert('Error', error.response?.data?.message || 'An error occurred during logout. Please try again.');
-                    }
-                }
+  const handleLogout = async () => {
+    console.log("Logged out")
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      {
+        text: "Cancel",
+        style: "cancel"
+      },
+      {
+        text: "Logout",
+        onPress: async () => {
+          try {
+            const token = await SecureStore.getItemAsync('authToken');
+            console.log("Retrieved Token: ", token);
+            if (!token) {
+              Alert.alert('Error', 'No authentication token found.');
+              return;
             }
-        ]);
-    };
 
-    return (
-        <View style={styles.viewStyle}>
+            // Use the axios instance without duplicating the base URL
+            const response = await api.post("/Auth/Logout", {}, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'X-Domain': domain
+              },
+            });
 
-            {/* -------Title of the page-----*/}
-          <View style={{ backgroundColor: augwaBlue, marginTop: 40 }}>
-            <Text style={styles.Title}>Settings</Text>
-          </View>
+            console.log('Logout Response:', response.data);
 
-                {/* ----Dashboard area---- */}
-            <View style={styles.dashboardAreaStyle}>
-                <Text style={styles.sectionTitle}>Account Info</Text>
+            // Check response and clear data
+            await SecureStore.deleteItemAsync('authToken');
+            setAuthToken(null);
+            setUserName(null);
 
-                 {/* ----Settings List---- */}
-                <SettingCard icon="user-circle" title="Profile" onPress={() => navigation.navigate(ProfileScreen)} />
-                <SettingCard icon="bell" title="Notification Preferences" onPress={() => {}} />
+            // Navigate to login screen
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'login' }]
+            });
 
-                     {/* ----Logout Button---- */}
-                <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-                    <Text style={styles.logoutText}>Logout</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
-    )}
+          } catch (error) {
+            console.error('Logout error:', error.response?.data || error.message || error);
+            Alert.alert('Error', error.response?.data?.message || 'An error occurred during logout. Please try again.');
+          }
+        }
+      }
+    ]);
+  };
+
+  return (
+    <View style={styles.viewStyle}>
+
+      {/* -------Title of the page-----*/}
+      <View style={{ backgroundColor: augwaBlue, marginTop: 40 }}>
+        <Text style={styles.Title}>Settings</Text>
+      </View>
+
+      {/* ----Dashboard area---- */}
+      <View style={styles.dashboardAreaStyle}>
+        <Text style={styles.sectionTitle}>Account Info</Text>
+
+        {/* ----Settings List---- */}
+        <SettingCard icon="user-circle" title="Profile" onPress={() => navigation.navigate(ProfileScreen)} />
+        <SettingCard icon="bell" title="Notification Preferences" onPress={() => { }} />
+
+        {/* ----Logout Button---- */}
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  )
+}
 
 const styles = StyleSheet.create({
   viewStyle: {
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     height: '100%',
     backgroundColor: dashboardArea,
-    borderRadius: 30, 
+    borderRadius: 30,
   },
   Title: {
     fontSize: 20,
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent:'space-between',
+    justifyContent: 'space-between',
     backgroundColor: "#fff",
     marginLeft: 20,
     marginRight: 20,
