@@ -5,14 +5,29 @@ import { getBooking } from "../components/Schedule";
 import { augwaBlue, dashboardArea } from "../assets/styles/color";
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../src/context/AuthContext';
-import { Agenda } from "react-native-calendars";
 
 const ScheduleScreen = ({ navigation }) => {
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]); 
-  const [agendaItems, setAgendaItems] = useState({});
-  const { authToken, user, domain } = useContext(AuthContext);
+  const [selectedTab, setSelectedTab] = useState("Today");
+  const { authToken, user } = useContext(AuthContext);
+
+  // Update getDates to return actual dates for Past/Future
+  const getDates = () => {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const formatDate = (date) => date.toLocaleDateString().split("T")[0];
+
+    return {
+      Past: formatDate(yesterday),
+      Today: formatDate(today),
+      Future: formatDate(tomorrow),
+    };
+  };
 
   useFocusEffect(
     React.useCallback(() => {
