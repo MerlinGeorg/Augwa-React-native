@@ -2,15 +2,6 @@ import axios from "axios";
 import { API_BASEPATH_DEV } from "@env";
 import base64 from 'base-64';
 
-const { domain } = useContext(AuthContext);
-const api = axios.create({
-    baseURL: API_BASEPATH_DEV,
-    headers: {
-        "Content-Type": "application/json",
-        "X-Domain": domain,
-    },
-});
-
 const decodeJWT = (token) => {
     try {
         const [header, payload, signature] = token.split('.');
@@ -22,13 +13,21 @@ const decodeJWT = (token) => {
     }
 };
 
-export const getBooking = async (authToken) => {
+export const getBooking = async (authToken, domain) => {
     if (!authToken) {
         return {
             success: false,
             error: { message: "Authentication token not provided", code: "NO_AUTH" },
         };
     }
+
+    const api = axios.create({
+        baseURL: API_BASEPATH_DEV,
+        headers: {
+            "Content-Type": "application/json",
+            "X-Domain": domain,
+        },
+    });
 
     try {
         // Get staffId from token
