@@ -18,16 +18,16 @@ const SettingCard = ({ icon, title, onPress }) => (
   </TouchableOpacity>
 );
 
-const SettingsScreen = ({ navigation }) => {
-  const { setAuthToken, setUserName, domain } = useContext(AuthContext);
-  <TouchableOpacity style={styles.card} onPress={onPress}>
-    <View style={styles.sectionView}>
-      <FontAwesome5 name={icon} size={20} style={styles.icon} />
-      <Text style={styles.cardText}>{title}</Text>
-    </View>
-    <FontAwesome5 name="chevron-right" size={16} style={styles.arrowIcon} />
-  </TouchableOpacity>
-);
+// const SettingsScreen = ({ navigation }) => {
+//   const { setAuthToken, setUserName, domain } = useContext(AuthContext);
+//   <TouchableOpacity style={styles.card} onPress={onPress}>
+//     <View style={styles.sectionView}>
+//       <FontAwesome5 name={icon} size={20} style={styles.icon} />
+//       <Text style={styles.cardText}>{title}</Text>
+//     </View>
+//     <FontAwesome5 name="chevron-right" size={16} style={styles.arrowIcon} />
+//   </TouchableOpacity>
+// );
 
 const SettingsScreen = ({ navigation }) => {
   const { setAuthToken, setUserName, domain } = useContext(AuthContext);
