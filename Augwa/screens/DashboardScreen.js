@@ -175,18 +175,19 @@ console.log("matchedSchedules: ",matchedSchedules)
   // console.log(current.latitude)
   // test map plist file
   // open native map:
-  const openMap = useCallback(async (latitude, longitude) => {
+  const openMap = useCallback(async (latitude, longitude, address) => {
     // Extensive logging for debugging
     console.log("Map Opening Process Started", {
       inputLatitude: latitude,
       inputLongitude: longitude,
+      inputAddress: address,
       platform: Platform.OS,
     });
-
+  
     // Validate and parse coordinates
     const parsedLat = parseFloat(latitude);
     const parsedLong = parseFloat(longitude);
-
+  
     // Comprehensive coordinate validation
     if (isNaN(parsedLat) || isNaN(parsedLong)) {
       console.error("Invalid coordinates:", { latitude, longitude });
@@ -195,7 +196,7 @@ console.log("matchedSchedules: ",matchedSchedules)
       ]);
       return;
     }
-
+  
     // Ensure coordinates are within valid ranges
     if (
       parsedLat < -90 ||
@@ -214,31 +215,31 @@ console.log("matchedSchedules: ",matchedSchedules)
       );
       return;
     }
-
+  
+    // Prepare address information for better map accuracy
+    const formattedAddress = address ? encodeURIComponent(address) : '';
+  
     try {
-      // Multiple map opening strategies
       const mapSchemes = {
         ios: [
-          `maps://app?daddr=${parsedLat},${parsedLong}&q=${encodeURIComponent(current.address)}`, // Apple Maps with address
-          `https://maps.apple.com/?daddr=${parsedLat},${parsedLong}&q=${encodeURIComponent(current.address)}`, // Apple Maps fallback
-          `https://www.google.com/maps/dir/?api=1&destination=${parsedLat},${parsedLong}&destination_place_id=${encodeURIComponent(current.address)}`, // Google Maps with route view
+         
+          `maps://app?saddr=Current%20Location&daddr=${parsedLat},${parsedLong}&dirflg=d&t=m&directionsmode=driving`,
+          `maps:?saddr=Current%20Location&daddr=${parsedLat},${parsedLong}&directionsmode=driving`,
+          `https://www.google.com/maps/dir/?api=1&destination=${parsedLat},${parsedLong}&destination_place_id=${formattedAddress}&travelmode=driving`,
         ],
         android: [
-          `geo:${parsedLat},${parsedLong}?q=${parsedLat},${parsedLong}(${encodeURIComponent(address)})`, // Native maps with address
-          `google.navigation:q=${parsedLat},${parsedLong}`, // Google Navigation with route view
-          `https://www.google.com/maps/dir/?api=1&destination=${parsedLat},${parsedLong}&destination_place_id=${encodeURIComponent(current.address)}`, // Google Maps with route view
+          `google.navigation:q=${parsedLat},${parsedLong}&mode=d`,
+          `geo:${parsedLat},${parsedLong}?q=${parsedLat},${parsedLong}(${formattedAddress})`,
+          `https://www.google.com/maps/dir/?api=1&destination=${parsedLat},${parsedLong}&destination_place_id=${formattedAddress}&travelmode=driving`,
         ],
       };
-
+  
       const currentPlatformSchemes =
         Platform.OS === "ios" ? mapSchemes.ios : mapSchemes.android;
-
-      // Try each map scheme
       for (const scheme of currentPlatformSchemes) {
         try {
           const canOpen = await Linking.canOpenURL(scheme);
           console.log(`Attempting scheme: ${scheme}`, `Can open: ${canOpen}`);
-
           if (canOpen) {
             await Linking.openURL(scheme);
             console.log("Map opened successfully with scheme:", scheme);
@@ -248,17 +249,15 @@ console.log("matchedSchedules: ",matchedSchedules)
           console.error(`Error with scheme ${scheme}:`, schemeError);
         }
       }
-
-      // If no scheme works, throw an error
       throw new Error("No map application could be opened");
     } catch (error) {
       console.error("Comprehensive Map Opening Error:", {
         errorMessage: error.message,
         latitude: parsedLat,
         longitude: parsedLong,
+        address: formattedAddress,
         platform: Platform.OS,
       });
-
       Alert.alert("Navigation Error", "Could not open maps application", [
         { text: "OK", style: "cancel" },
       ]);
@@ -364,7 +363,7 @@ console.log("matchedSchedules: ",matchedSchedules)
       </TouchableOpacity>
     );
   };
-  // render navigate button
+ 
   const renderNavigateButton = () => {
     const isCompleted = current?.status === "Completed";
     const hasValidTask = current && !isCompleted;
@@ -380,9 +379,8 @@ console.log("matchedSchedules: ",matchedSchedules)
           styles.btnStyle,
           { backgroundColor: config.color, opacity: hasValidTask ? 1 : 0.6 },
         ]}
-        // onPress = {()=>openMap(current?.latitude, current?.longitude)}
-        // also change the status to travel
-          onPress={hasValidTask? ()=>{openMap(current?.latitude, current?.longitude);
+          onPress={hasValidTask? ()=>{openMap(current?.latitude, 
+            current?.longitude, current?.address);
             setTaskLatitude(current?.latitude); setTaskLongitude(current?.longitude)
           } : null}
           disabled={!hasValidTask}>
@@ -395,11 +393,11 @@ console.log("matchedSchedules: ",matchedSchedules)
   };
 
   const renderBreakBtn = () => {
-    // Determine the current status based on `onBreak` and `onMealBreak` states
+    
     const currentBreakStatus = onBreak ? "BreakEnd" : "BreakStart";
     const currentMealStatus = onMealBreak ? "MealBreakEnd" : "MealBreakStart";
   
-    // Button configuration based on status
+    
     const buttonConfig = {
       BreakStart: {
         color: "green",
@@ -498,15 +496,19 @@ console.log("matchedSchedules: ",matchedSchedules)
 
       <View style={styles.dashboardAreaStyle}>
 
-        <View style={[styles.currentJobContainer, { borderRadius: 15 , marginTop: 15}]}>
+        <View style={{ flexDirection: 'row', marginTop: 20, }}>
+          <View style = {[{flexDirection:'row'}]}>
           <Text style={styles.sectionTitle}>Current Job</Text>
           <Text style={styles.timeTitle}>
             {current ? formatLocalTime(current.startDate) : ''}
           </Text>
+
+          </View>
+          
         </View>
         <GeofencingComponent destination={destination} radius={50} />
 
-        <View style={{ flexDirection: 'row',  marginLeft: 9, marginTop:-30 }}>
+        <View style={{ flexDirection: 'row',  marginLeft: 9, marginTop:10 }}>
           <View style={styles.jobDescribtionStyle}>
             {todayTaskList[0] ? (
               <Text style={styles.jobDescribtionText}>
