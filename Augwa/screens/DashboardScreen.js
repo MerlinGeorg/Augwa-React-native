@@ -216,7 +216,6 @@ console.log("matchedSchedules: ",matchedSchedules)
       return;
     }
   
-    // Prepare address information for better map accuracy
     const formattedAddress = address ? encodeURIComponent(address) : '';
   
     try {
