@@ -46,7 +46,7 @@ const DashboardScreen = ({ route, navigation }) => {
       fetchJoblist(authToken, domain, setScheduleData, setError);
     }
   }, [authToken]); // there was authToken inside []
-
+console.log(authToken)
   useEffect(() => {
     if (scheduleData && userTasks) {
       getWeeklyTaskCount();
