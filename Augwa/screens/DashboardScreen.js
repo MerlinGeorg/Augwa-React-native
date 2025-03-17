@@ -29,6 +29,11 @@ const DashboardScreen = ({ route, navigation }) => {
   const [weeklyTasksNumber, setWeeklyTasks] = useState(0);
   const [taskLatitude, setTaskLatitude] = useState(null);
   const [taskLongitude, setTaskLongitude] = useState(null);
+  const [onBreak, setOnBreak] = useState(false);
+  const [onMealBreak, setOnMealBreak] = useState(false);
+  const [clockIn, setClockIn] = useState(false);
+
+  // const [bookingStart, set]
   const api = axios.create({
     baseURL: API_BASEPATH_DEV,
     headers: {
@@ -127,6 +132,8 @@ const DashboardScreen = ({ route, navigation }) => {
     }) || [];
   console.log("total schedules length:", scheduleData?.length);
   console.log("Matched schedules length:", matchedSchedules?.length);
+  console.log("Assigned sfaff:", matchedSchedules[0]?.assignedStaff);
+
 
   const getWeeklyTaskCount = async () => {
     if (!userTasks) return 0;
@@ -167,10 +174,6 @@ console.log("matchedSchedules: ",matchedSchedules)
   //console.log(current.client.latitude);
   // console.log(current.latitude)
   // test map plist file
-  const checkMapSupport = async () => {
-    const supported = await Linking.canOpenURL("maps://");
-    console.log("support ios map? : ", supported);
-  };
   // open native map:
   const openMap = useCallback(async (latitude, longitude) => {
     // Extensive logging for debugging
@@ -216,14 +219,14 @@ console.log("matchedSchedules: ",matchedSchedules)
       // Multiple map opening strategies
       const mapSchemes = {
         ios: [
-          `maps://app?daddr=${parsedLat},${parsedLong}`,
-          `https://maps.apple.com/?daddr=${parsedLat},${parsedLong}`,
-          `https://www.google.com/maps/search/?api=1&query=${parsedLat},${parsedLong}`,
+          `maps://app?daddr=${parsedLat},${parsedLong}&q=${encodeURIComponent(current.address)}`, // Apple Maps with address
+          `https://maps.apple.com/?daddr=${parsedLat},${parsedLong}&q=${encodeURIComponent(current.address)}`, // Apple Maps fallback
+          `https://www.google.com/maps/dir/?api=1&destination=${parsedLat},${parsedLong}&destination_place_id=${encodeURIComponent(current.address)}`, // Google Maps with route view
         ],
         android: [
-          `geo:${parsedLat},${parsedLong}?q=${parsedLat},${parsedLong}`,
-          `google.navigation:q=${parsedLat},${parsedLong}`,
-          `https://www.google.com/maps/search/?api=1&query=${parsedLat},${parsedLong}`,
+          `geo:${parsedLat},${parsedLong}?q=${parsedLat},${parsedLong}(${encodeURIComponent(address)})`, // Native maps with address
+          `google.navigation:q=${parsedLat},${parsedLong}`, // Google Navigation with route view
+          `https://www.google.com/maps/dir/?api=1&destination=${parsedLat},${parsedLong}&destination_place_id=${encodeURIComponent(current.address)}`, // Google Maps with route view
         ],
       };
 
@@ -268,7 +271,7 @@ console.log("matchedSchedules: ",matchedSchedules)
         return;
       }
 
-      if (current.status === "Scheduled") {
+      if (current.status === "Scheduled" && current.t) {
         setJobStatus("Scheduled");
         const response = await api.post(
           `/Booking/${current.id}/Start`,
@@ -378,17 +381,96 @@ console.log("matchedSchedules: ",matchedSchedules)
           { backgroundColor: config.color, opacity: hasValidTask ? 1 : 0.6 },
         ]}
         // onPress = {()=>openMap(current?.latitude, current?.longitude)}
+        // also change the status to travel
           onPress={hasValidTask? ()=>{openMap(current?.latitude, current?.longitude);
             setTaskLatitude(current?.latitude); setTaskLongitude(current?.longitude)
           } : null}
           disabled={!hasValidTask}>
           <View style={styles.navigateButton}>
             <Ionicons name="navigate-circle-outline" size={30} color="white" />
-            <Text style={styles.btnTitle}>Navigate</Text>
+            <Text style={styles.btnTitle}>Travel</Text>
           </View>
         </TouchableOpacity>
     );
   };
+
+  const renderBreakBtn = () => {
+    // Determine the current status based on `onBreak` and `onMealBreak` states
+    const currentBreakStatus = onBreak ? "BreakEnd" : "BreakStart";
+    const currentMealStatus = onMealBreak ? "MealBreakEnd" : "MealBreakStart";
+  
+    // Button configuration based on status
+    const buttonConfig = {
+      BreakStart: {
+        color: "green",
+        text: "START BREAK",
+        disabled: false,
+      },
+      BreakEnd: {
+        color: "red",
+        text: "END BREAK",
+        disabled: false,
+      },
+      MealBreakStart: {
+        color: "green",
+        text: "START MEAL",
+        disabled: false,
+      },
+      MealBreakEnd: {
+        color: "red",
+        text: "END MEAL",
+        disabled: false,
+      },
+    };
+  
+    return (
+      <View style={{ flexDirection: "row", marginLeft: 12 }}>
+        {/* Break Button */}
+        <TouchableOpacity
+          style={[
+            styles.statusBtnStyle,
+            { backgroundColor: buttonConfig[currentBreakStatus].color,
+              marginLeft: 20
+             },
+          ]}
+          onPress={() => {
+            // Toggle break status
+
+            setOnBreak(!onBreak);
+          }}
+          disabled={buttonConfig[currentBreakStatus].disabled}
+        >
+          <View style={styles.navigateButton}>
+            <Text style={styles.btnTitle}>
+              {buttonConfig[currentBreakStatus].text}
+            </Text>
+          </View>
+        </TouchableOpacity>
+  
+        {/* Meal Break Button */}
+        <TouchableOpacity
+          style={[
+            styles.statusBtnStyle,
+            { backgroundColor: buttonConfig[currentMealStatus].color,
+              marginLeft: 50},
+            
+          ]}
+          onPress={() => {
+            // Toggle meal break status
+            setOnMealBreak(!onMealBreak);
+          }}
+          disabled={buttonConfig[currentMealStatus].disabled}
+        >
+          <View style={styles.navigateButton}>
+            <Text style={styles.btnTitle}>
+              {buttonConfig[currentMealStatus].text}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
 
   return (
     
@@ -424,7 +506,7 @@ console.log("matchedSchedules: ",matchedSchedules)
         </View>
         <GeofencingComponent destination={destination} radius={50} />
 
-        <View style={{ flexDirection: 'row',  marginLeft: 9 }}>
+        <View style={{ flexDirection: 'row',  marginLeft: 9, marginTop:-30 }}>
           <View style={styles.jobDescribtionStyle}>
             {todayTaskList[0] ? (
               <Text style={styles.jobDescribtionText}>
@@ -440,6 +522,10 @@ console.log("matchedSchedules: ",matchedSchedules)
             {renderNavigateButton()}
 
           </View>
+        </View>
+        <View style = {styles.statusBtnView}>
+          {renderBreakBtn()}
+         
         </View>
 
         <View style={{ flexDirection: 'row', marginTop: 20, justifyContent: 'space-between' }}>
@@ -482,8 +568,11 @@ console.log("matchedSchedules: ",matchedSchedules)
           ))}
         </ScrollView>
       </View>
-</ScrollView>
-    </SafeAreaView>
+      <TouchableOpacity style={{ marginRight: 15, marginTop: 5 }} >
+        <Text style={styles.bluBtntext}>Clock Out</Text>
+      </TouchableOpacity>
+   </ScrollView>
+  </SafeAreaView>
   )
 }
 
@@ -561,7 +650,7 @@ const styles = StyleSheet.create({
   jobDescribtionStyle: {
     backgroundColor: "#fff",
     width: 200,
-    height: 150,
+    height: 120,
     borderRadius: 20,
     marginLeft: 10,
     
@@ -584,7 +673,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 10,
     padding: 10,
-    width: '90%',
+    width: 150,
     height: 50
   },
   bluBtntext: {
@@ -647,6 +736,22 @@ const styles = StyleSheet.create({
     color: augwaBlue,
     fontWeight: "bold",
   },
+  statusBtns: {
+    alignItems: 'center',
+    justifyContent: 'center',
+   
+  },
+  statusBtnStyle: {
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10,
+    padding: 10,
+    width: 150,
+    height: 50
+
+  }
+  
 });
 
 export default DashboardScreen;
