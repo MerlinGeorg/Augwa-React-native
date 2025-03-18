@@ -44,8 +44,8 @@ export const sharedStyles = StyleSheet.create({
     fontSize: moderateScale(24),
     fontWeight: "600",
     textAlign: "center",
-    marginBottom: scaleSize(30),
-    color: "#000",
+    marginBottom: scaleSize(20),
+    color: "#fff",
     marginTop: scaleSize(20),
   },
 });

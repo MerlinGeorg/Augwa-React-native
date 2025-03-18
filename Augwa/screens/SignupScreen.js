@@ -12,6 +12,7 @@ import {
   Modal,
 } from "react-native";
 import {
+  augwaBlue,
   errorGrey,
   errorRed,
   iconColor,
@@ -177,11 +178,12 @@ export default function SignupScreen({ navigation }) {
         style={styles.keyboardAvoidingView}
       >
         <ScrollView contentContainerStyle={styles.contentContainer}>
-          <View style={styles.logoContainer}>
+          <View style={styles.viewStyle}>
+          
             <LogoImage style={styles.logoStyle} />
-          </View>
+          
           <Text style={sharedStyles.title}>Register to Augwa</Text>
-
+          </View>
           <View style={styles.form}>
 
             <CustomInput
@@ -328,10 +330,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
-
+  viewStyle: {
+    backgroundColor: augwaBlue,
+    marginBottom: 20
+  },
   keyboardAvoidingView: {
     flex: 1,
-    paddingHorizontal: scaleSize(20),
   },
   contentContainer: {
     flexGrow: 1,
@@ -340,14 +344,17 @@ const styles = StyleSheet.create({
   logoContainer: {
     marginTop: scaleSize(60),
     alignItems: "center",
+    backgroundColor: augwaBlue
   },
   logoStyle: {
+    marginTop: scaleSize(60),
     width: scaleSize(30),
     height: scaleSize(30),
     alignSelf: "center",
   },
   form: {
     width: "100%",
+    paddingHorizontal: scaleSize(20)
   },
   requirements: {
     marginBottom: scaleSize(15),
