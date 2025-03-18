@@ -18,6 +18,7 @@ import SuccessScreen from './screens/biometricSuccessScreen';
 import ScheduleDetailScreen from './screens/ScheduleDetailScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import MapScreen from './screens/MapScreen';
+import ProfileScreen from './screens/ProfileScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -41,6 +42,9 @@ const ScheduleStack = () => {
         component={ScheduleDetailScreen} 
         options={{ title: 'Details' }}
       />
+      <Stack.Screen name = "schedule" component={ScheduleScreen} />
+      <Stack.Screen name = "schedule_detail" component={ScheduleDetailScreen} />
+      <Stack.Screen name = "ProfileScreen" component={ProfileScreen} />
     </Stack.Navigator>
   );
 };
@@ -158,9 +162,10 @@ const LoginStack = () => {
 export default function App() {
   const [authToken, setAuthToken] = useState(null);
   const [userName, setUserName] = useState(null);
+  const [domain, setDomain] = useState(null);
 
   return (
-    <AuthContext.Provider value={{ authToken, setAuthToken, userName, setUserName }}>
+    <AuthContext.Provider value={{ authToken, setAuthToken, userName, setUserName, domain, setDomain }}>
       <SafeAreaProvider>
         <NavigationContainer>
           <StatusBar style="light" />
