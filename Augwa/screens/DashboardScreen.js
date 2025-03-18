@@ -33,7 +33,7 @@ const DashboardScreen = ({ route, navigation }) => {
   });
   useEffect(() => {
     if (authToken) {
-      fetchJoblist(authToken, domain, setScheduleData, setError);
+      fetchJoblist(authToken, setScheduleData, setError);
     }
   }, [authToken]); // there was authToken inside []
   console.log(authToken)
@@ -44,10 +44,10 @@ const DashboardScreen = ({ route, navigation }) => {
   }, [scheduleData, userTasks]);
 
   useEffect(() => {
-    if (current?.status === "Completed") {
-      setJobStatus("Completed");
+    if (current?.status === 'Completed') {
+      setJobStatus('Completed');
     } else {
-      setJobStatus(current?.status || "");
+      setJobStatus(current?.status || '');
     }
   }, [current]);
 
@@ -55,38 +55,36 @@ const DashboardScreen = ({ route, navigation }) => {
     try {
       // First, check if token is null or undefined
       if (!token) {
-        console.log("No token provided for decoding");
+        console.log('No token provided for decoding');
         return null;
       }
 
-      const parts = token.split(".");
+      const parts = token.split('.');
       if (parts.length < 2) {
-        console.log("Invalid token format");
+        console.log('Invalid token format');
         return null;
       }
 
-      const decodedPayload = base64.decode(
-        parts[1].replace(/-/g, "+").replace(/_/g, "/")
-      );
+      const decodedPayload = base64.decode(parts[1].replace(/-/g, '+').replace(/_/g, '/'));
       return JSON.parse(decodedPayload);
     } catch (error) {
-      console.error("Failed decode:", error);
+      console.error('Failed decode:', error);
       return null;
     }
   };
   const formatLocalTime = (dateString) => {
-    if (!dateString) return "";
+    if (!dateString) return '';
 
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "Invalid Date";
+    if (isNaN(date.getTime())) return 'Invalid Date';
 
-    return date.toLocaleString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
     });
   };
 
@@ -100,26 +98,20 @@ const DashboardScreen = ({ route, navigation }) => {
   }
 
   const userTasks = useMemo(() => {
-    return (
-      scheduleData?.filter((schedule) =>
-        schedule?.assignedStaff?.some((task) => task?.staff.id === accountID)
-      ) || []
-    );
+    return scheduleData?.filter(schedule =>
+      schedule?.assignedStaff?.some(task => task?.staff.id === accountID)
+    ) || [];
   }, [scheduleData, accountID]);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const matchedSchedules =
-    userTasks?.filter((schedule) => {
-      const isStatusValid =
-        schedule?.status === "Scheduled" || schedule?.status === "InProgress";
-      const startDate = schedule?.startDate
-        ? new Date(schedule.startDate)
-        : null;
-      const isDateValid = startDate ? startDate > today : false;
-      return isStatusValid && isDateValid;
-    }) || [];
+  const matchedSchedules = userTasks?.filter((schedule) => {
+    const isStatusValid = schedule?.status === "Scheduled" || schedule?.status === "InProgress";
+    const startDate = schedule?.startDate ? new Date(schedule.startDate) : null;
+    const isDateValid = startDate ? startDate > today : false;
+    return isStatusValid && isDateValid;
+  }) || [];
   console.log("total schedules length:", scheduleData?.length);
   console.log("Matched schedules length:", matchedSchedules?.length);
   console.log("Assigned sfaff:", matchedSchedules[0]?.assignedStaff);
@@ -136,11 +128,13 @@ const DashboardScreen = ({ route, navigation }) => {
     endOfWeek.setDate(endOfWeek.getDate() + (6 - endOfWeek.getDay()));
     endOfWeek.setHours(23, 59, 59, 999);
 
-    const weeklyTasks = userTasks.filter((schedule) => {
+
+    const weeklyTasks = userTasks.filter(schedule => {
       const scheduleDate = new Date(schedule.startDate);
       return scheduleDate >= startOfWeek && scheduleDate <= endOfWeek;
     });
     setWeeklyTasks(weeklyTasks.length);
+
   };
   console.log(`weekly tasks number Ho: ${weeklyTasksNumber}`);
 
@@ -157,8 +151,8 @@ const DashboardScreen = ({ route, navigation }) => {
   });
   console.log("matchedSchedules: ", matchedSchedules)
   const performances = [
-    { title: "Open daily task:", count: todayTaskList.length },
-    { title: "Weekly tasks:", count: weeklyTasksNumber },
+    { title: "Today's tasks left:", count: todayTaskList.length },
+    { title: 'Weekly tasks:\n', count: weeklyTasksNumber }
   ];
   const current = todayTaskList[0];
 
@@ -166,41 +160,38 @@ const DashboardScreen = ({ route, navigation }) => {
 
   const openMap = useCallback(async (latitude, longitude, address) => {
     // Extensive logging for debugging
-    console.log("Map Opening Process Started", {
+    console.log('Map Opening Process Started', {
       inputLatitude: latitude,
       inputLongitude: longitude,
       inputAddress: address,
       platform: Platform.OS,
     });
-
+  
     // Validate and parse coordinates
     const parsedLat = parseFloat(latitude);
     const parsedLong = parseFloat(longitude);
-
+  
     // Comprehensive coordinate validation
     if (isNaN(parsedLat) || isNaN(parsedLong)) {
-      console.error("Invalid coordinates:", { latitude, longitude });
-      Alert.alert("Navigation Error", "Invalid location coordinates", [
-        { text: "OK", style: "cancel" },
-      ]);
+      console.error('Invalid coordinates:', { latitude, longitude });
+      Alert.alert(
+        'Navigation Error',
+        'Invalid location coordinates',
+        [{ text: 'OK', style: 'cancel' }]
+      );
       return;
     }
-
+  
     // Ensure coordinates are within valid ranges
     if (
-      parsedLat < -90 ||
-      parsedLat > 90 ||
-      parsedLong < -180 ||
-      parsedLong > 180
+      parsedLat < -90 || parsedLat > 90 ||
+      parsedLong < -180 || parsedLong > 180
     ) {
-      console.error("Coordinates out of valid range:", {
-        parsedLat,
-        parsedLong,
-      });
+      console.error('Coordinates out of valid range:', { parsedLat, parsedLong });
       Alert.alert(
-        "Navigation Error",
-        "Location coordinates are out of valid range",
-        [{ text: "OK", style: "cancel" }]
+        'Navigation Error',
+        'Location coordinates are out of valid range',
+        [{ text: 'OK', style: 'cancel' }]
       );
       return;
     }
@@ -230,7 +221,7 @@ const DashboardScreen = ({ route, navigation }) => {
           console.log(`Attempting scheme: ${scheme}`, `Can open: ${canOpen}`);
           if (canOpen) {
             await Linking.openURL(scheme);
-            console.log("Map opened successfully with scheme:", scheme);
+            console.log('Map opened successfully with scheme:', scheme);
             return;
           }
         } catch (schemeError) {
@@ -239,7 +230,7 @@ const DashboardScreen = ({ route, navigation }) => {
       }
       throw new Error("No map application could be opened");
     } catch (error) {
-      console.error("Comprehensive Map Opening Error:", {
+      console.error('Comprehensive Map Opening Error:', {
         errorMessage: error.message,
         latitude: parsedLat,
         longitude: parsedLong,
@@ -256,8 +247,9 @@ const DashboardScreen = ({ route, navigation }) => {
   // console.log(`current id: ${current.id}`)
   const changeStatus = async () => {
     try {
+
       if (!current || !current.id) {
-        console.log("No current task available:", current);
+        console.log('No current task available:', current);
         return;
       }
 
@@ -272,17 +264,18 @@ const DashboardScreen = ({ route, navigation }) => {
           },
           {
             headers: {
-              Authorization: `Bearer ${authToken}`,
-            },
+              'Authorization': `Bearer ${authToken}`,
+            }
           }
         );
 
         if (response.status === 200 || response.status === 204) {
-          setJobStatus("InProgress");
+          setJobStatus('InProgress');
 
-          fetchJoblist(authToken, domain, setScheduleData, setError);
+          fetchJoblist(authToken, setScheduleData, setError);
         }
-      } else if (current.status === "InProgress") {
+      }
+      else if (current.status === 'InProgress') {
         const response = await api.post(
           '/TimeTracking',
           {
@@ -291,85 +284,85 @@ const DashboardScreen = ({ route, navigation }) => {
           },
           {
             headers: {
-              Authorization: `Bearer ${authToken}`,
-            },
+              'Authorization': `Bearer ${authToken}`,
+            }
           }
         );
         if (response.status === 200 || response.status === 204) {
-          setJobStatus("Completed");
+          setJobStatus('Completed');
 
-          fetchJoblist(authToken, domain, setScheduleData, setError);
+          fetchJoblist(authToken, setScheduleData, setError);
         }
       }
     } catch (error) {
-      console.error("Status change error:", {
-        endpoint: current?.status === "Scheduled" ? "Start" : "Complete",
+      console.error('Status change error:', {
+        endpoint: current?.status === 'Scheduled' ? 'Start' : 'Complete',
         status: error.response?.status,
         data: error.response?.data,
-        message: error.message,
+        message: error.message
       });
 
       if (error.response?.status === 401) {
-        setError("Authentication failed. Please try logging in again.");
+        setError('Authentication failed. Please try logging in again.');
       } else {
         setError(`Failed to update status: ${error.message}`);
       }
     }
   };
   const destination = {
-    latitude: taskLatitude,
-    longitude: taskLongitude,
+    latitude: taskLatitude ,  
+    longitude: taskLongitude  
   };
   const renderActionButton = () => {
-    const isCompleted = current?.status === "Completed";
-    const hasValidTask = current && !isCompleted;
+
+    const isCompleted = current?.status === 'Completed'
+    const hasValidTask = current && !isCompleted
 
     const buttonConfig = {
       Scheduled: {
         color: augwaBlue,
-        text: "START JOB",
-        disabled: false,
+        text: 'START JOB',
+        disabled: false
       },
       InProgress: {
-        color: "orange",
-        text: "In Progress",
-        disabled: false,
+        color: 'orange',
+        text: 'In Progress...',
+        disabled: false
       },
       Completed: {
-        color: "gray",
-        text: "Finished",
-        disabled: true,
-      },
+        color: 'gray',
+        text: 'Finished',
+        disabled: true
+      }
     };
-    const config = current?.status
-      ? buttonConfig[current.status]
-      : { color: "gray", text: "Start", disabled: true };
+    const config = current?.status ?
+      buttonConfig[current.status]
+      : { color: 'gray', text: 'Start', disabled: true };
 
     return (
       <TouchableOpacity
-        style={[
-          styles.btnStyle,
-          {
-            backgroundColor: config.color,
-            opacity: hasValidTask ? 1 : 0.6,
-          },
-        ]}
+        style={[styles.btnStyle, {
+          backgroundColor: config.color,
+          opacity: hasValidTask ? 1 : 0.6
+        }]}
         onPress={hasValidTask ? changeStatus : null}
-        disabled={!hasValidTask}
-      >
+        disabled={!hasValidTask}>
         <Text style={styles.btnTitle}>{config.text}</Text>
       </TouchableOpacity>
     );
   };
 
   const renderNavigateButton = () => {
-    const isCompleted = current?.status === "Completed";
-    const hasValidTask = current && !isCompleted;
+    const isCompleted = current?.status === 'Completed'
+    const hasValidTask = current && !isCompleted
     const buttonConfig = {
       disabled: false,
-      color: augwaBlue,
+      color: augwaBlue
     };
-    const config = current ? buttonConfig : { color: "gray", disabled: true };
+    const config = current?
+      buttonConfig
+      : { color: 'gray', disabled: true };
+      
 
     return (
       <TouchableOpacity
@@ -545,15 +538,15 @@ const DashboardScreen = ({ route, navigation }) => {
           <View style={styles.greetingArea}>
             <Text style={styles.greetings}>Welcome, </Text>
 
-            <View style={styles.iconSection}>
-              <TouchableOpacity>
-                <Message />
-              </TouchableOpacity>
-              <TouchableOpacity style={{ marginLeft: 20 }}>
-                <BellIcon />
-              </TouchableOpacity>
-            </View>
+          <View style={styles.iconSection}>
+            <TouchableOpacity>
+              <Message />
+            </TouchableOpacity>
+            <TouchableOpacity style={{ marginLeft: 20 }}>
+              <BellIcon />
+            </TouchableOpacity>
           </View>
+        </View>
 
           <Text style={styles.usernameStyle}> {userName} !</Text>
         </View>
@@ -641,29 +634,30 @@ const DashboardScreen = ({ route, navigation }) => {
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   
   container: {
-    // borderRadius: 30, // Curved edges
+   // borderRadius: 30, // Curved edges
     backgroundColor: augwaBlue,
-    // paddingHorizontal: 15
+   // paddingHorizontal: 15
   },
-  headerContainer: {
+   headerContainer: {
     // paddingTop:
-    //marginTop: 20,
-    //   // borderBottomLeftRadius: 25, // Add this for curved bottom-left corner
-    //   // borderBottomRightRadius: 25, // Add this for curved bottom-right corner
-    //   // paddingBottom: 20, // Ensure there's enough space for the curve
-  },
+  //marginTop: 20,
+  //   // borderBottomLeftRadius: 25, // Add this for curved bottom-left corner
+  //   // borderBottomRightRadius: 25, // Add this for curved bottom-right corner
+  //   // paddingBottom: 20, // Ensure there's enough space for the curve
+   },
   viewStyle: {
     flex: 1,
     backgroundColor: augwaBlue,
   },
   greetingArea: {
-    flexDirection: "row",
+    flexDirection: 'row',
+
   },
   iconSection: {
     marginLeft: 150,
@@ -671,53 +665,49 @@ const styles = StyleSheet.create({
     flexDirection: "row"
   },
   noJobsText: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
     fontSize: 16,
-    textAlign: "center",
-    margin: 10,
-    padding: 20,
-    backgroundColor: "#fff",
-    width: "auto",
-    height: "15 %",
+    textAlign: 'center',
+  margin: 10,
+  padding: 20,
+  backgroundColor: "#fff",
+    width: 'auto',
+    height: '15 %',
     borderRadius: 20,
   },
-  upcomingJobsContainer: {
-    marginTop: 10, // Reduced gap between Current Job and Upcoming Jobs
-  },
- 
   greetings: {
     marginTop: 15,
     marginStart: 10,
     fontSize: 33,
-    color: "#fff",
+    color: '#fff'
+
   },
   usernameStyle: {
     fontSize: 33,
     fontWeight: "500",
     marginTop: 10,
     marginStart: 10,
-    color: "#fff",
+    color: '#fff'
   },
   dashboardAreaStyle: {
     marginTop: 20,
-    height: "85%",
+    height: '85%',
     backgroundColor: dashboardArea,
     borderRadius: 30,
   },
   sectionTitle: {
     fontSize: 20,
-    color: "#000",
-    fontWeight: "500",
-    marginLeft: 10,
+    color: '#000',
+    fontWeight: '500',
+    marginLeft: 10
   },
   timeTitle: {
-    color: "#000",
-    marginTop: 10,
-    paddingTop: 20,
+    color: '#000',
+    marginTop: 5,
     marginLeft: 80,
     fontSize: 16,
     color: augwaBlue,
-    fontWeight: "500",
+    fontWeight: '500'
   },
   jobDescribtionStyle: {
     backgroundColor: "#fff",
@@ -728,15 +718,15 @@ const styles = StyleSheet.create({
 
   },
   jobDescribtionText: {
-    // marginTop: 10,
-    padding: 10,
+   // marginTop: 10,
+   padding:10,
     fontSize: 16,
-    alignItems: "center",
+    alignItems: 'center'
   },
   btnTitle: {
-    fontSize: 18,
+    fontSize: 20,
     color: "white",
-    alignSelf: "center",
+    alignSelf: 'center'
   },
 
   btnStyle: {
@@ -751,7 +741,7 @@ const styles = StyleSheet.create({
   bluBtntext: {
     marginTop: -5,
     fontSize: 17,
-    color: "#177de1",
+    color: '#177de1'
   },
   scrollContainer: {
     flexGrow: 1,
@@ -785,28 +775,28 @@ const styles = StyleSheet.create({
   },
   performanceNumStyle: {
     fontSize: 25,
-    fontWeight: "700",
-    marginLeft: 10,
+    fontWeight: '700',
+    marginLeft: 10
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   errorContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
   },
   errorText: {
-    color: "red",
+    color: 'red',
     marginBottom: 10,
-    textAlign: "center",
+    textAlign: 'center',
   },
   retryText: {
     color: augwaBlue,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   statusBtns: {
     alignItems: 'center',

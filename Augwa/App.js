@@ -44,9 +44,6 @@ const ScheduleStack = () => {
         component={ScheduleDetailScreen} 
         options={{ title: 'Details' }}
       />
-      <Stack.Screen name = "schedule" component={ScheduleScreen} />
-      <Stack.Screen name = "schedule_detail" component={ScheduleDetailScreen} />
-      <Stack.Screen name = "ProfileScreen" component={ProfileScreen} />
     </Stack.Navigator>
   );
 };
@@ -164,10 +161,8 @@ const LoginStack = () => {
 export default function App() {
   const [authToken, setAuthToken] = useState(null);
   const [userName, setUserName] = useState(null);
-  const [domain, setDomain] = useState(null);
 
   return (
-    <AuthContext.Provider value={{ authToken, setAuthToken, userName, setUserName, domain, setDomain }}>
     <AuthContext.Provider value={{ authToken, setAuthToken, userName, setUserName, domain, setDomain }}>
       <SafeAreaProvider>
         <NavigationContainer>

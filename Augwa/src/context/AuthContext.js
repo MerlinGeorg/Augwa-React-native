@@ -14,10 +14,9 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
     const [authToken, setAuthToken] = useState(null);
     const [userName, setUserName] = useState(null);  // Store the username here
-    const [domain, setDomain] = useState(null);
 
     return (
-        <AuthContext.Provider value={{ authToken, setAuthToken, userName, setUserName, domain, setDomain }}>
+        <AuthContext.Provider value={{ authToken, setAuthToken, userName, setUserName }}>
             {children}
         </AuthContext.Provider>
     );
