@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_BASEPATH_DEV } from "@env";
+import { API_BASEPATH_DEV, X_DOMAIN } from "@env";
 import base64 from 'base-64';
 
 const decodeJWT = (token) => {

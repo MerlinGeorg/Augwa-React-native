@@ -17,7 +17,7 @@ import { augwaBlue, dashboardArea } from "../assets/styles/color";
 import { Ionicons } from "@expo/vector-icons";
 import { AuthContext } from "../src/context/AuthContext";
 import axios from "axios";
-import { API_BASEPATH_DEV } from "@env";
+import { API_BASEPATH_DEV, X_DOMAIN } from "@env";
 //import * as ImagePicker from "expo-image-picker";
 import { openMapsWithDirections } from "../components/NativeMap";
 import { ExpandableNote } from "../components/ExpandableNote";
@@ -27,7 +27,7 @@ import CustomAlert from "../components/CustomAlert";
 import MotionDetection from "../components/MotionDetection"; 
 
 const ScheduleDetailScreen = ({ route }) => {
-  const { authToken, domain } = useContext(AuthContext);
+  const { authToken } = useContext(AuthContext);
   const { jobId } = route.params;
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -38,7 +38,7 @@ const ScheduleDetailScreen = ({ route }) => {
     baseURL: API_BASEPATH_DEV,
     headers: {
       "Content-Type": "application/json",
-      "X-Domain": domain,
+      "X-Domain": X_DOMAIN,
     },
   });
 
@@ -262,13 +262,10 @@ const ScheduleDetailScreen = ({ route }) => {
   const handleGetDirections = () => {
     openMapsWithDirections({
       latitude: job.latitude,
-      longitude: job.longitude,    
-      address: job.address
+      longitude: job.longitude,
+      // address: job.address
     });
   };
-  // console.log("address: ",job.latitude)
-  // console.log("address: ",job.longitude)
-  // console.log("address: ",job.address)
 
   return (
     <SafeAreaView style={styles.viewStyle}>
