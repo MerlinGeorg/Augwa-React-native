@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Linking, Platform } from "react-native";
 import base64 from "base-64";
 import axios from "axios";
-import { View, StyleSheet, Text, TouchableOpacity,Alert } from "react-native";
+import { View, StyleSheet, Text, TouchableOpacity, Alert } from "react-native";
 import { useContext } from "react";
 import { AuthContext } from "../src/context/AuthContext";
 import { ScrollView } from "react-native-gesture-handler";
@@ -18,9 +18,8 @@ import BellIcon from "../components/BellIcon";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { fetchJoblist } from "../components/FetchList";
 import MapView from "react-native-maps";
-// import GeofencingComponent from "../components/GeoFencing";
+import GeofencingComponent from "../components/GeoFencing";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 
 const DashboardScreen = ({ route, navigation }) => {
   const [jobStatus, setJobStatus] = useState("");
@@ -47,7 +46,7 @@ const DashboardScreen = ({ route, navigation }) => {
       fetchJoblist(authToken, domain, setScheduleData, setError);
     }
   }, [authToken]); // there was authToken inside []
-console.log(authToken)
+  console.log(authToken)
   useEffect(() => {
     if (scheduleData && userTasks) {
       getWeeklyTaskCount();
@@ -109,6 +108,9 @@ console.log(authToken)
   const gotoSchedule = () => {
     navigation.navigate("Schedule");
   };
+  // const timeTracking = async() => {
+
+  // }
 
   const userTasks = useMemo(() => {
     return (
@@ -166,15 +168,15 @@ console.log(authToken)
 
     return startDate.getTime() === today.getTime();
   });
-console.log("matchedSchedules: ",matchedSchedules)
+  console.log("matchedSchedules: ", matchedSchedules)
   const performances = [
     { title: "Open daily task:", count: todayTaskList.length },
     { title: "Weekly tasks:", count: weeklyTasksNumber },
   ];
   const current = todayTaskList[0];
-  
-  
-    
+
+
+
   const openMap = useCallback(async (latitude, longitude, address) => {
     // Extensive logging for debugging
     console.log("Map Opening Process Started", {
@@ -183,11 +185,11 @@ console.log("matchedSchedules: ",matchedSchedules)
       inputAddress: address,
       platform: Platform.OS,
     });
-  
+
     // Validate and parse coordinates
     const parsedLat = parseFloat(latitude);
     const parsedLong = parseFloat(longitude);
-  
+
     // Comprehensive coordinate validation
     if (isNaN(parsedLat) || isNaN(parsedLong)) {
       console.error("Invalid coordinates:", { latitude, longitude });
@@ -196,7 +198,7 @@ console.log("matchedSchedules: ",matchedSchedules)
       ]);
       return;
     }
-  
+
     // Ensure coordinates are within valid ranges
     if (
       parsedLat < -90 ||
@@ -215,13 +217,13 @@ console.log("matchedSchedules: ",matchedSchedules)
       );
       return;
     }
-  
+
     const formattedAddress = address ? encodeURIComponent(address) : '';
-  
+
     try {
       const mapSchemes = {
         ios: [
-         
+
           `maps://app?saddr=Current%20Location&daddr=${parsedLat},${parsedLong}&dirflg=d&t=m&directionsmode=driving`,
           `maps:?saddr=Current%20Location&daddr=${parsedLat},${parsedLong}&directionsmode=driving`,
           `https://www.google.com/maps/dir/?api=1&destination=${parsedLat},${parsedLong}&destination_place_id=${formattedAddress}&travelmode=driving`,
@@ -232,7 +234,7 @@ console.log("matchedSchedules: ",matchedSchedules)
           `https://www.google.com/maps/dir/?api=1&destination=${parsedLat},${parsedLong}&destination_place_id=${formattedAddress}&travelmode=driving`,
         ],
       };
-  
+
       const currentPlatformSchemes =
         Platform.OS === "ios" ? mapSchemes.ios : mapSchemes.android;
       for (const scheme of currentPlatformSchemes) {
@@ -262,6 +264,9 @@ console.log("matchedSchedules: ",matchedSchedules)
       ]);
     }
   }, []);
+  // change status
+  
+  // console.log(`current id: ${current.id}`)
   const changeStatus = async () => {
     try {
       if (!current || !current.id) {
@@ -269,11 +274,15 @@ console.log("matchedSchedules: ",matchedSchedules)
         return;
       }
 
-      if (current.status === "Scheduled" && current.t) {
-        setJobStatus("Scheduled");
+      if (current.status === "Scheduled") {
+        // setJobStatus("InProgress");
         const response = await api.post(
-          `/Booking/${current.id}/Start`,
-          {},
+          `/TimeTracking`,
+          {
+            "staffId": `${accountID}`,
+            "state": "BookingStart",
+            "bookingId": `${current.id}`
+          },
           {
             headers: {
               Authorization: `Bearer ${authToken}`,
@@ -288,8 +297,11 @@ console.log("matchedSchedules: ",matchedSchedules)
         }
       } else if (current.status === "InProgress") {
         const response = await api.post(
-          `/Booking/${current.id}/Complete`,
-          {},
+          '/TimeTracking',
+          {
+            "staffId": `${accountID}`,
+            "state": "BookingEnd",
+          },
           {
             headers: {
               Authorization: `Bearer ${authToken}`,
@@ -362,7 +374,7 @@ console.log("matchedSchedules: ",matchedSchedules)
       </TouchableOpacity>
     );
   };
- 
+
   const renderNavigateButton = () => {
     const isCompleted = current?.status === "Completed";
     const hasValidTask = current && !isCompleted;
@@ -378,25 +390,26 @@ console.log("matchedSchedules: ",matchedSchedules)
           styles.btnStyle,
           { backgroundColor: config.color, opacity: hasValidTask ? 1 : 0.6 },
         ]}
-          onPress={hasValidTask? ()=>{openMap(current?.latitude, 
+        onPress={hasValidTask ? () => {
+          openMap(current?.latitude,
             current?.longitude, current?.address);
-            setTaskLatitude(current?.latitude); setTaskLongitude(current?.longitude)
-          } : null}
-          disabled={!hasValidTask}>
-          <View style={styles.navigateButton}>
-            <Ionicons name="navigate-circle-outline" size={30} color="white" />
-            <Text style={styles.btnTitle}>Travel</Text>
-          </View>
-        </TouchableOpacity>
+          setTaskLatitude(current?.latitude); setTaskLongitude(current?.longitude)
+        } : null}
+        disabled={!hasValidTask}>
+        <View style={styles.navigateButton}>
+          <Ionicons name="navigate-circle-outline" size={30} color="white" />
+          <Text style={styles.btnTitle}>Travel</Text>
+        </View>
+      </TouchableOpacity>
     );
   };
 
   const renderBreakBtn = () => {
-    
+
     const currentBreakStatus = onBreak ? "BreakEnd" : "BreakStart";
     const currentMealStatus = onMealBreak ? "MealBreakEnd" : "MealBreakStart";
-  
-    
+
+
     const buttonConfig = {
       BreakStart: {
         color: "green",
@@ -419,21 +432,51 @@ console.log("matchedSchedules: ",matchedSchedules)
         disabled: false,
       },
     };
-  
+
     return (
       <View style={{ flexDirection: "row", marginLeft: 12 }}>
         {/* Break Button */}
         <TouchableOpacity
           style={[
             styles.statusBtnStyle,
-            { backgroundColor: buttonConfig[currentBreakStatus].color,
+            {
+              backgroundColor: buttonConfig[currentBreakStatus].color,
               marginLeft: 20
-             },
+            },
           ]}
-          onPress={() => {
-            // Toggle break status
-
+          onPress={async () => {
             setOnBreak(!onBreak);
+            if (onBreak == false) { // if is not on break, set break start
+              const response = await api.post(
+                `/TimeTracking`,
+                {
+                  "staffId": `${accountID}`,
+                  "state": "BreakStart",
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${authToken}`,
+                  },
+                }
+              );
+              console.log(current.assignedStaff.state)
+            }
+            else { // is on break
+              const response = await api.post(
+                `/TimeTracking`,
+                {
+                  "staffId": `${accountID}`,
+                  "state": "BreakEnd",
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${authToken}`,
+                  },
+                }
+              );
+              console.log(current.assignedStaff.state)
+
+            }
           }}
           disabled={buttonConfig[currentBreakStatus].disabled}
         >
@@ -443,18 +486,53 @@ console.log("matchedSchedules: ",matchedSchedules)
             </Text>
           </View>
         </TouchableOpacity>
-  
+
         {/* Meal Break Button */}
         <TouchableOpacity
           style={[
             styles.statusBtnStyle,
-            { backgroundColor: buttonConfig[currentMealStatus].color,
-              marginLeft: 50},
-            
+            {
+              backgroundColor: buttonConfig[currentMealStatus].color,
+              marginLeft: 50
+            },
+
           ]}
-          onPress={() => {
+          onPress={async() => {
             // Toggle meal break status
             setOnMealBreak(!onMealBreak);
+            if (onMealBreak == false) { // if is not on break, set break start
+              const response = await api.post(
+                `/TimeTracking`,
+                {
+                  "staffId": `${accountID}`,
+                  "state": "MealBreakStart",
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${authToken}`,
+                  },
+                }
+              );
+              console.log(current.assignedStaff.state)
+            }
+            
+            else { // is on break
+              const response = await api.post(
+                `/TimeTracking`,
+                {
+                  "staffId": `${accountID}`,
+                  "state": "MealBreakEnd",
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${authToken}`,
+                  },
+                }
+              );
+              console.log(current.assignedStaff.state)
+
+            }
+
           }}
           disabled={buttonConfig[currentMealStatus].disabled}
         >
@@ -467,17 +545,18 @@ console.log("matchedSchedules: ",matchedSchedules)
       </View>
     );
   };
+  //console.log(current.assignedStaff.transitionStates)
 
 
   return (
-    
+
     <SafeAreaView style={{ flex: 1 }}>
-    <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={styles.container}>
 
 
-      <View >
-        <View style={styles.greetingArea}>
-          <Text style={styles.greetings}>Welcome, </Text>
+        <View >
+          <View style={styles.greetingArea}>
+            <Text style={styles.greetings}>Welcome, </Text>
 
             <View style={styles.iconSection}>
               <TouchableOpacity>
@@ -489,110 +568,109 @@ console.log("matchedSchedules: ",matchedSchedules)
             </View>
           </View>
 
-        <Text style={styles.usernameStyle}> {userName} !</Text>
-      </View>
-
-
-      <View style={styles.dashboardAreaStyle}>
-
-        <View style={{ flexDirection: 'row', marginTop: 20, }}>
-          <View style = {[{flexDirection:'row'}]}>
-          <Text style={styles.sectionTitle}>Current Job</Text>
-          <Text style={styles.timeTitle}>
-            {current ? formatLocalTime(current.startDate) : ''}
-          </Text>
-          </View>
-          
+          <Text style={styles.usernameStyle}> {userName} !</Text>
         </View>
-        <View style={{ flexDirection: 'row',  marginLeft: 9, marginTop:10 }}>
-          <View style={styles.jobDescribtionStyle}>
-            {todayTaskList[0] ? (
-              <Text style={styles.jobDescribtionText}>
-                {`${current.address}\n${formatLocalTime(current.startDate)}\n
+
+
+        <View style={styles.dashboardAreaStyle}>
+
+          <View style={{ flexDirection: 'row', marginTop: 20, }}>
+            <View style={[{ flexDirection: 'row' }]}>
+              <Text style={styles.sectionTitle}>Current Job</Text>
+              <Text style={styles.timeTitle}>
+                {current ? formatLocalTime(current.startDate) : ''}
+              </Text>
+            </View>
+
+          </View>
+          <View style={{ flexDirection: 'row', marginLeft: 9, marginTop: 10 }}>
+            <View style={styles.jobDescribtionStyle}>
+              {todayTaskList[0] ? (
+                <Text style={styles.jobDescribtionText}>
+                  {`${current.address}\n${formatLocalTime(current.startDate)}\n
                 Status: ${current.status}`}
-              </Text>
-            ) : (
-              <Text style={styles.jobDescribtionText}>No task today!</Text>
-            )}
+                </Text>
+              ) : (
+                <Text style={styles.jobDescribtionText}>No task today!</Text>
+              )}
+            </View>
+            <View style={{ flexDirection: 'column', marginLeft: 12 }}>
+              {renderActionButton()}
+              {renderNavigateButton()}
+
+            </View>
           </View>
-          <View style={{ flexDirection: 'column', marginLeft: 12 }}>
-            {renderActionButton()}
-            {renderNavigateButton()}
 
+          <View style={styles.statusBtnView}>
+            {renderBreakBtn()}
           </View>
-        </View>
-        <Button 
-        title="Add Geofence" 
-        onPress={addWorkGeofence} 
-        />
-        <View style = {styles.statusBtnView}>
-          {renderBreakBtn()}
-        </View>
 
-        <GeofencingComponent destination={destination} radius={50} />
+          <GeofencingComponent destination={destination} radius={50} />
 
-        <View style={{ flexDirection: 'row', marginTop: 20, justifyContent: 'space-between' }}>
-          <Text style={styles.sectionTitle}>Upcoming Jobs</Text>
-          <TouchableOpacity style={{ marginRight: 15, marginTop: 5 }} onPress={gotoSchedule}>
-            <Text style={styles.bluBtntext}>View all</Text>
-          </TouchableOpacity>
-        </View>
-        {matchedSchedules.length === 0 ? (
-           <Text style={styles.noJobsText}>No jobs available</Text>
-        ) : (
-          <ScrollView horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContainer}>
-          {matchedSchedules.map((item, index) => (
-            <View key={index} style={[styles.jobDescribtionStyle]}>
-              <Text style={styles.jobDescribtionText}>
-                {`${item.address}\n${formatLocalTime(item.startDate)}\n
+          <View style={{ flexDirection: 'row', marginTop: 20, justifyContent: 'space-between' }}>
+            <Text style={styles.sectionTitle}>Upcoming Jobs</Text>
+            <TouchableOpacity style={{ marginRight: 15, marginTop: 5 }} onPress={gotoSchedule}>
+              <Text style={styles.bluBtntext}>View all</Text>
+            </TouchableOpacity>
+          </View>
+          {matchedSchedules.length === 0 ? (
+            <Text style={styles.noJobsText}>No jobs available</Text>
+          ) : (
+            <ScrollView horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.scrollContainer}>
+              {matchedSchedules.map((item, index) => (
+                <View key={index} style={[styles.jobDescribtionStyle]}>
+                  <Text style={styles.jobDescribtionText}>
+                    {`${item.address}\n${formatLocalTime(item.startDate)}\n
               Status: ${item.status}`}
-              </Text>
-            </View>
-          ))}
-        </ScrollView>
-        )
+                  </Text>
+                </View>
+              ))}
+            </ScrollView>
+          )
 
-        }
-        
-        <View style={{ marginLeft: 5, flexDirection: 'row' }}>
-          <Text style={styles.sectionTitle}>Performance Overview</Text>
+          }
+
+          <View style={{ marginLeft: 5, flexDirection: 'row' }}>
+            <Text style={styles.sectionTitle}>Performance Overview</Text>
+          </View>
+          <ScrollView horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingHorizontal: 10, // Add padding to prevent cutoff at edges
+              alignItems: 'center',
+            }}>
+            {performances.map((item, index) => (
+              <View key={index} style={[styles.performanceStyle]}>
+                <Text style={styles.sectionTitle}>{item.title}</Text>
+                <Text style={styles.performanceNumStyle}>{item.count}</Text>
+              </View>
+            ))}
+          </ScrollView>
         </View>
-        <ScrollView horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{paddingHorizontal: 10, // Add padding to prevent cutoff at edges
-            alignItems: 'center',}}>
-          {performances.map((item, index) => (
-            <View key={index} style={[styles.performanceStyle]}>
-              <Text style={styles.sectionTitle}>{item.title}</Text>
-              <Text style={styles.performanceNumStyle}>{item.count}</Text>
-            </View>
-          ))}
-        </ScrollView>
-      </View>
-      <TouchableOpacity style={{ marginRight: 15, marginTop: 5 }} >
-        <Text style={styles.bluBtntext}>Clock Out</Text>
-      </TouchableOpacity>
-   </ScrollView>
-  </SafeAreaView>
+        <TouchableOpacity style={{ marginRight: 15, marginTop: 5 }} >
+          <Text style={styles.bluBtntext}>Clock Out</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
-  
+
   container: {
-   // borderRadius: 30, // Curved edges
+    // borderRadius: 30, // Curved edges
     backgroundColor: augwaBlue,
-   // paddingHorizontal: 15
+    // paddingHorizontal: 15
   },
-   headerContainer: {
+  headerContainer: {
     // paddingTop:
-  //marginTop: 20,
-  //   // borderBottomLeftRadius: 25, // Add this for curved bottom-left corner
-  //   // borderBottomRightRadius: 25, // Add this for curved bottom-right corner
-  //   // paddingBottom: 20, // Ensure there's enough space for the curve
-   },
+    //marginTop: 20,
+    //   // borderBottomLeftRadius: 25, // Add this for curved bottom-left corner
+    //   // borderBottomRightRadius: 25, // Add this for curved bottom-right corner
+    //   // paddingBottom: 20, // Ensure there's enough space for the curve
+  },
   viewStyle: {
     flex: 1,
     backgroundColor: augwaBlue,
@@ -656,11 +734,11 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 20,
     marginLeft: 10,
-    
+
   },
   jobDescribtionText: {
-   // marginTop: 10,
-   padding:10,
+    // marginTop: 10,
+    padding: 10,
     fontSize: 16,
     alignItems: 'center'
   },
@@ -685,34 +763,34 @@ const styles = StyleSheet.create({
     color: "#177de1",
   },
   scrollContainer: {
-    flexGrow:1,
- paddingRight: 20,
- paddingLeft: 10,
-   // padding: "auto",
-   // paddingBottom: 20,
-     marginTop: 10,
+    flexGrow: 1,
+    paddingRight: 20,
+    paddingLeft: 10,
+    // padding: "auto",
+    // paddingBottom: 20,
+    marginTop: 10,
     // height: 70,
   },
   performanceStyle: {
     width: 150,
-  height: 100,
-  marginHorizontal: 15,
-  padding: 15,
-  backgroundColor: 'white',
-  borderRadius: 10,
-  justifyContent: 'center',
-  alignItems: 'center',
-  elevation: 3, // Shadow for Android
-  shadowColor: '#000', // Shadow for iOS
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.2,
-  shadowRadius: 3,
+    height: 100,
+    marginHorizontal: 15,
+    padding: 15,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 3, // Shadow for Android
+    shadowColor: '#000', // Shadow for iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
   },
   navigateButton: {
     flexDirection: "row",
     alignItems: 'center',
     justifyContent: 'center',
- //   paddingHorizontal: 10
+    //   paddingHorizontal: 10
   },
   performanceNumStyle: {
     fontSize: 25,
@@ -742,7 +820,7 @@ const styles = StyleSheet.create({
   statusBtns: {
     alignItems: 'center',
     justifyContent: 'center',
-   
+
   },
   statusBtnStyle: {
     borderRadius: 8,
@@ -754,7 +832,7 @@ const styles = StyleSheet.create({
     height: 50
 
   }
-  
+
 });
 
 export default DashboardScreen;
