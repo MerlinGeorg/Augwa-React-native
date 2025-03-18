@@ -1,18 +1,20 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useFocusEffect } from '@react-navigation/native';
-import { TouchableOpacity, Text, Button, View, StyleSheet, FlatList } from "react-native";
+import { TouchableOpacity, Text, View, StyleSheet, FlatList, Modal } from "react-native";
 import { getBooking } from "../components/Schedule";
 import { augwaBlue, dashboardArea } from "../assets/styles/color";
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../src/context/AuthContext';
-import { Agenda } from "react-native-calendars";
+import { Calendar } from "react-native-calendars";
 
 const ScheduleScreen = ({ navigation }) => {
   const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]); 
-  const [agendaItems, setAgendaItems] = useState({});
-  const { authToken, user } = useContext(AuthContext);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [filteredJobs, setFilteredJobs] = useState([]);
+  const [markedDates, setMarkedDates] = useState({});
+  const { authToken, user, domain } = useContext(AuthContext);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -20,16 +22,23 @@ const ScheduleScreen = ({ navigation }) => {
     }, [])
   );
 
+  useEffect(() => {
+    console.log("Selected date or schedule changed, filtering jobs...");
+    filterJobsByDate(selectedDate);
+  }, [selectedDate, schedule]);
+
   // Function to fetch booking
   const fetchBookings = async () => {
     setLoading(true);
 
-    const result = await getBooking(authToken);
+    const result = await getBooking(authToken, domain);
 
     if (result.success) {
       const assignedBookings = result.data.filter(booking => booking.assignedTo === user);
       setSchedule(assignedBookings);
-      AllBookings(assignedBookings, selectedDate); 
+      filterJobsByDate(selectedDate);
+      generateMarkedDates(assignedBookings);
+      //AllBookings(assignedBookings, selectedDate); 
     } else {
       console.error("Error fetching bookings:", result.error);
     }
@@ -37,20 +46,34 @@ const ScheduleScreen = ({ navigation }) => {
     setLoading(false);
   };
 
-  const AllBookings = (bookings) => {
-    const agendaData = {};
-
-    bookings.forEach(booking => {
-      const jobDate = new Date(booking.startDate).toISOString().split('T')[0]; 
-
-      if (!agendaData[jobDate]) {
-        agendaData[jobDate] = [];
-      }
-      agendaData[jobDate].push(booking);
+  const filterJobsByDate = (date) => {
+    console.log("Filtering jobs for date:", date);
+    const filtered = schedule.filter(booking => {
+      const jobDate = new Date(booking.startDate).toISOString().split('T')[0];
+      console.log("Job date:", jobDate);
+      return jobDate === date;
     });
-    setAgendaItems(agendaData);
+    console.log("Filtered jobs:", filtered);
+    setFilteredJobs(filtered);
   };
 
+  const generateMarkedDates = (bookings = schedule) => {
+    const marked = {};
+    bookings.forEach(booking => {
+      const jobDate = new Date(booking.startDate).toISOString().split('T')[0];
+      
+      if (!marked[jobDate]) {
+        marked[jobDate] = { marked: true, dotColor: '#177de1' };
+      }
+    });
+    marked[selectedDate] = {
+      ...marked[selectedDate],
+      selected: true,
+      selectedColor: '#177de1',
+    };
+    
+    setMarkedDates(marked);
+  };
 
   const isJobEnabled = (startDate, status) => {
     if (status === 'cancelled' || status === 'completed') return false;
@@ -83,9 +106,6 @@ const ScheduleScreen = ({ navigation }) => {
     if (jobStart.toDateString() === today.toDateString()) {
       return `${formattedStartTime} - ${formattedEndTime}`;
     } else {
-      //const dateFormat = { month: "short", day: "2-digit" };
-      //const formattedDate = jobStart.toLocaleDateString("en-US", dateFormat);
-
       return ` ${formattedStartTime} - ${formattedEndTime}`;
     }
   };
@@ -140,14 +160,19 @@ const ScheduleScreen = ({ navigation }) => {
     );
   };
 
-  // Function to render empty data for a day
-  const renderEmptyData = () => {
-    return (
-      <View style={styles.emptyDate}>
-        <Text style={styles.msgText}>No jobs scheduled for this date.</Text>
-      </View>
-    );
+  const formatSelectedDate = () => {
+    const date = new Date(selectedDate + 'T00:00:00');
+    return date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   };
+
+  const handleDateSelect = (day) => {
+    const selectedDateString = day.dateString;
+    console.log("Selected date:", selectedDateString);
+    setSelectedDate(selectedDateString);
+    filterJobsByDate(selectedDateString);
+    setShowCalendar(false);
+  };
+
 
   return (
     <View style={styles.viewStyle}>
@@ -155,45 +180,68 @@ const ScheduleScreen = ({ navigation }) => {
         <Text style={styles.Title}>Schedule</Text>
       </View>
       <View style={styles.dashboardAreaStyle}>
+        <View style={styles.dateSelector}>
+          <Text style={styles.selectedDateText}>{formatSelectedDate()}</Text>
+          <TouchableOpacity onPress={() => setShowCalendar(true)} style={styles.calendarButton}>
+            <Ionicons name="calendar" size={24} color="#177de1" />
+          </TouchableOpacity>
+        </View>
 
-        <View style={styles.Container}>
-          {loading ? (
-            <View style={styles.loadingContainer}>
+        {loading ? (
+          <View style={styles.loadingContainer}>
             <Text style={styles.msgText}>Loading jobs...</Text>
           </View>
-          ) :  (
-            <Agenda
-            items={agendaItems}
-            selected={selectedDate}
-            onDayPress={(day) => {
-              console.log("selected date: ", day.dateString)
-              setSelectedDate(day.dateString)}}
-              renderItem={renderItem}
-            renderEmptyDate={renderEmptyData}
-            renderEmptyData={renderEmptyData}
-            rowHasChanged={(r1, r2) => r1.id !== r2.id}
-            showClosingKnob={true}
-            
-            theme={{
-              calendarBackground: '#ffffff',
-              selectedDayBackgroundColor: '#177de1',
-              selectedDayTextColor: '#ffffff',
-              todayTextColor: '#177de1',
-              dayTextColor: '#2d4150',
-              textSectionTitleColor: '#177de1',
-              dotColor: '#177de1',
-              selectedDotColor: '#ffffff',
-              arrowColor: '#177de1',
-              monthTextColor: '#177de1',
-              agendaDayTextColor: '177de1',
-              agendaDayNumColor: '177de1',
-              agendaTodayColor: '177de1',
-              agendaKnobColor: '#177de1'
-            }}
-            style = {styles.agendaStyle}
-          />
-          )}
-        </View>
+        ) : (
+          <>
+            {filteredJobs.length > 0 ? (
+              <FlatList
+                data={filteredJobs}
+                renderItem={({ item }) => renderItem(item)}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={styles.jobList}
+              />
+            ) : (
+              <View style={styles.emptyDate}>
+                <Text style={styles.msgText}>No jobs scheduled for this date.</Text>
+              </View>
+            )}
+          </>
+        )}
+
+        {/* Calendar Modal */}
+        <Modal
+          visible={showCalendar}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setShowCalendar(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.calendarContainer}>
+              <Calendar
+                onDayPress={handleDateSelect}
+                markedDates={markedDates}
+                theme={{
+                  calendarBackground: '#ffffff',
+                  selectedDayBackgroundColor: '#177de1',
+                  selectedDayTextColor: '#ffffff',
+                  todayTextColor: '#177de1',
+                  dayTextColor: '#2d4150',
+                  textSectionTitleColor: '#177de1',
+                  arrowColor: '#177de1',
+                  monthTextColor: '#177de1',
+                  dotColor: '#177de1',
+                  selectedDotColor: '#ffffff',
+                }}
+              />
+              <TouchableOpacity 
+                style={styles.closeButton} 
+                onPress={() => setShowCalendar(false)}
+              >
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </View>
     </View>
   );
@@ -209,6 +257,7 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: dashboardArea,
     borderRadius: 30,
+    padding: 15,
   },
   Title: {
     fontSize: 20,
@@ -218,19 +267,34 @@ const styles = StyleSheet.create({
     position: 'relative',
     top: 10
   },
+  dateSelector: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+    paddingHorizontal: 10,
+  },
+  selectedDateText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#177de1',
+  },
+  calendarButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#e6f2ff',
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
   jobCard: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent:'space-between',
+    justifyContent: 'space-between',
     backgroundColor: "#fff",
-    marginRight: 20,
-    marginTop: 10,
+    marginBottom: 10,
     borderRadius: 5,
     padding: 10
   },
@@ -243,6 +307,9 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   Container: {
+    flex: 1,
+  },
+  jobInfo: {
     flex: 1,
   },
   buttonstyle: {
@@ -281,10 +348,40 @@ const styles = StyleSheet.create({
   },
   startButtonDisabled: {
     backgroundColor: '#cccccc',
+    color: '#999',
   },
-  agendaStyle: {
-    borderRadius:30
+  jobList: {
+    paddingHorizontal: 5,
+  },
+  emptyDate: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  calendarContainer: {
+    width: '90%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 15,
+  },
+  closeButton: {
+    marginTop: 15,
+    padding: 10,
+    alignItems: 'center',
+    backgroundColor: '#177de1',
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: 'white',
+    fontWeight: '600',
   }
-})
+});
+
 
 export default ScheduleScreen;
