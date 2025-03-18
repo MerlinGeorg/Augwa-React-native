@@ -3,7 +3,6 @@ import { Linking, Platform } from "react-native";
 import base64 from "base-64";
 import axios from "axios";
 import { View, StyleSheet, Text, TouchableOpacity,Alert } from "react-native";
-import { View, StyleSheet, Text, TouchableOpacity,Alert } from "react-native";
 import { useContext } from "react";
 import { AuthContext } from "../src/context/AuthContext";
 import { ScrollView } from "react-native-gesture-handler";
