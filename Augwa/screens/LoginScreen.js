@@ -15,6 +15,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { buttonTextColor, errorGrey, errorRed, primaryColor, successGreen, textInputBorderColor, iconColor } from "../assets/styles/color";
 import { useNavigation } from '@react-navigation/native';
 import { BiometricAuth } from "../components/BiometricAuth";
+import { augwaBlue } from '../assets/styles/color';
 
 const LoginScreen = (props) => {
   const { setAuthToken, setUserName, setDomain } = useContext(AuthContext);
@@ -131,26 +132,10 @@ const LoginScreen = (props) => {
             bounces={false}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled">
-            <View style={{ marginTop: 30 }}>
+            <View style={{ backgroundColor: augwaBlue,  }}>
               <Logo style={styles.logoStyle} />
               <Text style={styles.textTitleStyle}>Welcome To Augwa</Text>
             </View>
-
-            {isBiometricAvailable && (
-              <TouchableOpacity
-                style={styles.biometricButton}
-                onPress={handleBiometricLogin}
-              >
-                <FontAwesome5
-                  name={biometricType === 'faceId' ? "face-recognition" : "fingerprint"}
-                  size={24}
-                  color={iconColor}
-                />
-                <Text style={styles.biometricText}>
-                  Login with {biometricType === 'faceId' ? 'Face ID' : 'Fingerprint'}
-                </Text>
-              </TouchableOpacity>
-            )}
 
             <View style={{ marginTop: 20 }}>
               <TextInput
@@ -200,8 +185,24 @@ const LoginScreen = (props) => {
               </Text>
             </TouchableOpacity>
 
+            {isBiometricAvailable && (
+              <TouchableOpacity
+                style={styles.biometricButton}
+                onPress={handleBiometricLogin}
+              >
+                <FontAwesome5
+                  name={biometricType === 'faceId' ? "face-recognition" : "fingerprint"}
+                  size={24}
+                  color={iconColor}
+                />
+                <Text style={styles.biometricText}>
+                  SignIn with {biometricType === 'faceId' ? 'Face ID' : 'Fingerprint'}
+                </Text>
+              </TouchableOpacity>
+            )}
+
             <View style={styles.signupView}>
-              <Text style={{ fontSize: 17, color: '#5F5F5F' }}>
+              <Text style={{ fontSize: 17, color: '#5f5f5f' }}>
                 Don't have an account?
               </Text>
               <TouchableOpacity onPress={jumpToSignUp}>
@@ -220,20 +221,21 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   logoStyle: {
-    width: 100,
-    height: 100,
+    width: 50,
+    height: 50,
     alignSelf: 'center',
+    marginTop: 40
   },
   viewStyle: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
   },
   textTitleStyle: {
     fontSize: 24,
     fontWeight: "600",
     textAlign: "center",
     marginBottom: 30,
-    color: "#000",
+    color: "#fff",
     marginTop: 20,
   },
   inputView: {
@@ -244,51 +246,55 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 15,
     alignSelf: 'center',
+    backgroundColor: '#f5f5f5',
+    color: '#333',
     borderColor: textInputBorderColor,
     paddingHorizontal: 15,
   },
   btnPsw: {
-    marginLeft: 240,
+    marginLeft: 200,
     marginTop: 12,
+    marginBottom: 12
   },
   bluBtntext: {
     fontSize: 17,
     color: '#177de1',
   },
   signupView: {
-    marginTop: 10,
+     marginTop: 10,
     flexDirection: 'row',
-    alignSelf: 'center',
+    alignSelf: 'center'
   },
   biometricButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 15,
+    height: 45,
     marginHorizontal: 20,
     borderRadius: 8,
-    backgroundColor: '#f5f5f5',
+    borderColor: augwaBlue,
+    borderWidth: 1,
     marginTop: 10,
+    
   },
   biometricText: {
     marginLeft: 10,
     fontSize: 16,
-    color: '#333',
+    color: '#000',
   },
   signInButton: {
-    marginTop: 50,
     width: 340,
     height: 45,
     borderRadius: 8,
     alignSelf: "center",
-    backgroundColor: "#2D4059",
+    backgroundColor: augwaBlue,
     justifyContent: "center",
     alignItems: "center",
   },
   signInButtonText: {
     textAlign: "center",
     fontSize: 23,
-    color: '#ffffff',
+    color: '#fff',
   },
 });
 
