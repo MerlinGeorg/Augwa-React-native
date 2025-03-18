@@ -270,6 +270,9 @@ PODS:
   - EXSplashScreen (0.14.2):
     - ExpoModulesCore
     - React-Core
+  - EXTaskManager (12.0.5):
+    - ExpoModulesCore
+    - UMAppLoader
   - EXUpdatesInterface (1.0.0):
     - ExpoModulesCore
   - FBLazyVector (0.76.6)
@@ -1632,7 +1635,6 @@ PODS:
     - React-Core
   - react-native-encrypted-storage (4.0.3):
     - React-Core
-
   - react-native-geo-fencing (0.1.0):
     - GoogleMaps
     - React
@@ -1657,7 +1659,6 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-
   - react-native-geolocation-service (5.3.1):
     - React
   - react-native-get-random-values (1.11.0):
@@ -2018,10 +2019,12 @@ PODS:
     - React-logger (= 0.76.6)
     - React-perflogger (= 0.76.6)
     - React-utils (= 0.76.6)
+  - RNBackgroundFetch (4.2.7):
+    - React-Core
   - RNBackgroundGeolocation (4.18.6):
     - CocoaLumberjack (~> 3.8.5)
     - React-Core
-  - RNCAsyncStorage (1.23.1):
+  - RNCAsyncStorage (1.24.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2044,10 +2047,10 @@ PODS:
     - Yoga
   - RNCPushNotificationIOS (1.11.0):
     - React-Core
-  - RNFBApp (21.12.0):
+  - RNFBApp (21.11.0):
     - Firebase/CoreOnly (= 11.8.0)
     - React-Core
-  - RNFBMessaging (21.12.0):
+  - RNFBMessaging (21.11.0):
     - Firebase/Messaging (= 11.8.0)
     - FirebaseCoreExtension
     - React-Core
@@ -2315,6 +2318,7 @@ PODS:
   - TouchID (4.4.1):
     - React
   - TSBackgroundFetch (0.0.1)
+  - UMAppLoader (5.0.1)
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -2342,6 +2346,7 @@ DEPENDENCIES:
   - ExpoSecureStore (from `../node_modules/expo-secure-store/ios`)
   - ExpoSensors (from `../node_modules/expo-sensors/ios`)
   - EXSplashScreen (from `../node_modules/expo-splash-screen/ios`)
+  - EXTaskManager (from `../node_modules/expo-task-manager/ios`)
   - EXUpdatesInterface (from `../node_modules/expo-updates-interface/ios`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - Firebase/Core
@@ -2417,6 +2422,7 @@ DEPENDENCIES:
   - React-utils (from `../node_modules/react-native/ReactCommon/react/utils`)
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - RNBackgroundFetch (from `../node_modules/react-native-background-fetch`)
   - RNBackgroundGeolocation (from `../node_modules/react-native-background-geolocation`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCPushNotificationIOS (from `../node_modules/@react-native-community/push-notification-ios`)"
@@ -2431,6 +2437,7 @@ DEPENDENCIES:
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - TouchID (from `../node_modules/react-native-touch-id`)
   - TSBackgroundFetch
+  - UMAppLoader (from `../node_modules/unimodules-app-loader/ios`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -2501,6 +2508,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-sensors/ios"
   EXSplashScreen:
     :path: "../node_modules/expo-splash-screen/ios"
+  EXTaskManager:
+    :path: "../node_modules/expo-task-manager/ios"
   EXUpdatesInterface:
     :path: "../node_modules/expo-updates-interface/ios"
   FBLazyVector:
@@ -2644,6 +2653,8 @@ EXTERNAL SOURCES:
     :path: build/generated/ios
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  RNBackgroundFetch:
+    :path: "../node_modules/react-native-background-fetch"
   RNBackgroundGeolocation:
     :path: "../node_modules/react-native-background-geolocation"
   RNCAsyncStorage:
@@ -2670,6 +2681,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-vector-icons"
   TouchID:
     :path: "../node_modules/react-native-touch-id"
+  UMAppLoader:
+    :path: "../node_modules/unimodules-app-loader/ios"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -2699,6 +2712,7 @@ SPEC CHECKSUMS:
   ExpoSecureStore: 9a3665d7161dd1031be386e278bffd623658f316
   ExpoSensors: 02a52ddab1e3a8a1438258c3d87d1ee5f721743a
   EXSplashScreen: 6c10ebd03affda48ce892be49a6037fd6fc91336
+  EXTaskManager: 56043fa052a0b9f2e9714dbef594a8c46cafa346
   EXUpdatesInterface: 7c977640bdd8b85833c19e3959ba46145c5719db
   FBLazyVector: be509404b5de73a64a74284edcaf73a5d1e128b1
   Firebase: d80354ed7f6df5f9aca55e9eb47cc4b634735eaf
@@ -2749,7 +2763,6 @@ SPEC CHECKSUMS:
   react-native-biometrics: 43ed5b828646a7862dbc7945556446be00798e7d
   react-native-camera: 079d80421f0572d6b4e836908114d614d0adb553
   react-native-encrypted-storage: 569d114e329b1c2c2d9f8c84bcdbe4478dda2258
-
   react-native-geo-fencing: b951b1f634d29275ac211c24f99cdd584043a746
   react-native-geolocation: 19e121dda71716926a4558790f69344951f2a3ce
   react-native-geolocation-service: 32b2c2a3b91e70ce2a8d0c684801aaeb0a07e0ec
@@ -2784,16 +2797,12 @@ SPEC CHECKSUMS:
   React-utils: db1d54cc2deb26a17e475948a558557f5807e50e
   ReactCodegen: 2f96de87b7680e294a46fc52b4399d51ec90cb6b
   ReactCommon: 09e5005e0ea50a4e36f412990212140e5b8f1db3
+  RNBackgroundFetch: 005d4742a64a511ea54cf2929ace9f0804a7c511
   RNBackgroundGeolocation: 487a18057a109cb72e9bf83c469db57ba82b5b23
-  RNCAsyncStorage: d2806c4f4c8555fb3ca3fe5759e2f5e5ef74efe4
+  RNCAsyncStorage: 1cfcd2e83cc2741d069ffe5731b6eed61905da53
   RNCPushNotificationIOS: 6c4ca3388c7434e4a662b92e4dfeeee858e6f440
-
   RNFBApp: b5626640e0f4b4fe5be4f44375df703c0d62ee4b
   RNFBMessaging: 8e38f5ca846497f8a9c91d33f311c00ca52d119c
-
-  RNFBApp: 3ecdb44edd5cce785ea9b796682766889962a5fd
-  RNFBMessaging: 65b436add429c5fd8fed20643c3a92916d275444
-
   RNGestureHandler: 1e33ee267aaf61bbab6089d32df3b38c3024e3dd
   RNKeychain: 63ca1ceb8362b775749ae3b5b6105ae26de4afd7
   RNPermissions: f96c5715f18ec1a90d436213284c991788a467d2
@@ -2804,6 +2813,7 @@ SPEC CHECKSUMS:
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   TouchID: 6d9af299007675845fe9e23bd2701f4354613366
   TSBackgroundFetch: 5a0e4d83d4c586edb0cf63c93682e8f09c5d8b16
+  UMAppLoader: 7e7e0eaa7854ffd652c00a68c443afb28c3bedba
   Yoga: fd4ca32b81c4069b4175ad9460b042e17db94b66
 
 PODFILE CHECKSUM: cf0be7956e00e73d3a956a57a5f30a4df7952fb4

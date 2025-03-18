@@ -23,7 +23,7 @@ TaskManager.defineTask(GEOFENCING_TASK, ({ data: { locations }, error }) => {
 const GeofencingComponent = ({ destination, radius = 50 }) => {
   const [hasPermission, setHasPermission] = useState(false);
   // Request permissions and start tracking
-useEffect(() => {
+  useEffect(() => {
     const startGeofencing = async () => {
       // Common foreground permission request
       const { status } = await Location.requestForegroundPermissionsAsync();

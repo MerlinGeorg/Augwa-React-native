@@ -2,11 +2,13 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Linking, Platform } from "react-native";
 import base64 from "base-64";
 import axios from "axios";
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { View, StyleSheet, Text, TouchableOpacity,Alert } from "react-native";
 import { useContext } from "react";
 import { AuthContext } from "../src/context/AuthContext";
 import { ScrollView } from "react-native-gesture-handler";
 import { API_BASEPATH_DEV } from "@env";
+import GeofencingBackgroundService from '../components/GeoFencingBackground';
+
 import {
   augwaBlue,
   dashboardArea,
@@ -18,8 +20,9 @@ import BellIcon from "../components/BellIcon";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { fetchJoblist } from "../components/FetchList";
 import MapView from "react-native-maps";
-import GeofencingComponent from "../components/GeoFencing";
+// import GeofencingComponent from "../components/GeoFencing";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 
 const DashboardScreen = ({ route, navigation }) => {
   const [jobStatus, setJobStatus] = useState("");
@@ -171,10 +174,43 @@ console.log("matchedSchedules: ",matchedSchedules)
     { title: "Weekly tasks:", count: weeklyTasksNumber },
   ];
   const current = todayTaskList[0];
-  //console.log(current.client.latitude);
-  // console.log(current.latitude)
-  // test map plist file
-  // open native map:
+  
+  const addWorkGeofence = async () => {
+    try {
+      // You'd likely get these coordinates from user input or use current location
+      const success = await GeofencingBackgroundService.addGeofence({
+        name: "Work Place",
+        latitude: current?.latitude, // Replace with actual coordinates
+        longitude: current?.longitude, // Replace with actual coordinates
+        radius: 30, // meters
+        notifyOnEnter: true,
+        notifyOnExit: true,
+        onEnterActions: [
+          { 
+            type: 'notification', 
+            title: 'Arrival!', 
+            message: 'You have arrived!' 
+          }
+        ],
+        onExitActions: [
+          { 
+            type: 'notification', 
+            title: 'Departure', 
+            message: 'You have left!' 
+          }
+        ]
+      });
+      
+      if (success) {
+        Alert.alert('Success', 'Work geofence added successfully');
+      } else {
+        Alert.alert('Error', 'Failed to add work geofence');
+      }
+    } catch (error) {
+      console.error('Error adding geofence:', error);
+      Alert.alert('Error', 'Could not add geofence');
+    }
+    
   const openMap = useCallback(async (latitude, longitude, address) => {
     // Extensive logging for debugging
     console.log("Map Opening Process Started", {
@@ -501,12 +537,9 @@ console.log("matchedSchedules: ",matchedSchedules)
           <Text style={styles.timeTitle}>
             {current ? formatLocalTime(current.startDate) : ''}
           </Text>
-
           </View>
           
         </View>
-        <GeofencingComponent destination={destination} radius={50} />
-
         <View style={{ flexDirection: 'row',  marginLeft: 9, marginTop:10 }}>
           <View style={styles.jobDescribtionStyle}>
             {todayTaskList[0] ? (
@@ -524,6 +557,10 @@ console.log("matchedSchedules: ",matchedSchedules)
 
           </View>
         </View>
+        <Button 
+        title="Add Geofence" 
+        onPress={addWorkGeofence} 
+        />
         <View style = {styles.statusBtnView}>
           {renderBreakBtn()}
          
@@ -753,6 +790,6 @@ const styles = StyleSheet.create({
 
   }
   
-});
+})}
 
 export default DashboardScreen;

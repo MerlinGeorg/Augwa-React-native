@@ -19,6 +19,8 @@ import ScheduleDetailScreen from './screens/ScheduleDetailScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import MapScreen from './screens/MapScreen';
 import ProfileScreen from './screens/ProfileScreen';
+import GeofencingService from './components/GeoFencingBackground';
+import { requestLocationPermissions } from './components/PermissionUtils';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -163,6 +165,24 @@ export default function App() {
   const [authToken, setAuthToken] = useState(null);
   const [userName, setUserName] = useState(null);
   const [domain, setDomain] = useState(null);
+  useEffect(() => {
+    // Initialize geofencing
+    const initGeofencing = async () => {
+      const initialized = await GeofencingService.init();
+      if (initialized) {
+        console.log("Geofencing service initialized successfully");
+      } else {
+        console.error("Failed to initialize geofencing service");
+      }
+    };
+    
+    initGeofencing();
+    
+    // Cleanup on component unmount
+    return () => {
+      GeofencingService.cleanup();
+    };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ authToken, setAuthToken, userName, setUserName, domain, setDomain }}>
