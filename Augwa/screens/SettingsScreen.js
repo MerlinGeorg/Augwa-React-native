@@ -92,7 +92,7 @@ const SettingsScreen = ({ navigation }) => {
         <Text style={styles.sectionTitle}>Account Info</Text>
 
         {/* ----Settings List---- */}
-        <SettingCard icon="user-circle" title="Profile" onPress={() => navigation.navigate(ProfileScreen)} />
+        <SettingCard icon="user-circle" title="Profile" onPress={() => navigation.navigate("Profile")} />
         <SettingCard icon="bell" title="Notification Preferences" onPress={() => { }} />
 
         {/* ----Logout Button---- */}
