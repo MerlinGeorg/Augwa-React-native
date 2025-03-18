@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
- // TextInput,
+  // TextInput,
   TouchableOpacity,
   View,
   StyleSheet,
@@ -8,7 +8,7 @@ import {
   SafeAreaView,
   KeyboardAvoidingView,
   Platform,
- // Alert,
+  // Alert,
   Modal,
 } from "react-native";
 import {
@@ -46,6 +46,7 @@ const PasswordRequirement = ({ met, text }) => (
 export default function SignupScreen({ navigation }) {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const [domain, setDomain] = useState("");
   const [inviteCode, setInviteCode] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -53,7 +54,7 @@ export default function SignupScreen({ navigation }) {
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [biometricVisible, setBiometricVisible] = useState(false);
   const [biometricType, setBiometricType] = useState(null);
- // const [successMessage, setSuccessMessage] = useState(null);
+  // const [successMessage, setSuccessMessage] = useState(null);
 
   useEffect(() => {
     checkBiometricSupport();
@@ -91,6 +92,7 @@ export default function SignupScreen({ navigation }) {
   const validateForm = () => {
     const newErrors = {};
     setErrors({});
+    if (!domain) newErrors.domain = "Domain is required";
     if (!userName) newErrors.userName = "Username is required";
     if (!usernameValidation.length)
       newErrors.userName = "Username must be between 6 and 32 characters";
@@ -110,7 +112,7 @@ export default function SignupScreen({ navigation }) {
       setErrors(newErrors);
       return false;
     }
-    
+
     return true;
   };
 
@@ -118,44 +120,45 @@ export default function SignupScreen({ navigation }) {
     try {
       const success = await BiometricAuth.enableBiometric(userName, password);
       if (success) {
-        
+
         setBiometricVisible(false);
-        navigation.replace('biometrysuccess', {biometricType});
+        navigation.replace('biometrysuccess', { biometricType });
       } else {
         // Alert.alert("Error", "Failed to enable biometric authentication. Please try again.");
-        setErrors({biometric: "Failed to enable biometric authentication. Please try again." })
+        setErrors({ biometric: "Failed to enable biometric authentication. Please try again." })
       }
     } catch (error) {
       console.error("Biometric setup error:", error);
-      setErrors({biometric: "Could not enable biometric authentication. Please ensure it is set up on your device."})
+      setErrors({ biometric: "Could not enable biometric authentication. Please ensure it is set up on your device." })
     }
   };
 
   const handleSignup = async () => {
     if (!validateForm()) return;
-    
+
     try {
       setIsLoading(true);
       const result = await Register.signup({
         username: userName.trim(),
         password: password,
         inviteCode: inviteCode.trim(),
+        domain: domain.trim(),
       });
 
       if (result.success) {
-      
-       CustomAlert({
-        title: "Success",
-        message: "Account created successfully!",
-        onOk: () => {setBiometricVisible(true)} // Set biometricVisible to true when OK is pressed
-      });
-        
+
+        CustomAlert({
+          title: "Success",
+          message: "Account created successfully!",
+          onOk: () => { setBiometricVisible(true) } // Set biometricVisible to true when OK is pressed
+        });
+
       } else {
-        setErrors({signup: result.error.message})
+        setErrors({ signup: result.error.message })
       }
     } catch (error) {
       console.log("signup error", error);
-     setErrors({signup:"An unexpected error occurred. Please try again." })
+      setErrors({ signup: "An unexpected error occurred. Please try again." })
     } finally {
       setIsLoading(false);
     }
@@ -174,135 +177,146 @@ export default function SignupScreen({ navigation }) {
         style={styles.keyboardAvoidingView}
       >
         <ScrollView contentContainerStyle={styles.contentContainer}>
-        <View style={styles.logoContainer}>
-          <LogoImage style={styles.logoStyle} />
-        </View>
-        <Text style={sharedStyles.title}>Register to Augwa</Text>
+          <View style={styles.logoContainer}>
+            <LogoImage style={styles.logoStyle} />
+          </View>
+          <Text style={sharedStyles.title}>Register to Augwa</Text>
 
-        <View style={styles.form}>
-         
-          <CustomInput
-            value={userName}
-            onChangeText={setUserName}
-            placeholder="Username"
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-           {errors.userName && (
-            <Text style={styles.errorText}>{errors.userName}</Text>
-          )}
+          <View style={styles.form}>
 
-        
-          <CustomInput
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Password"
-            secureTextEntry={true}
-            autoCapitalize="none"
-            onFocus={() => setPasswordFocused(true)}
-            onBlur={() => setPasswordFocused(false)}
-          />
-           {errors.password && (
-            <Text style={styles.errorText}>{errors.password}</Text>
-          )}
+            <CustomInput
+              value={domain}
+              onChangeText={setDomain}
+              placeholder="Domain"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            {errors.domain && (
+              <Text style={styles.errorText}>{errors.domain}</Text>
+            )}
 
-          {passwordFocused && !passwordRequirementsMet && (
-            <View style={styles.requirements}>
-              <PasswordRequirement
-                met={validations.length}
-                text="At least 8 characters"
-              />
-              <PasswordRequirement
-                met={validations.uppercase}
-                text="At least one uppercase letter"
-              />
-              <PasswordRequirement
-                met={validations.lowercase}
-                text="At least one lowercase letter"
-              />
-              <PasswordRequirement
-                met={validations.number}
-                text="At least one number"
-              />
-              <PasswordRequirement
-                met={validations.nonAlphanumeric}
-                text="At least one non-alphanumeric character"
-              />
-            </View>
-          )}
+            <CustomInput
+              value={userName}
+              onChangeText={setUserName}
+              placeholder="Username"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            {errors.userName && (
+              <Text style={styles.errorText}>{errors.userName}</Text>
+            )}
 
-          <CustomInput
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          placeholder="Confirm Password"
-          secureTextEntry={true}
-          />
-{errors.confirmPassword && (
+
+            <CustomInput
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Password"
+              secureTextEntry={true}
+              autoCapitalize="none"
+              onFocus={() => setPasswordFocused(true)}
+              onBlur={() => setPasswordFocused(false)}
+            />
+            {errors.password && (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            )}
+
+            {passwordFocused && !passwordRequirementsMet && (
+              <View style={styles.requirements}>
+                <PasswordRequirement
+                  met={validations.length}
+                  text="At least 8 characters"
+                />
+                <PasswordRequirement
+                  met={validations.uppercase}
+                  text="At least one uppercase letter"
+                />
+                <PasswordRequirement
+                  met={validations.lowercase}
+                  text="At least one lowercase letter"
+                />
+                <PasswordRequirement
+                  met={validations.number}
+                  text="At least one number"
+                />
+                <PasswordRequirement
+                  met={validations.nonAlphanumeric}
+                  text="At least one non-alphanumeric character"
+                />
+              </View>
+            )}
+
+            <CustomInput
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              placeholder="Confirm Password"
+              secureTextEntry={true}
+            />
+            {errors.confirmPassword && (
               <Text style={styles.errorText}>{errors.confirmPassword}</Text>
             )}
 
-         
-          <CustomInput
-          value={inviteCode}
-          onChangeText={setInviteCode}
-          placeholder="Invite Code"
-          autoCapitalize="none"
-          autoCorrect={false}
-          />
 
-{errors.inviteCode && (
+            <CustomInput
+              value={inviteCode}
+              onChangeText={setInviteCode}
+              placeholder="Invite Code"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+
+            {errors.inviteCode && (
               <Text style={styles.errorText}>{errors.inviteCode}</Text>
             )}
-          
-          <CustomButton 
-          title={isLoading ? "SIGNING UP..." : "SIGNUP"}
-          onPress={handleSignup}
-          disabled={isLoading}
-          />
+
+            <CustomButton
+              title={isLoading ? "SIGNING UP..." : "SIGNUP"}
+              onPress={handleSignup}
+              disabled={isLoading}
+            />
 
             {errors.signup ? (
               <CustomAlert
                 title="Error"
                 message={errors.signup}
-                onOk={() => setErrors({ ...errors, signup: null})}
-               />
+                onOk={() => setErrors({ ...errors, signup: null })}
+              />
             ) : null}
 
             {errors.biometric ? (
               <CustomAlert
                 title="Error"
                 message={errors.biometric}
-                onOk={()=>setErrors({...errors, biometric: null})}
+                onOk={() => setErrors({ ...errors, biometric: null })}
               />
-            ): null}
+            ) : null}
 
-        </View>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
 
       {/* Biometric Authentication Modal */}
-     
-             <CustomModal
-    visible={biometricVisible}
-    onClose={() => setBiometricVisible(false)}
-    title={`Use ${biometricType === 'faceId' ? 'Face ID' : 'Fingerprint'}?`}
-    buttons={[
-      {
-        text: `Yes, enable ${biometricType === 'faceId' ? 'Face ID' : 'Fingerprint'}`,
-        onPress: enableBiometric,
-      },
-      {
-        text: 'Not now',
-        onPress: handleNotNow,
-        style: { backgroundColor: errorGrey },
-      },
-    ]}
-    biometricType={biometricType} // Pass the biometricType here
-  >
-    <Text style={styles.modalText}>
-      Would you like to enable {biometricType === 'faceId' ? 'Face ID' : 'fingerprint'} authentication?
-    </Text>
-  </CustomModal>
+
+      <CustomModal
+        visible={biometricVisible}
+        onClose={() => setBiometricVisible(false)}
+        title={`Use ${biometricType === 'faceId' ? 'Face ID' : 'Fingerprint'}?`}
+        buttons={[
+          {
+            text: `Yes, enable ${biometricType === 'faceId' ? 'Face ID' : 'Fingerprint'}`,
+            onPress: enableBiometric,
+          },
+          {
+            text: 'Not now',
+            onPress: handleNotNow,
+            style: { backgroundColor: errorGrey },
+          },
+        ]}
+        biometricType={biometricType} // Pass the biometricType here
+      >
+        <Text style={styles.modalText}>
+          Would you like to enable {biometricType === 'faceId' ? 'Face ID' : 'fingerprint'} authentication?
+        </Text>
+      </CustomModal>
 
 
     </SafeAreaView>
@@ -314,7 +328,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
-  
+
   keyboardAvoidingView: {
     flex: 1,
     paddingHorizontal: scaleSize(20),
@@ -368,7 +382,7 @@ const styles = StyleSheet.create({
   //   right: scaleSize(15),
   //   padding: scaleSize(10),
   // },
- 
+
   biometricIcon: {
     marginBottom: scaleSize(20),
   },

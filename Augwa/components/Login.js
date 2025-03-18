@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_BASEPATH_DEV, X_DOMAIN } from '@env';
+import { API_BASEPATH_DEV } from '@env';
 
 // Error message constants
 const ERROR_MESSAGES = {
@@ -11,19 +11,19 @@ const ERROR_MESSAGES = {
     UNKNOWN_ERROR: 'An unexpected error occurred'
 };
 
-const api = axios.create({
-    baseURL: API_BASEPATH_DEV,
-    headers: {
-        'Content-Type': 'application/json',
-        'X-Domain': X_DOMAIN  // Ensure this header is correct
-    }
-});
-
 class Login {
     static async login(credentials) {
         try {
             console.log("Trying to sign in...");
             console.log(credentials);
+            const { domain, ...restCredentials } = credentials;
+            const api = axios.create({
+                baseURL: API_BASEPATH_DEV,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Domain': domain  // Ensure this header is correct
+                }
+            });
             const response = await api.post('/Auth', credentials); // Use POST instead of GET
             console.log("Sign in response received");
             console.log("Status code: ", response.status);
