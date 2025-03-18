@@ -44,7 +44,28 @@ const ScheduleStack = () => {
       />
       <Stack.Screen name = "schedule" component={ScheduleScreen} />
       <Stack.Screen name = "schedule_detail" component={ScheduleDetailScreen} />
-      <Stack.Screen name = "ProfileScreen" component={ProfileScreen} />
+    </Stack.Navigator>
+  );
+};
+
+const SettingStack = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: augwaBlue },
+        headerTintColor: '#fff',
+      }}
+    >
+      <Stack.Screen 
+        name="SettingMain" 
+        component={SettingsScreen} 
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="Profile" 
+        component={ProfileScreen} 
+        options={{ title: 'Profile' }}
+      />
     </Stack.Navigator>
   );
 };
@@ -119,7 +140,7 @@ const DashboardTabs = () => {
       /> */}
       <Tab.Screen 
         name="Settings" 
-        component={SettingsScreen}
+        component={SettingStack}
         options={{ title: 'Settings' }}
       />
     </Tab.Navigator>
