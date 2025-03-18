@@ -3,12 +3,11 @@ import { Linking, Platform } from "react-native";
 import base64 from "base-64";
 import axios from "axios";
 import { View, StyleSheet, Text, TouchableOpacity,Alert } from "react-native";
+import { View, StyleSheet, Text, TouchableOpacity,Alert } from "react-native";
 import { useContext } from "react";
 import { AuthContext } from "../src/context/AuthContext";
 import { ScrollView } from "react-native-gesture-handler";
 import { API_BASEPATH_DEV } from "@env";
-import GeofencingBackgroundService from '../components/GeoFencingBackground';
-
 import {
   augwaBlue,
   dashboardArea,
@@ -175,41 +174,7 @@ console.log("matchedSchedules: ",matchedSchedules)
   ];
   const current = todayTaskList[0];
   
-  const addWorkGeofence = async () => {
-    try {
-      // You'd likely get these coordinates from user input or use current location
-      const success = await GeofencingBackgroundService.addGeofence({
-        name: "Work Place",
-        latitude: current?.latitude, // Replace with actual coordinates
-        longitude: current?.longitude, // Replace with actual coordinates
-        radius: 30, // meters
-        notifyOnEnter: true,
-        notifyOnExit: true,
-        onEnterActions: [
-          { 
-            type: 'notification', 
-            title: 'Arrival!', 
-            message: 'You have arrived!' 
-          }
-        ],
-        onExitActions: [
-          { 
-            type: 'notification', 
-            title: 'Departure', 
-            message: 'You have left!' 
-          }
-        ]
-      });
-      
-      if (success) {
-        Alert.alert('Success', 'Work geofence added successfully');
-      } else {
-        Alert.alert('Error', 'Failed to add work geofence');
-      }
-    } catch (error) {
-      console.error('Error adding geofence:', error);
-      Alert.alert('Error', 'Could not add geofence');
-    }
+  
     
   const openMap = useCallback(async (latitude, longitude, address) => {
     // Extensive logging for debugging
@@ -563,8 +528,9 @@ console.log("matchedSchedules: ",matchedSchedules)
         />
         <View style = {styles.statusBtnView}>
           {renderBreakBtn()}
-         
         </View>
+
+        <GeofencingComponent destination={destination} radius={50} />
 
         <View style={{ flexDirection: 'row', marginTop: 20, justifyContent: 'space-between' }}>
           <Text style={styles.sectionTitle}>Upcoming Jobs</Text>
@@ -790,6 +756,6 @@ const styles = StyleSheet.create({
 
   }
   
-})}
+});
 
 export default DashboardScreen;
