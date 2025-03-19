@@ -29,7 +29,6 @@ const SettingsScreen = ({ navigation }) => {
     }
   });
 
-
   const handleLogout = async () => {
     console.log("Logged out")
     Alert.alert("Logout", "Are you sure you want to logout?", [

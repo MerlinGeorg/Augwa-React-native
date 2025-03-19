@@ -73,7 +73,7 @@ const ScheduleDetailScreen = ({ route }) => {
             "staffId": `${job.assignedStaff.staff.id}`,
             "state": "TravelStart"
           },
-          { headers: { Authorization: `Bearer ${authToken}` } }
+
         );
         fetchUpdatedJob();
         console.log("Job marked as En Route");

@@ -19,8 +19,9 @@ import ScheduleDetailScreen from './screens/ScheduleDetailScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import MapScreen from './screens/MapScreen';
 import ProfileScreen from './screens/ProfileScreen';
-
 import { requestLocationPermissions } from './components/PermissionUtils';
+
+
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
