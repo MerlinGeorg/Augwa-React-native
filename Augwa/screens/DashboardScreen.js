@@ -29,14 +29,11 @@ const DashboardScreen = ({ route, navigation }) => {
   const [weeklyTasksNumber, setWeeklyTasks] = useState(0);
   const [taskLatitude, setTaskLatitude] = useState(null);
   const [taskLongitude, setTaskLongitude] = useState(null);
-
   const [onBreak, setOnBreak] = useState(false);
   const [onMealBreak, setOnMealBreak] = useState(false);
   const [clockIn, setClockIn] = useState(false);
 
   // const [bookingStart, set]
-
-
   const api = axios.create({
     baseURL: API_BASEPATH_DEV,
     headers: {
@@ -111,6 +108,9 @@ const DashboardScreen = ({ route, navigation }) => {
   const gotoSchedule = () => {
     navigation.navigate("Schedule");
   };
+  // const timeTracking = async() => {
+
+  // }
 
   const userTasks = useMemo(() => {
     return (
@@ -168,7 +168,6 @@ const DashboardScreen = ({ route, navigation }) => {
 
     return startDate.getTime() === today.getTime();
   });
-
   console.log("matchedSchedules: ", matchedSchedules)
   const performances = [
     { title: "Open daily task:", count: todayTaskList.length },
@@ -178,18 +177,7 @@ const DashboardScreen = ({ route, navigation }) => {
 
 
 
-
   const openMap = useCallback(async (latitude, longitude, address) => {
-  //console.log(current.client.latitude);
-  // console.log(current.latitude)
-  // test map plist file
-  const checkMapSupport = async () => {
-    const supported = await Linking.canOpenURL("maps://");
-    console.log("support ios map? : ", supported);
-  };
-  // open native map:
-  const openMap = useCallback(async (latitude, longitude) => {
-
     // Extensive logging for debugging
     console.log("Map Opening Process Started", {
       inputLatitude: latitude,
@@ -230,15 +218,11 @@ const DashboardScreen = ({ route, navigation }) => {
       return;
     }
 
-
     const formattedAddress = address ? encodeURIComponent(address) : '';
-
-
 
     try {
       const mapSchemes = {
         ios: [
-
 
           `maps://app?saddr=Current%20Location&daddr=${parsedLat},${parsedLong}&dirflg=d&t=m&directionsmode=driving`,
           `maps:?saddr=Current%20Location&daddr=${parsedLat},${parsedLong}&directionsmode=driving`,
@@ -253,12 +237,10 @@ const DashboardScreen = ({ route, navigation }) => {
 
       const currentPlatformSchemes =
         Platform.OS === "ios" ? mapSchemes.ios : mapSchemes.android;
-      // Try each map scheme
       for (const scheme of currentPlatformSchemes) {
         try {
           const canOpen = await Linking.canOpenURL(scheme);
           console.log(`Attempting scheme: ${scheme}`, `Can open: ${canOpen}`);
-
           if (canOpen) {
             await Linking.openURL(scheme);
             console.log("Map opened successfully with scheme:", scheme);
@@ -274,12 +256,9 @@ const DashboardScreen = ({ route, navigation }) => {
         errorMessage: error.message,
         latitude: parsedLat,
         longitude: parsedLong,
-
         address: formattedAddress,
         platform: Platform.OS,
       });
-
-
       Alert.alert("Navigation Error", "Could not open maps application", [
         { text: "OK", style: "cancel" },
       ]);
@@ -296,7 +275,6 @@ const DashboardScreen = ({ route, navigation }) => {
       }
 
       if (current.status === "Scheduled") {
-
         // setJobStatus("InProgress");
         const response = await api.post(
           `/TimeTracking`,
@@ -317,7 +295,6 @@ const DashboardScreen = ({ route, navigation }) => {
 
           fetchJoblist(authToken, domain, setScheduleData, setError);
         }
-
       } else if (jobStatus === "InProgress") {
         const response = await api.post(
           `/TimeTracking`,
@@ -377,11 +354,9 @@ const DashboardScreen = ({ route, navigation }) => {
         disabled: true,
       },
     };
-
     const config = current?.status ?
       buttonConfig[current.status]
       : { color: 'gray', text: 'Start', disabled: true };
-
 
     return (
       <TouchableOpacity
@@ -568,7 +543,6 @@ const DashboardScreen = ({ route, navigation }) => {
           </View>
         </TouchableOpacity>
       </View>
-
     );
   };
   //console.log(current.assignedStaff.transitionStates)
@@ -578,7 +552,9 @@ const DashboardScreen = ({ route, navigation }) => {
 
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.container}>
-        <View>
+
+
+        <View >
           <View style={styles.greetingArea}>
             <Text style={styles.greetings}>Welcome, </Text>
 
@@ -591,6 +567,7 @@ const DashboardScreen = ({ route, navigation }) => {
               </TouchableOpacity>
             </View>
           </View>
+
           <Text style={styles.usernameStyle}> {userName} !</Text>
         </View>
 
@@ -667,14 +644,11 @@ const DashboardScreen = ({ route, navigation }) => {
             {performances.map((item, index) => (
               <View key={index} style={[styles.performanceStyle]}>
                 <Text style={styles.sectionTitle}>{item.title}</Text>
-     <View style={styles.jobDescribtionStyle}>
-       
                 <Text style={styles.performanceNumStyle}>{item.count}</Text>
               </View>
             ))}
           </ScrollView>
         </View>
-
         <TouchableOpacity style={{ marginRight: 15, marginTop: 5 }} >
           <Text style={styles.bluBtntext}>Clock Out</Text>
         </TouchableOpacity>
@@ -720,11 +694,6 @@ const styles = StyleSheet.create({
     height: "15 %",
     borderRadius: 20,
   },
-  upcomingJobsContainer: {
-    marginTop: 10, // Reduced gap between Current Job and Upcoming Jobs
-
-  },
- 
   greetings: {
     marginTop: 15,
     marginStart: 10,
@@ -762,10 +731,10 @@ const styles = StyleSheet.create({
   jobDescribtionStyle: {
     backgroundColor: "#fff",
     width: 200,
-
     height: 120,
     borderRadius: 20,
     marginLeft: 10,
+
   },
   jobDescribtionText: {
     // marginTop: 10,
@@ -794,19 +763,16 @@ const styles = StyleSheet.create({
     color: "#177de1",
   },
   scrollContainer: {
-
     flexGrow: 1,
     paddingRight: 20,
     paddingLeft: 10,
     // padding: "auto",
     // paddingBottom: 20,
     marginTop: 10,
-
     // height: 70,
   },
   performanceStyle: {
     width: 150,
-
     height: 100,
     marginHorizontal: 15,
     padding: 15,
@@ -816,15 +782,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 3, // Shadow for Android
     shadowColor: '#000', // Shadow for iOS
-
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
   },
   navigateButton: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     //   paddingHorizontal: 10
   },
   performanceNumStyle: {
