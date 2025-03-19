@@ -68,8 +68,11 @@ const ScheduleDetailScreen = ({ route }) => {
     if (job?.status === "Scheduled") {
       try {
         await api.post(
-          `/Booking/${jobId}/Start`,
-          {},
+          `/TimeTracking`,
+          {
+            "staffId": `${job.assignedStaff.staff.id}`,
+            "state": "TravelStart"
+          },
           { headers: { Authorization: `Bearer ${authToken}` } }
         );
         fetchUpdatedJob();
