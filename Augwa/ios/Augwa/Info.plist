@@ -86,6 +86,11 @@
 	<array>
 		<string>MKDirectionsModePlane</string>
 	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>fetch</string>
+	</array>
 	<key>CFBundleGetInfoString</key>
 	<string></string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
