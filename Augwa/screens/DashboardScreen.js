@@ -540,7 +540,7 @@ const DashboardScreen = ({ route, navigation }) => {
             styles.statusBtnStyle,
             {
               backgroundColor: onMealBreak ? errorRed : '#4CAF50',
-              marginLeft: 57
+              marginLeft: 49
             }
           ]}
           onPress={() => handleBreak('meal')}>
@@ -659,9 +659,7 @@ const DashboardScreen = ({ route, navigation }) => {
             ))}
           </ScrollView>
         </View>
-        <TouchableOpacity style={{ marginLeft: 20, marginTop: 5 }} >
-          <Text style={styles.bluBtntext}>Clock Out</Text>
-        </TouchableOpacity>
+       
       </ScrollView>
     </SafeAreaView>
   )
@@ -721,6 +719,7 @@ const styles = StyleSheet.create({
     color: "#000",
     fontWeight: "500",
     marginLeft: 20,
+    alignSelf: 'center'
   },
   timeTitle: {
     color: "#000",
@@ -771,7 +770,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   performanceStyle: {
-    width: 150,
+    width: 170,
     height: 100,
     marginHorizontal: 15,
     padding: 15,
@@ -792,7 +791,7 @@ const styles = StyleSheet.create({
    
   },
   performanceNumStyle: {
-    fontSize: 25,
+    fontSize: 20,
     fontWeight: "700",
     marginLeft: 10,
   },
