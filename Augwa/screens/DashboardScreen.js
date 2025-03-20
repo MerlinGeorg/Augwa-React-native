@@ -295,7 +295,7 @@ const DashboardScreen = ({ route, navigation }) => {
 
           fetchJoblist(authToken, domain, setScheduleData, setError);
         }
-      } else if (jobStatus === "InProgress") {
+      } else if (current.status === "InProgress") {
         const response = await api.post(
           `/TimeTracking`,
           {
