@@ -74,7 +74,7 @@ const DashboardScreen = ({ route, navigation }) => {
     if (authToken) {
       fetchJoblist(authToken, domain, setScheduleData, setError);
     }
-  }, [authToken]); 
+  }, [authToken]);
   console.log(authToken)
   useEffect(() => {
     if (scheduleData && userTasks) {
@@ -266,7 +266,7 @@ const formatTime = useCallback((milliseconds) => {
 
 
   const openMap = useCallback(async (latitude, longitude, address) => {
-    
+
     console.log("Map Opening Process Started", {
       inputLatitude: latitude,
       inputLongitude: longitude,
@@ -274,11 +274,11 @@ const formatTime = useCallback((milliseconds) => {
       platform: Platform.OS,
     });
 
-   
+
     const parsedLat = parseFloat(latitude);
     const parsedLong = parseFloat(longitude);
 
-    
+
     if (isNaN(parsedLat) || isNaN(parsedLong)) {
       console.error("Invalid coordinates:", { latitude, longitude });
       Alert.alert("Navigation Error", "Invalid location coordinates", [
@@ -351,7 +351,7 @@ const formatTime = useCallback((milliseconds) => {
       ]);
     }
   }, []);
-  
+
   console.log(`current id: ${current?.id}`)
 
   const changeStatus = async () => {
@@ -362,7 +362,7 @@ const formatTime = useCallback((milliseconds) => {
       }
 
       if (current.status === "Scheduled") {
-        if(!workTimeRef.current.isWorking){
+        if (!workTimeRef.current.isWorking) {
           workTimeRef.current.isWorking = true;
           workTimeRef.current.lastStart = Date.now()
         }
@@ -506,16 +506,16 @@ const formatTime = useCallback((milliseconds) => {
     const handleBreak = async (type) => {
       try {
         const isStarting = type === 'break' ? !onBreak : !onMealBreak;
-        const state = type === 'break' 
+        const state = type === 'break'
           ? (isStarting ? "BreakStart" : "BreakEnd")
           : (isStarting ? "MealBreakStart" : "MealBreakEnd");
-  
+
         if (type === 'break') {
           setOnBreak(isStarting);
         } else {
           setOnMealBreak(isStarting);
         }
-  
+
         if (isStarting) {
           if (workTimeRef.current.isWorking) {
             const currentTime = Date.now();
@@ -549,7 +549,7 @@ const formatTime = useCallback((milliseconds) => {
           }
           Alert.alert('Error', 'Failed to update break status');
         }
-  
+
       } catch (error) {
         if (type === 'break') {
           setOnBreak(!isStarting);
@@ -559,21 +559,21 @@ const formatTime = useCallback((milliseconds) => {
         Alert.alert('Error', error.message);
       }
     };
-  
+
     return (
-      <View style={{ 
-        flexDirection: "row", 
+      <View style={{
+        flexDirection: "row",
         justifyContent: 'space-between',
         marginStart: 20,
         marginEnd: 20,
-        marginTop: 20,     
+        marginTop: 20,
       }}>
-    
+
         <TouchableOpacity
           style={[
             styles.btnStyle,
             {
-              backgroundColor: onBreak ? errorRed : '#4CAF50', 
+              backgroundColor: onBreak ? errorRed : '#4CAF50',
             }
           ]}
           onPress={() => handleBreak('break')}>
@@ -581,8 +581,8 @@ const formatTime = useCallback((milliseconds) => {
             {onBreak ? "END BREAK" : "START BREAK"}
           </Text>
         </TouchableOpacity>
-  
-    
+
+
         <TouchableOpacity
           style={[
             styles.btnStyle,
@@ -609,20 +609,24 @@ const formatTime = useCallback((milliseconds) => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: augwaBlue }}>
-      <View style={{flex: 1}} >
-          <View style={{marginStart: 20, marginEnd: 20}}>
-            <View style={styles.greetingArea}>
-              <Text style={styles.greetings}>Welcome, </Text>
-              <TouchableOpacity> <BellIcon /> </TouchableOpacity>
-            </View>
-            <Text style={styles.usernameStyle}> {userName}!</Text>
+      <View style={{ flex: 1 }} >
+        <View style={{ marginStart: 20, marginEnd: 20 }}>
+          <View style={styles.greetingArea}>
+            <Text style={styles.greetings}>Welcome, </Text>
+            <TouchableOpacity>
+              <View>
+                <BellIcon />
+              </View>
+            </TouchableOpacity>
           </View>
-        
+          <Text style={styles.usernameStyle}> {userName}!</Text>
+        </View>
+
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <View style={styles.dashboardAreaStyle}>
             <View style={styles.sectionHeading}>
               <Text style={styles.sectionTitle}>Current Job</Text>
-                <Text style={styles.timeTitle}>{current ? formatLocalTime(current.startDate) : ''}</Text>
+              <Text style={styles.timeTitle}>{current ? formatLocalTime(current.startDate) : ''}</Text>
             </View>
 
             <View style={styles.jobCards}>
@@ -635,29 +639,27 @@ const formatTime = useCallback((milliseconds) => {
                   <Text style={styles.jobDescribtionText}>No task today!</Text>
                 )}
               </View>
-              <View style={{flexDirection: 'column', gap: 12}}>
+              <View style={{ flexDirection: 'column', gap: 12 }}>
                 {renderActionButton()}
                 {renderNavigateButton()}
               </View>
             </View>
 
-          <View style={styles.statusBtnView}>
             {renderBreakBtn()}
-          </View>
 
             <GeofencingComponent destination={destination} radius={50} />
 
             <View style={styles.sectionHeading}>
               <Text style={styles.sectionTitle}>Upcoming Jobs</Text>
               <TouchableOpacity onPress={gotoSchedule}>
-                  <Text style={styles.bluBtntext}>View all</Text>
+                <Text style={styles.bluBtntext}>View all</Text>
               </TouchableOpacity>
             </View>
-          
+
             {matchedSchedules.length === 0 ? (
               <Text style={styles.noJobsText}>No jobs available</Text>
             ) : (
-              <ScrollView 
+              <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContainer}>
@@ -670,12 +672,12 @@ const formatTime = useCallback((milliseconds) => {
                 ))}
               </ScrollView>
             )}
-        
+
             <View style={styles.sectionHeading}>
               <Text style={styles.sectionTitle}>Performance Overview</Text>
             </View>
 
-            <ScrollView 
+            <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.scrollContainer}>
@@ -690,7 +692,7 @@ const formatTime = useCallback((milliseconds) => {
             <TouchableOpacity style={{ marginLeft: 20, marginTop: 5, marginBottom: 20 }} >
               <Text style={styles.bluBtntext}>Clock Out</Text>
             </TouchableOpacity>
-
+            <View style={{ flex: 1 }} />
           </View>
         </ScrollView>
       </View>
@@ -812,8 +814,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 3, 
-    shadowColor: '#000', 
+    elevation: 3,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
@@ -827,7 +829,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: 'center',
     justifyContent: 'center',
-   
+
   },
   performanceNumStyle: {
     fontSize: 16,
