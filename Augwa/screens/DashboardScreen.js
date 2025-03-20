@@ -7,6 +7,7 @@ import { useContext } from "react";
 import { AuthContext } from "../src/context/AuthContext";
 import { ScrollView } from "react-native-gesture-handler";
 import { API_BASEPATH_DEV } from "@env";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   augwaBlue,
   dashboardArea,
@@ -80,6 +81,30 @@ const DashboardScreen = ({ route, navigation }) => {
       getWeeklyTaskCount();
     }
   }, [scheduleData, userTasks]);
+  useEffect(() => {
+    const loadWorkData = async () => {
+      try {
+        const savedData = await AsyncStorage.getItem('workTime');
+        if (savedData) {
+          const { total, date } = JSON.parse(savedData);
+          const savedDate = new Date(date);
+          const today = new Date();
+          if (
+            savedDate.getDate() === today.getDate() &&
+            savedDate.getMonth() === today.getMonth() &&
+            savedDate.getFullYear() === today.getFullYear()
+          ) {
+            workTimeRef.current.total = total;
+            setDisplayTime(total);
+          }
+        }
+      } catch (error) {
+        console.log('Failed to load data:', error);
+      }
+    };
+    
+    loadWorkData();
+  }, []);
 
   useEffect(() => {
     if (current?.status === "Completed") {
@@ -88,52 +113,71 @@ const DashboardScreen = ({ route, navigation }) => {
       setJobStatus(current?.status || "");
     }
   }, [current]);
-  useEffect(()=>{
-    const scheduleDailyReset = ()=>{
-      const now = new Date();
-      const midNight = new Date(now);
-      midNight.setDate(now.getDate() + 1);
-      midNight.setHours(0, 0, 0, 0);
-    
-
-    const timeOutId = setTimeout(()=>{
+  useEffect(() => {
+  const scheduleDailyReset = async () => {
+    const now = new Date();
+    const midNight = new Date(now);
+    midNight.setDate(now.getDate() + 1);
+    midNight.setHours(0, 0, 0, 0);
+    const timeOutId = setTimeout(async () => {
+      await AsyncStorage.setItem('workTime', JSON.stringify({
+        total: workTimeRef.current.total,
+        date: now.toISOString()
+      }));
       workTimeRef.current.total = 0;
+      workTimeRef.current.isWorking = false;
       setDisplayTime(0);
-      scheduleDailyReset(); 
+      
+      scheduleDailyReset();
     }, midNight - now);
+
     workTimeRef.current.dailyReset = timeOutId;
   };
-    scheduleDailyReset();
-  return ()=> clearTimeout(workTimeRef.current.dailyReset);}, []);
-  useEffect(()=>{
-    let interval;
-    if (workTimeRef.current.isWorking) {
-      workTimeRef.current,lastStart = Date.now();
 
-      interval = setInterval(()=>{
-        const now = Date.now();
-        const elapsed = now - workTimeRef.current.lastStart
-        workTimeRef.current.total += elapsed;
-        workTimeRef.current.lastStart = now;
-        setDisplayTime(prev => prev + elapsed)
-      }, 1000)
-    }
-    return ()=>{
-      if (interval) clearInterval(interval)
-      if(workTimeRef.current.isWorking) {
-        workTimeRef.current.total += Date.now() - workTimeRef.current.lastStart
-      }
-    }
-
-  }, [workTimeRef.current.isWorking])
+  scheduleDailyReset();
+  return () => clearTimeout(workTimeRef.current.dailyReset);
+}, [])
+useEffect(() => {
+  let interval;
+  if (workTimeRef.current.isWorking) {
+    workTimeRef.current.lastStart = Date.now();
+    
+    interval = setInterval(async () => {
+      const now = Date.now();
+      const elapsed = now - workTimeRef.current.lastStart;
   
-  const formatTime = useCallback((milliseconds) => {
-    const totalSeconds = Math.floor(milliseconds/1000);
-    const hours = Math.floor(totalSeconds/3600);
-    const minutes = Math.floor((totalSeconds % 360) / 60);
-    const seconds = Math.floor(totalSeconds % 60);
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  },[])
+      workTimeRef.current.total += elapsed;
+      workTimeRef.current.lastStart = now;
+      setDisplayTime(prev => {
+        const newTotal = prev + elapsed;
+        AsyncStorage.setItem('workTime', JSON.stringify({
+          total: newTotal,
+          date: new Date().toISOString()
+        }));
+        return newTotal;
+      });
+    }, 1000);
+  }
+  
+  return () => {
+    if (interval) clearInterval(interval);
+    if (!workTimeRef.current.isWorking) {
+      AsyncStorage.setItem('workTime', JSON.stringify({
+        total: workTimeRef.current.total,
+        date: new Date().toISOString()
+      }));
+    }
+  };
+}, [workTimeRef.current.isWorking]);
+  
+const formatTime = useCallback((milliseconds) => {
+  const totalSeconds = Math.floor(milliseconds / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60); // 修复360→3600
+  const seconds = totalSeconds % 60;
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}, [])
+
   const formatLocalTime = (dateString) => {
     if (!dateString) return "";
 
@@ -341,10 +385,14 @@ const DashboardScreen = ({ route, navigation }) => {
           fetchJoblist(authToken, domain, setScheduleData, setError);
         }
       } else if (current.status === "InProgress") {
-        const remainingTask = todayTaskList.filter(
-          task =>(task.status !== 'Completed'))
-        if (remainingTask.length <= 0) {
-          workTimeRef.current.isWorking = false
+        const remainingTasks = todayTaskList.filter(task => 
+          task.id !== current.id && task.status !== "Completed"
+        )
+        if (workTimeRef.current.isWorking) {
+          const now = Date.now();
+          workTimeRef.current.total += now - workTimeRef.current.lastStart;
+          workTimeRef.current.isWorking = false;
+          setDisplayTime(workTimeRef.current.total); 
         }
         const response = await api.post(
           `/TimeTracking`,
@@ -593,9 +641,9 @@ const DashboardScreen = ({ route, navigation }) => {
               </View>
             </View>
 
-            <View style={styles.statusBtnView}>
+          
               {renderBreakBtn()}
-            </View>
+            
 
             <GeofencingComponent destination={destination} radius={50} />
 
@@ -639,9 +687,9 @@ const DashboardScreen = ({ route, navigation }) => {
               ))}
             </ScrollView>
 
-            <TouchableOpacity style={{ marginLeft: 20, marginTop: 5, marginBottom: 20 }} >
+            {/* <TouchableOpacity style={{ marginLeft: 20, marginTop: 5, marginBottom: 20 }} >
               <Text style={styles.bluBtntext}>Clock Out</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <View style={{flex: 1}}/>
           </View>
         </ScrollView>
