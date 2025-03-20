@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, use, useRef } from "react";
 import { Linking, Platform } from "react-native";
 import base64 from "base-64";
 import axios from "axios";
@@ -32,6 +32,14 @@ const DashboardScreen = ({ route, navigation }) => {
   const [onBreak, setOnBreak] = useState(false);
   const [onMealBreak, setOnMealBreak] = useState(false);
   const [clockIn, setClockIn] = useState(false);
+  // essetial status for calculating the totdal time of the day
+  const [displayTime, setDisplayTime] = useState(0);
+  const workTimeRef = useRef({
+    total: 0,
+    lastStart: null,
+    isWorking: false,
+    dailyReset: null
+  });
 
   // const [bookingStart, set]
   const api = axios.create({
@@ -41,26 +49,6 @@ const DashboardScreen = ({ route, navigation }) => {
       "X-Domain": domain,
     },
   });
-  useEffect(() => {
-    if (authToken) {
-      fetchJoblist(authToken, domain, setScheduleData, setError);
-    }
-  }, [authToken]); // there was authToken inside []
-  console.log(authToken)
-  useEffect(() => {
-    if (scheduleData && userTasks) {
-      getWeeklyTaskCount();
-    }
-  }, [scheduleData, userTasks]);
-
-  useEffect(() => {
-    if (current?.status === "Completed") {
-      setJobStatus("Completed");
-    } else {
-      setJobStatus(current?.status || "");
-    }
-  }, [current]);
-
   const decodeJWT = (token) => {
     try {
       // First, check if token is null or undefined
@@ -84,6 +72,72 @@ const DashboardScreen = ({ route, navigation }) => {
       return null;
     }
   };
+  useEffect(() => {
+    if (authToken) {
+      fetchJoblist(authToken, domain, setScheduleData, setError);
+    }
+  }, [authToken]); // there was authToken inside []
+  console.log(authToken)
+  useEffect(() => {
+    if (scheduleData && userTasks) {
+      getWeeklyTaskCount();
+    }
+  }, [scheduleData, userTasks]);
+
+  useEffect(() => {
+    if (current?.status === "Completed") {
+      setJobStatus("Completed");
+    } else {
+      setJobStatus(current?.status || "");
+    }
+  }, [current]);
+  useEffect(()=>{
+    const scheduleDailyReset = ()=>{
+      const now = new Date();
+      const midNight = new Date(now);
+      midNight.setDate(now.getDate() + 1);
+      midNight.setHours(0, 0, 0, 0);
+    
+
+    const timeOutId = setTimeout(()=>{
+      workTimeRef.current.total = 0;
+      setDisplayTime(0);
+      scheduleDailyReset(); 
+    }, midNight - now);
+    workTimeRef.current.dailyReset = timeOutId;
+  };
+    scheduleDailyReset();
+  return ()=> clearTimeout(workTimeRef.current.dailyReset);}, []);
+  useEffect(()=>{
+    let interval;
+    if (workTimeRef.current.isWorking) {
+      workTimeRef.current,lastStart = Date.now();
+
+      interval = setInterval(()=>{
+        const now = Date.now();
+        const elapsed = now - workTimeRef.current.lastStart
+        workTimeRef.current.total += elapsed;
+        workTimeRef.current.lastStart = now;
+        setDisplayTime(prev => prev + elapsed)
+      }, 1000)
+    }
+    return ()=>{
+      if (interval) clearInterval(interval)
+      if(workTimeRef.current.isWorking) {
+        workTimeRef.current.total += Date.now() - workTimeRef.current.lastStart
+      }
+    }
+
+  }, [workTimeRef.current.isWorking])
+  
+  const formatTime = useCallback((milliseconds) => {
+    const totalSeconds = Math.floor(milliseconds/1000);
+    const hours = Math.floor(totalSeconds/3600);
+    const minutes = Math.floor((totalSeconds % 360) / 60);
+    const seconds = Math.floor(totalSeconds % 60);
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}
+    :${seconds.toString().padStart(2, '0')}`;
+  },[])
   const formatLocalTime = (dateString) => {
     if (!dateString) return "";
 
@@ -169,10 +223,7 @@ const DashboardScreen = ({ route, navigation }) => {
     return startDate.getTime() === today.getTime();
   });
   console.log("matchedSchedules: ", matchedSchedules)
-  const performances = [
-    { title: "Open daily task:", count: todayTaskList.length },
-    { title: "Weekly tasks:", count: weeklyTasksNumber },
-  ];
+
   const current = todayTaskList[0];
 
 
@@ -267,6 +318,7 @@ const DashboardScreen = ({ route, navigation }) => {
   // change status
   
   console.log(`current id: ${current?.id}`)
+
   const changeStatus = async () => {
     try {
       if (!current || !current.id) {
@@ -275,6 +327,10 @@ const DashboardScreen = ({ route, navigation }) => {
       }
 
       if (current.status === "Scheduled") {
+        if(!workTimeRef.current.isWorking){
+          workTimeRef.current.isWorking = true;
+          workTimeRef.current.lastStart = Date.now()
+        }
         // setJobStatus("InProgress");
         const response = await api.post(
           `/TimeTracking`,
@@ -292,10 +348,14 @@ const DashboardScreen = ({ route, navigation }) => {
 
         if (response.status === 200 || response.status === 204) {
           setJobStatus("InProgress");
-
           fetchJoblist(authToken, domain, setScheduleData, setError);
         }
-      } else if (jobStatus === "InProgress") {
+      } else if (current.status === "InProgress") {
+        const remainingTask = todayTaskList.filter(
+          task =>(task.status !== 'Completed'))
+        if (remainingTask.length <= 0) {
+          workTimeRef.current.isWorking = false
+        }
         const response = await api.post(
           `/TimeTracking`,
           {
@@ -405,147 +465,108 @@ const DashboardScreen = ({ route, navigation }) => {
   };
 
   const renderBreakBtn = () => {
+    const handleBreak = async (type) => {
+      try {
+        const isStarting = type === 'break' ? !onBreak : !onMealBreak;
+        const state = type === 'break' 
+          ? (isStarting ? "BreakStart" : "BreakEnd")
+          : (isStarting ? "MealBreakStart" : "MealBreakEnd");
+  
+        if (type === 'break') {
+          setOnBreak(isStarting);
+        } else {
+          setOnMealBreak(isStarting);
+        }
+  
+        if (isStarting) {
+          if (workTimerRef.current.isWorking) {
+            const currentTime = Date.now();
+            workTimerRef.current.total += currentTime - workTimerRef.current.lastStart;
+            workTimerRef.current.isWorking = false;
+          }
+        } else {
+          if (jobStatus === 'InProgress') {
+            workTimerRef.current.lastStart = Date.now();
+            workTimerRef.current.isWorking = true;
+          }
+        }
+        const response = await api.post(
+          '/TimeTracking',
+          {
+            "staffId": `${accountID}`,
+            "state": state
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
 
-    const currentBreakStatus = onBreak ? "BreakEnd" : "BreakStart";
-    const currentMealStatus = onMealBreak ? "MealBreakEnd" : "MealBreakStart";
-
-
-    const buttonConfig = {
-      BreakStart: {
-        color: "green",
-        text: "START BREAK",
-        disabled: false,
-      },
-      BreakEnd: {
-        color: "red",
-        text: "END BREAK",
-        disabled: false,
-      },
-      MealBreakStart: {
-        color: "green",
-        text: "START MEAL",
-        disabled: false,
-      },
-      MealBreakEnd: {
-        color: "red",
-        text: "END MEAL",
-        disabled: false,
-      },
+        if (!(response.status === 200 || response.status === 204)) {
+          if (type === 'break') {
+            setOnBreak(!isStarting);
+          } else {
+            setOnMealBreak(!isStarting);
+          }
+          Alert.alert('Error', 'Failed to update break status');
+        }
+  
+      } catch (error) {
+        if (type === 'break') {
+          setOnBreak(!isStarting);
+        } else {
+          setOnMealBreak(!isStarting);
+        }
+        Alert.alert('Error', error.message);
+      }
     };
-
+  
     return (
-      <View style={{ flexDirection: "row", marginLeft: 12 }}>
-        {/* Break Button */}
+      <View style={{ 
+        flexDirection: "row", 
+        marginLeft: 12,
+        marginTop: 10,     
+      }}>
+    
         <TouchableOpacity
           style={[
             styles.statusBtnStyle,
             {
-              backgroundColor: buttonConfig[currentBreakStatus].color,
-              marginLeft: 20
-            },
+              backgroundColor: onBreak ? errorRed : '#4CAF50', 
+              marginLeft: 10
+            }
           ]}
-          onPress={async () => {
-            setOnBreak(!onBreak);
-            if (onBreak == false) { // if is not on break, set break start
-              const response = await api.post(
-                `/TimeTracking`,
-                {
-                  "staffId": `${accountID}`,
-                  "state": "BreakStart",
-                },
-                {
-                  headers: {
-                    Authorization: `Bearer ${authToken}`,
-                  },
-                }
-              );
-              console.log(current.assignedStaff.state)
-            }
-            else { // is on break
-              const response = await api.post(
-                `/TimeTracking`,
-                {
-                  "staffId": `${accountID}`,
-                  "state": "BreakEnd",
-                },
-                {
-                  headers: {
-                    Authorization: `Bearer ${authToken}`,
-                  },
-                }
-              );
-              console.log(current.assignedStaff.state)
-
-            }
-          }}
-          disabled={buttonConfig[currentBreakStatus].disabled}
-        >
-          <View style={styles.navigateButton}>
-            <Text style={styles.btnTitle}>
-              {buttonConfig[currentBreakStatus].text}
-            </Text>
-          </View>
+          onPress={() => handleBreak('break')}>
+          <Text style={styles.btnTitle}>
+            {onBreak ? "END BREAK" : "START BREAK"}
+          </Text>
         </TouchableOpacity>
-
-        {/* Meal Break Button */}
+  
+    
         <TouchableOpacity
           style={[
             styles.statusBtnStyle,
             {
-              backgroundColor: buttonConfig[currentMealStatus].color,
-              marginLeft: 50
-            },
-
+              backgroundColor: onMealBreak ? errorRed : '#4CAF50',
+              marginLeft: 57
+            }
           ]}
-          onPress={async() => {
-            // Toggle meal break status
-            setOnMealBreak(!onMealBreak);
-            if (onMealBreak == false) { // if is not on break, set break start
-              const response = await api.post(
-                `/TimeTracking`,
-                {
-                  "staffId": `${accountID}`,
-                  "state": "MealBreakStart",
-                },
-                {
-                  headers: {
-                    Authorization: `Bearer ${authToken}`,
-                  },
-                }
-              );
-              console.log(current.assignedStaff.state)
-            }
-            
-            else { // is on break
-              const response = await api.post(
-                `/TimeTracking`,
-                {
-                  "staffId": `${accountID}`,
-                  "state": "MealBreakEnd",
-                },
-                {
-                  headers: {
-                    Authorization: `Bearer ${authToken}`,
-                  },
-                }
-              );
-              console.log(current.assignedStaff.state)
-
-            }
-
-          }}
-          disabled={buttonConfig[currentMealStatus].disabled}
-        >
-          <View style={styles.navigateButton}>
-            <Text style={styles.btnTitle}>
-              {buttonConfig[currentMealStatus].text}
-            </Text>
-          </View>
+          onPress={() => handleBreak('meal')}>
+          <Text style={styles.btnTitle}>
+            {onMealBreak ? "END MEAL" : "START MEAL"}
+          </Text>
         </TouchableOpacity>
       </View>
     );
   };
-  //console.log(current.assignedStaff.transitionStates)
+
+  const performances = [
+    { title: "Open daily task:", count: todayTaskList.length },
+    { title: "Weekly tasks:", count: weeklyTasksNumber },
+    { title: "Total Work Time:", count: formatTime(displayTime) },
+
+  ];
 
 
   return (
@@ -638,7 +659,7 @@ const DashboardScreen = ({ route, navigation }) => {
           <ScrollView horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{
-              paddingHorizontal: 10, // Add padding to prevent cutoff at edges
+              paddingHorizontal: 10, 
               alignItems: 'center',
             }}>
             {performances.map((item, index) => (
