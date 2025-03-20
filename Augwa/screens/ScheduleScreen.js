@@ -23,7 +23,6 @@ const ScheduleScreen = ({ navigation }) => {
   );
 
   useEffect(() => {
-    console.log("Selected date or schedule changed, filtering jobs...");
     filterJobsByDate(selectedDate);
   }, [selectedDate, schedule]);
 
@@ -50,7 +49,6 @@ const ScheduleScreen = ({ navigation }) => {
     console.log("Filtering jobs for date:", date);
     const filtered = schedule.filter(booking => {
       const jobDate = new Date(booking.startDate).toISOString().split('T')[0];
-      console.log("Job date:", jobDate);
       return jobDate === date;
     });
     console.log("Filtered jobs:", filtered);
