@@ -609,6 +609,7 @@ const DashboardScreen = ({ route, navigation }) => {
   };
 
   const renderClockInBtn = () => {
+    const isCompleted = current?.status === "Completed";
     const hasValidTask = current && !isCompleted;
     const handleClockAction = async () => {
       try {
