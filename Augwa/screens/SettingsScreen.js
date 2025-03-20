@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: '#000',
     fontWeight: '500',
-    marginLeft: 10,
+    marginLeft: 20,
     marginTop: 10
   },
   sectionView: {

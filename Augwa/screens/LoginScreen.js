@@ -171,10 +171,6 @@ const LoginScreen = (props) => {
               />
             </View>
 
-            <TouchableOpacity style={styles.btnPsw}>
-              <Text style={styles.bluBtntext}>Forgot Password?</Text>
-            </TouchableOpacity>
-
             <TouchableOpacity
               onPress={handleLogin}
               style={styles.signInButton}
@@ -286,6 +282,7 @@ const styles = StyleSheet.create({
     width: 340,
     height: 45,
     borderRadius: 8,
+    marginTop: 20,
     alignSelf: "center",
     backgroundColor: augwaBlue,
     justifyContent: "center",

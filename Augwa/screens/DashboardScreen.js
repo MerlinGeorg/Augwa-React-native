@@ -571,10 +571,8 @@ const DashboardScreen = ({ route, navigation }) => {
             <Text style={styles.greetings}>Welcome, </Text>
 
             <View style={styles.iconSection}>
-              <TouchableOpacity>
-                <Message />
-              </TouchableOpacity>
-              <TouchableOpacity style={{ marginLeft: 20 }}>
+    
+              <TouchableOpacity style={{ marginLeft: 40 }}>
                 <BellIcon />
               </TouchableOpacity>
             </View>
@@ -644,7 +642,7 @@ const DashboardScreen = ({ route, navigation }) => {
 
           }
 
-          <View style={{ marginLeft: 5, flexDirection: 'row' }}>
+          <View style={{ flexDirection: 'row' }}>
             <Text style={styles.sectionTitle}>Performance Overview</Text>
           </View>
           <ScrollView horizontal
@@ -661,7 +659,7 @@ const DashboardScreen = ({ route, navigation }) => {
             ))}
           </ScrollView>
         </View>
-        <TouchableOpacity style={{ marginRight: 15, marginTop: 5 }} >
+        <TouchableOpacity style={{ marginLeft: 20, marginTop: 5 }} >
           <Text style={styles.bluBtntext}>Clock Out</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -672,9 +670,7 @@ const DashboardScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
 
   container: {
-   
     backgroundColor: augwaBlue,
-   
   },
   headerContainer: {
   },
@@ -724,7 +720,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "#000",
     fontWeight: "500",
-    marginLeft: 10,
+    marginLeft: 20,
   },
   timeTitle: {
     color: "#000",
@@ -829,7 +825,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 10,
+    margin: 10,
     padding: 10,
     width: 150,
     height: 50
