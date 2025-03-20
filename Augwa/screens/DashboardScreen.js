@@ -518,7 +518,7 @@ const DashboardScreen = ({ route, navigation }) => {
         justifyContent: 'space-between',
         marginStart: 20,
         marginEnd: 20,
-        marginTop: 10,     
+        marginTop: 20,     
       }}>
     
         <TouchableOpacity
@@ -569,8 +569,8 @@ const DashboardScreen = ({ route, navigation }) => {
             </View>
             <Text style={styles.usernameStyle}> {userName}!</Text>
           </View>
-
-        <ScrollView contentContainerStyle= {{paddingBottom: 20}}>
+        
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <View style={styles.dashboardAreaStyle}>
             <View style={styles.sectionHeading}>
               <Text style={styles.sectionTitle}>Current Job</Text>
@@ -642,7 +642,7 @@ const DashboardScreen = ({ route, navigation }) => {
             <TouchableOpacity style={{ marginLeft: 20, marginTop: 5, marginBottom: 20 }} >
               <Text style={styles.bluBtntext}>Clock Out</Text>
             </TouchableOpacity>
-
+            <View style={{flex: 1}}/>
           </View>
         </ScrollView>
 
@@ -685,9 +685,11 @@ const styles = StyleSheet.create({
   dashboardAreaStyle: {
     marginTop: 20,
     height: "100%",
+    flex: 1,
     backgroundColor: dashboardArea,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
+    //paddingBottom: 60
   },
   sectionHeading: {
     marginStart: 20,
@@ -719,7 +721,7 @@ const styles = StyleSheet.create({
   jobDescribtionStyle: {
     backgroundColor: "#fff",
     width: 210,
-    minHeight: 100,
+    minHeight: 80,
     borderRadius: 20,
     flexGrow: 1,
     padding: 10
