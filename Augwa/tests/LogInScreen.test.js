@@ -1,13 +1,12 @@
 import React from "react";
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import LoginScreen from "../screens/LogInScreen.js";
+import LoginScreen from "../screens/LoginScreen.js";
 import { AuthContext, AuthProvider } from "../src/context/AuthContext";
 import { NavigationContainer } from '@react-navigation/native';
 import { Alert } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 
-// Mocking necessary hooks 
 jest.mock('axios');
 jest.mock('expo-secure-store', () => ({
     getItemAsync: jest.fn(),
@@ -22,7 +21,6 @@ jest.mock('../components/BiometricAuth', () => ({
   }
 }));
 
-// Mock the Login component
 jest.mock('../components/Login', () => ({
     login: jest.fn(),
   }));
@@ -38,7 +36,6 @@ describe('LoginScreen with Biometric', () => {
         mockSetUserName = jest.fn();
         mockNavigate = jest.fn();
 
-        // Mock SecureStore functions
         SecureStore.getItemAsync.mockResolvedValue(null);
         SecureStore.setItemAsync.mockResolvedValue(null);
     });
@@ -53,7 +50,6 @@ describe('LoginScreen with Biometric', () => {
         )
     }
  
-    // Checking all the fields are rendered
     it('renders LoginScreen successfully', () => {
         const { getByText, getByPlaceholderText } = renderComponent();
         expect(getByPlaceholderText('Username:')).toBeTruthy();
@@ -62,12 +58,10 @@ describe('LoginScreen with Biometric', () => {
         expect(getByText('Sign up')).toBeTruthy();
     });
 
-    // Testing for missing blank fields
     it('shows an error when input fields are blank', async() => {
         const { getByText, getByPlaceholderText } = renderComponent();
         jest.spyOn(Alert, 'alert').mockImplementation(() => {});
 
-        // Test for empty username
         fireEvent.changeText(getByPlaceholderText('Username:'), '');
         fireEvent.changeText(getByPlaceholderText('Password:'), 'testPassword');
         fireEvent.press(getByText('SIGN IN'));
@@ -76,7 +70,6 @@ describe('LoginScreen with Biometric', () => {
             expect(Alert.alert).toHaveBeenCalledWith('Please fill in all fields!');
         });
 
-        // Test for emoty password
         fireEvent.changeText(getByPlaceholderText('Username:'), 'testUsername');
         fireEvent.changeText(getByPlaceholderText('Password:'), '');
         fireEvent.press(getByText('SIGN IN'));
@@ -85,7 +78,6 @@ describe('LoginScreen with Biometric', () => {
             expect(Alert.alert).toHaveBeenCalledWith('Please fill in all fields!');
         });
 
-        // Test for both fields empty
         fireEvent.changeText(getByPlaceholderText('Username:'), '');
         fireEvent.changeText(getByPlaceholderText('Password:'), '');
         fireEvent.press(getByText('SIGN IN'));
@@ -95,7 +87,6 @@ describe('LoginScreen with Biometric', () => {
         });
     });
 
-    // testing for invalid credentials
     it('Shows an error when invalid credentials', async()=> {
 
         require('../components/Login').login.mockResolvedValueOnce({
@@ -118,7 +109,6 @@ describe('LoginScreen with Biometric', () => {
         });
     });
 
-    // Testing successful login and navigating to dashboard
     it('Login successfully and navigate to DashBoard', async() => {
         require('../components/Login').login.mockResolvedValueOnce({
             success: true,
@@ -143,7 +133,6 @@ describe('LoginScreen with Biometric', () => {
         });
     });
 
-    // Testing for successful Biometric Authentication
     it('should authenticate successfully with Biometric and navigate to DashBoard', async() => {
         // Assuming that biometric is enabled
         require('../components/BiometricAuth').BiometricAuth.checkBiometricSupport.mockResolvedValue(true);
@@ -155,11 +144,9 @@ describe('LoginScreen with Biometric', () => {
 
         const { getByText, queryByText } = renderComponent();
 
-        // Check for either Face ID or Fingerprint text based on the biometricType
         const biometricText = queryByText('Login with Face ID') || queryByText('Login with Fingerprint');
     
         if (biometricText) {
-            // Simulate pressing the biometric login button
             fireEvent.press(biometricText);
 
             await waitFor(() => {
@@ -168,13 +155,11 @@ describe('LoginScreen with Biometric', () => {
                 expect(mockNavigate).toHaveBeenCalledWith('dashboard');
             });
         } else {
-            // Handle error if biometric text is not found
             console.error('Biometric login text not found.');
         }
     });
 
 
-    // Testing for Network error
     it('Shows an error if there is network error', async() => {
         require('../components/Login').login.mockRejectedValueOnce(new Error('Network Error'));
         const { getByText, getByPlaceholderText } = renderComponent();
@@ -190,7 +175,6 @@ describe('LoginScreen with Biometric', () => {
         });
     });
 
-    // Testing navigation to Sign up screen
     it('Should navigate to sign up screen when clicked', async() => {
         const { getByText } = renderComponent();
         const signUpBtn = getByText(' Sign up');

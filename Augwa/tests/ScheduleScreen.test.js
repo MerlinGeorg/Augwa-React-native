@@ -30,27 +30,27 @@ describe("Schedule Screen", () => {
         jest.clearAllMocks();
     });
 
-    // Formatting date for tab bar
+    
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    // Sample data for testing
+    
     const mockBookings = [
         {
           id: '1',
           address: '123 Main St, City, State',
-          startDate: today.toISOString(), // Today
-          endDate: new Date(today.getTime() + 2 * 60 * 60 * 1000).toISOString(), // Today
+          startDate: today.toISOString(), 
+          endDate: new Date(today.getTime() + 2 * 60 * 60 * 1000).toISOString(), 
           status: 'scheduled',
           assignedTo: 'testUser',
         },
         {
           id: '2',
           address: '456 Elm St, City, State',
-          startDate: new Date(tomorrow.getTime() + 24 * 60 * 60 * 1000).toISOString(), // Tomorrow
+          startDate: new Date(tomorrow.getTime() + 24 * 60 * 60 * 1000).toISOString(), 
           endDate: new Date(tomorrow.getTime() + 26 * 60 * 60 * 1000).toISOString(), 
           status: 'scheduled',
           assignedTo: 'testUser',
@@ -75,7 +75,6 @@ describe("Schedule Screen", () => {
         )
     };
 
-    // Checking if all the fields are rendered correctly
     it('renders ScheduleScreen correctly', async () => {
         const { getByText } = renderComponent();
 
@@ -83,14 +82,12 @@ describe("Schedule Screen", () => {
         await waitFor(() => expect(getByText("No jobs found.")).toBeTruthy());
     });
 
-    // Checking loading jobs text rendering state
     it("displays loading message while fetching jobs", () => {
         const { getByText } = renderComponent();
     
         expect(getByText("Loading jobs...")).toBeTruthy();
     });
 
-    // Checking if today's jobs are displayed correctly
     it('filters and displays today jobs correctly', async () => {
     getBooking.mockResolvedValue({ success: true, data: mockBookings });
     
@@ -108,7 +105,6 @@ describe("Schedule Screen", () => {
     });
 
 
-    // Checking if past tab displays past jobs
     it('displays past jobs when Past tab is selected', async () => {
         getBooking.mockResolvedValue({ success: true, data: mockBookings });
     
@@ -129,7 +125,6 @@ describe("Schedule Screen", () => {
     });
 
 
-    // Checking if future tab displays future jobs
     it('displays future jobs when Future tab is selected', async () => {
         getBooking.mockResolvedValue({ success: true, data: mockBookings });
     
@@ -148,7 +143,6 @@ describe("Schedule Screen", () => {
         });
     });
 
-    // Testing navigation icon
     it('navigates to job details when chevron is pressed', async () => {
         getBooking.mockResolvedValue({ success: true, data: mockBookings });
     
