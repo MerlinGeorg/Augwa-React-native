@@ -67,11 +67,11 @@ const ScheduleDetailScreen = ({ route }) => {
     if (job?.status === "Scheduled") {
       try {
         const staffId = job.assignedStaff[0]?.staff?.id;
-
-        await api.post(
+    await api.post(
           `/TimeTracking`,
           {
-            "staffId": `${job?.assignedStaff[0].staff.id}`,
+            "staffId": `${staffId}`,
+
             "state": "TravelStart"
           },
 
@@ -109,8 +109,6 @@ const ScheduleDetailScreen = ({ route }) => {
     const options = { month: "2-digit", day: "2-digit", year: "numeric" };
     return new Date(dateString).toLocaleDateString("en-US", options);
   };
-
-  console.log(job?.assignedStaff.staff.id)
 
   const formatTime = (start, end) => {
     const timeOptions = { hour: "2-digit", minute: "2-digit", hour12: true };

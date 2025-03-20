@@ -753,6 +753,7 @@ const DashboardScreen = ({ route, navigation }) => {
                 </View>
               ))}
             </ScrollView>
+
             <View style={{ marginTop: 20 }}>
               {renderClockInBtn()}
             </View>
@@ -760,6 +761,7 @@ const DashboardScreen = ({ route, navigation }) => {
             <View style={{ flex: 1 }} />
           </View>
         </ScrollView>
+
       </View>
     </SafeAreaView>
 
