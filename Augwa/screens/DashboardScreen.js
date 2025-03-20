@@ -659,7 +659,9 @@ const DashboardScreen = ({ route, navigation }) => {
             ))}
           </ScrollView>
         </View>
-       
+        <TouchableOpacity style={{ marginLeft: 20, marginTop: 5 }} >
+          <Text style={styles.bluBtntext}>Clock Out</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   )
@@ -719,7 +721,6 @@ const styles = StyleSheet.create({
     color: "#000",
     fontWeight: "500",
     marginLeft: 20,
-    alignSelf: 'center'
   },
   timeTitle: {
     color: "#000",
@@ -824,6 +825,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
+    margin: 10,
     margin: 10,
     padding: 10,
     width: 150,
