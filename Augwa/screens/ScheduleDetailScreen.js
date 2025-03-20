@@ -23,7 +23,7 @@ import { ExpandableNote } from "../components/ExpandableNote";
 import { CameraImagePicker } from "../components/CameraImagePicker";
 import CustomAlert from "../components/CustomAlert";
 
-import MotionDetection from "../components/MotionDetection"; 
+import MotionDetection from "../components/MotionDetection";
 
 const ScheduleDetailScreen = ({ route }) => {
   const { authToken, domain } = useContext(AuthContext);
@@ -50,7 +50,7 @@ const ScheduleDetailScreen = ({ route }) => {
           Accept: "application/json",
         },
       });
-   
+
       setJob(response.data);
     } catch (error) {
       console.error("Failed to fetch updated job status:", error);
@@ -66,6 +66,8 @@ const ScheduleDetailScreen = ({ route }) => {
   const handleMotionDetected = useCallback(async () => {
     if (job?.status === "Scheduled") {
       try {
+        const staffId = job.assignedStaff[0]?.staff?.id;
+
         await api.post(
           `/TimeTracking`,
           {
@@ -93,7 +95,7 @@ const ScheduleDetailScreen = ({ route }) => {
     );
   }
 
- 
+
   if (!job) {
     return (
       <View style={styles.container}>
@@ -102,7 +104,7 @@ const ScheduleDetailScreen = ({ route }) => {
     );
   }
 
-  
+
   const formatDate = (dateString) => {
     const options = { month: "2-digit", day: "2-digit", year: "numeric" };
     return new Date(dateString).toLocaleDateString("en-US", options);
@@ -231,9 +233,9 @@ const ScheduleDetailScreen = ({ route }) => {
 
   const handleCaptureImage = async () => {
     CameraImagePicker(setImageData);
-};
+  };
 
- 
+
   const handleAddNote = async () => {
     if (!noteContent.trim() && !imageData) {
       Alert.alert("Error", "Please enter note content or select an image.");
@@ -246,7 +248,7 @@ const ScheduleDetailScreen = ({ route }) => {
         imageData: imageData || null,
         visibility: "Private",
       };
-  
+
 
       const response = await api.post(`/Booking/${jobId}/Notes`, payload, {
         headers: {
@@ -258,15 +260,15 @@ const ScheduleDetailScreen = ({ route }) => {
         CustomAlert({
           title: "success",
           message: "Note added successfully!",
-          onOk: () => {}
+          onOk: () => { }
         })
         console.log("Note added successfully!");
-       
+
         setModalVisible(false);
         setNoteContent("");
         setImageData(null);
 
-        
+
         fetchUpdatedJob();
       }
     } catch (error) {
@@ -274,22 +276,22 @@ const ScheduleDetailScreen = ({ route }) => {
     }
   };
 
- 
+
   const handleGetDirections = () => {
     openMapsWithDirections({
       latitude: job.latitude,
-      longitude: job.longitude,    
+      longitude: job.longitude,
       address: job.address
     });
   };
 
   return (
     <SafeAreaView style={styles.viewStyle}>
-      
+
 
       <View style={styles.dashboardAreaStyle}>
-        <ScrollView style={styles.container} contentContainerStyle = { styles.scrollContainer}>
-      
+        <ScrollView style={styles.container} contentContainerStyle={styles.scrollContainer}>
+
           <View style={styles.statusContainer}>
             <Text style={styles.statusText}>
               {job.status == "InProgress" ? "In Progress" : job.status}
@@ -311,7 +313,7 @@ const ScheduleDetailScreen = ({ route }) => {
             </View>
           </View>
 
-      
+
           <View style={styles.card}>
             <View style={styles.row}>
               <Text style={styles.label}>Client:</Text>
@@ -321,14 +323,14 @@ const ScheduleDetailScreen = ({ route }) => {
             </View>
           </View>
 
-      
+
           <View style={styles.card}>
             <Text style={styles.label}>Address:</Text>
             <View style={styles.addressRow}>
               <Ionicons name="location-outline" size={20} color="black" />
               <Text>{job.address}</Text>
             </View>
-           
+
             <TouchableOpacity onPress={handleGetDirections}>
               <Text style={styles.getDirections}>
                 Get Directions{" "}
@@ -337,7 +339,7 @@ const ScheduleDetailScreen = ({ route }) => {
             </TouchableOpacity>
           </View>
 
-         
+
           <View style={styles.card}>
             <Text style={styles.label}>Job Details:</Text>
             {job.items && job.items.length > 0 ? (
@@ -364,7 +366,7 @@ const ScheduleDetailScreen = ({ route }) => {
             )}
           </View>
 
-          
+
           <View style={styles.card}>
             <View style={styles.notesHeader}>
               <Text style={styles.label}>Notes:</Text>
@@ -373,21 +375,21 @@ const ScheduleDetailScreen = ({ route }) => {
               </TouchableOpacity>
             </View>
 
-           
-             {job.notes && job.notes.length > 0 ? (
+
+            {job.notes && job.notes.length > 0 ? (
               job.notes.map((note, index) => (
 
-                 <ExpandableNote key={index} note={note} />
-                
-              )) 
+                <ExpandableNote key={index} note={note} />
+
+              ))
             ) : (
               <Text>No notes available</Text>
             )}
-            
-            
+
+
           </View>
 
-          
+
           <Modal
             animationType="slide"
             transparent={true}
@@ -443,10 +445,10 @@ const styles = StyleSheet.create({
   viewStyle: {
     flex: 1,
     backgroundColor: augwaBlue,
- 
+
   },
-   scrollContainer: {
-    paddingBottom: 70, 
+  scrollContainer: {
+    paddingBottom: 70,
     marginLeft: 20,
     marginRight: 20
   },
@@ -565,7 +567,7 @@ const styles = StyleSheet.create({
   jobLabel: {
     fontWeight: "bold",
     fontSize: 14,
-    width: 100, 
+    width: 100,
   },
   jobValue: {
     fontSize: 14,
