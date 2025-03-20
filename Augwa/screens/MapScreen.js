@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { GOOGLE_MAPS_API_KEY } from '@env';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
-// need to set location in project project console
+
 
 const MapScreen = () => {
   const [myLocation, setMyLocation] = useState(null);
@@ -36,7 +36,7 @@ const MapScreen = () => {
       const { latitude, longitude } = location.coords;
       setMyLocation({ latitude, longitude });
 
-      // Update region to focus on user location
+      
       setRegion({
         latitude,
         longitude,
@@ -52,10 +52,10 @@ const MapScreen = () => {
   const handlePlaceSelection = (data, details = null) => {
     if (!details) return;
 
-    // Clear previous search text
+    
     placesRef.current?.setAddressText('');
 
-    // Set destination based on the selected place
+    
     const destinationLocation = {
       latitude: details.geometry.location.lat,
       longitude: details.geometry.location.lng
@@ -63,14 +63,14 @@ const MapScreen = () => {
 
     setDestination(destinationLocation);
 
-    // Zoom to the destination
+    
     mapRef.current.animateToRegion({
       ...destinationLocation,
       latitudeDelta: 0.05,
       longitudeDelta: 0.05
     }, 1000);
 
-    // Optional: Log place details for debugging
+    
     console.log('Selected Place:', {
       name: details.name,
       address: details.formatted_address,

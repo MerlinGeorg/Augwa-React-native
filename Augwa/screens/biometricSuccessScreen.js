@@ -18,14 +18,14 @@ const SuccessScreen = ({ navigation, route }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        {/* Success Icon */}
+        
         <View style={styles.iconContainer}>
           <View style={styles.circle}>
             <Text style={styles.checkmark}>✓</Text>
           </View>
         </View>
 
-        {/* Text Content */}
+      
         <Text style={styles.title}>{biometricType} is now set up.</Text>
         <Text style={styles.subtitle}>
           Registration complete!{"\n"}
@@ -33,7 +33,7 @@ const SuccessScreen = ({ navigation, route }) => {
           your credentials.
         </Text>
 
-        {/* Button */}
+       
         <View style={styles.buttonContainer}>
           <CustomButton
             title="Start Using the App"
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingTop: calculatePercentageHeight(20), //20%=height*0.2
+    paddingTop: calculatePercentageHeight(20), 
     alignItems: "center",
     justifyContent: "flex-start",
     flexGrow: 1,
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flex: 1,
     width: "100%",
-    justifyContent: "flex-end", // Aligns the button to the bottom
+    justifyContent: "flex-end", 
      marginBottom: scaleSize(32)
   },
 });

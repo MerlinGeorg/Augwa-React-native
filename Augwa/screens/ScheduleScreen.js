@@ -27,7 +27,7 @@ const ScheduleScreen = ({ navigation }) => {
     filterJobsByDate(selectedDate);
   }, [selectedDate, schedule]);
 
-  // Function to fetch booking
+ 
   const fetchBookings = async () => {
     setLoading(true);
 
@@ -38,7 +38,7 @@ const ScheduleScreen = ({ navigation }) => {
       setSchedule(assignedBookings);
       filterJobsByDate(selectedDate);
       generateMarkedDates(assignedBookings);
-      //AllBookings(assignedBookings, selectedDate); 
+     
     } else {
       console.error("Error fetching bookings:", result.error);
     }
@@ -84,14 +84,12 @@ const ScheduleScreen = ({ navigation }) => {
     return jobStart > now;
   };
 
-  // Get the street name in the address
+ 
   const getShortAddress = (address) => {
     return address ? address.split(",")[0] : "";
   };
 
-  // Format time:
-  // Current day: HH:mm AM/PM - HH:mm AM/PM
-  // Not current day: MM/DD/YYYY HH:mm AM/PM - HH:mm AM/PM
+  
   const formatJobTime = (startDate, endDate) => {
     const jobStart = new Date(startDate);
     const jobEnd = new Date(endDate);
@@ -110,14 +108,14 @@ const ScheduleScreen = ({ navigation }) => {
     }
   };
 
-  // Function to render each job item in the agenda
+ 
   const renderItem = (item) => {
     const enabled = isJobEnabled(item.startDate, item.status);
     
     return (
       <View style={styles.jobCard}>
         <View style={styles.Container}>
-          {/*----- Button -----*/}
+        
           <TouchableOpacity 
             style={[styles.startButton, !enabled && styles.startButtonDisabled]}
             disabled={!enabled}
@@ -128,13 +126,13 @@ const ScheduleScreen = ({ navigation }) => {
           </TouchableOpacity>
 
           <View style={styles.jobInfo}>
-            {/*----- Address -----*/}
+          
             <View style={styles.JobView}>
               <Ionicons name="location" style={styles.JobIcon} />
               <Text>{getShortAddress(item.address)}</Text>
             </View>
 
-            {/*----- Date & Time -----*/}
+           
             <View style={styles.JobView}>
               <Ionicons name="time-outline" style={styles.JobIcon} />
               <Text>{formatJobTime(item.startDate, item.endDate)}</Text>
@@ -142,12 +140,12 @@ const ScheduleScreen = ({ navigation }) => {
           </View>
         </View>
 
-        {/*----- Status -----*/}
+       
         <View style={styles.jobStatus}>
           <Text>{item.status === "InProgress" ? "In Progress" : item.status}</Text>
         </View>
 
-        {/*----- Arrow Icon -----*/}
+        
         <View style={styles.arrowIcon}>
           <TouchableOpacity 
             onPress={() => navigation.navigate("ScheduleDetail", { jobId: item.id })}
@@ -208,7 +206,7 @@ const ScheduleScreen = ({ navigation }) => {
           </>
         )}
 
-        {/* Calendar Modal */}
+       
         <Modal
           visible={showCalendar}
           transparent={true}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, use, useRef } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Linking, Platform } from "react-native";
 import base64 from "base-64";
 import axios from "axios";
@@ -32,7 +32,6 @@ const DashboardScreen = ({ route, navigation }) => {
   const [onBreak, setOnBreak] = useState(false);
   const [onMealBreak, setOnMealBreak] = useState(false);
   const [clockIn, setClockIn] = useState(false);
-  // essetial status for calculating the totdal time of the day
   const [displayTime, setDisplayTime] = useState(0);
   const workTimeRef = useRef({
     total: 0,
@@ -41,7 +40,6 @@ const DashboardScreen = ({ route, navigation }) => {
     dailyReset: null
   });
 
-  // const [bookingStart, set]
   const api = axios.create({
     baseURL: API_BASEPATH_DEV,
     headers: {
@@ -51,7 +49,6 @@ const DashboardScreen = ({ route, navigation }) => {
   });
   const decodeJWT = (token) => {
     try {
-      // First, check if token is null or undefined
       if (!token) {
         console.log("No token provided for decoding");
         return null;
@@ -76,7 +73,7 @@ const DashboardScreen = ({ route, navigation }) => {
     if (authToken) {
       fetchJoblist(authToken, domain, setScheduleData, setError);
     }
-  }, [authToken]); // there was authToken inside []
+  }, [authToken]); 
   console.log(authToken)
   useEffect(() => {
     if (scheduleData && userTasks) {
@@ -162,9 +159,6 @@ const DashboardScreen = ({ route, navigation }) => {
   const gotoSchedule = () => {
     navigation.navigate("Schedule");
   };
-  // const timeTracking = async() => {
-
-  // }
 
   const userTasks = useMemo(() => {
     return (
@@ -229,7 +223,7 @@ const DashboardScreen = ({ route, navigation }) => {
 
 
   const openMap = useCallback(async (latitude, longitude, address) => {
-    // Extensive logging for debugging
+    
     console.log("Map Opening Process Started", {
       inputLatitude: latitude,
       inputLongitude: longitude,
@@ -237,11 +231,11 @@ const DashboardScreen = ({ route, navigation }) => {
       platform: Platform.OS,
     });
 
-    // Validate and parse coordinates
+   
     const parsedLat = parseFloat(latitude);
     const parsedLong = parseFloat(longitude);
 
-    // Comprehensive coordinate validation
+    
     if (isNaN(parsedLat) || isNaN(parsedLong)) {
       console.error("Invalid coordinates:", { latitude, longitude });
       Alert.alert("Navigation Error", "Invalid location coordinates", [
@@ -250,7 +244,6 @@ const DashboardScreen = ({ route, navigation }) => {
       return;
     }
 
-    // Ensure coordinates are within valid ranges
     if (
       parsedLat < -90 ||
       parsedLat > 90 ||
@@ -315,7 +308,6 @@ const DashboardScreen = ({ route, navigation }) => {
       ]);
     }
   }, []);
-  // change status
   
   console.log(`current id: ${current?.id}`)
 
@@ -331,7 +323,6 @@ const DashboardScreen = ({ route, navigation }) => {
           workTimeRef.current.isWorking = true;
           workTimeRef.current.lastStart = Date.now()
         }
-        // setJobStatus("InProgress");
         const response = await api.post(
           `/TimeTracking`,
           {
@@ -681,16 +672,11 @@ const DashboardScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
 
   container: {
-    // borderRadius: 30, // Curved edges
+   
     backgroundColor: augwaBlue,
-    // paddingHorizontal: 15
+   
   },
   headerContainer: {
-    // paddingTop:
-    //marginTop: 20,
-    //   // borderBottomLeftRadius: 25, // Add this for curved bottom-left corner
-    //   // borderBottomRightRadius: 25, // Add this for curved bottom-right corner
-    //   // paddingBottom: 20, // Ensure there's enough space for the curve
   },
   viewStyle: {
     flex: 1,
@@ -758,7 +744,6 @@ const styles = StyleSheet.create({
 
   },
   jobDescribtionText: {
-    // marginTop: 10,
     padding: 10,
     fontSize: 16,
     alignItems: 'center'
@@ -787,10 +772,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingRight: 20,
     paddingLeft: 10,
-    // padding: "auto",
-    // paddingBottom: 20,
     marginTop: 10,
-    // height: 70,
   },
   performanceStyle: {
     width: 150,
@@ -801,8 +783,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 3, // Shadow for Android
-    shadowColor: '#000', // Shadow for iOS
+    elevation: 3, 
+    shadowColor: '#000', 
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
@@ -811,7 +793,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: 'center',
     justifyContent: 'center',
-    //   paddingHorizontal: 10
+   
   },
   performanceNumStyle: {
     fontSize: 25,

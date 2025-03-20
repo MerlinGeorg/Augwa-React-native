@@ -18,7 +18,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { AuthContext } from "../src/context/AuthContext";
 import axios from "axios";
 import { API_BASEPATH_DEV } from "@env";
-//import * as ImagePicker from "expo-image-picker";
 import { openMapsWithDirections } from "../components/NativeMap";
 import { ExpandableNote } from "../components/ExpandableNote";
 import { CameraImagePicker } from "../components/CameraImagePicker";
@@ -51,7 +50,7 @@ const ScheduleDetailScreen = ({ route }) => {
           Accept: "application/json",
         },
       });
-     // console.log("jobId: ", jobId);
+   
       setJob(response.data);
     } catch (error) {
       console.error("Failed to fetch updated job status:", error);
@@ -95,7 +94,7 @@ const ScheduleDetailScreen = ({ route }) => {
     );
   }
 
-  // Make sure the job exists
+ 
   if (!job) {
     return (
       <View style={styles.container}>
@@ -104,13 +103,13 @@ const ScheduleDetailScreen = ({ route }) => {
     );
   }
 
-  // Format date
+  
   const formatDate = (dateString) => {
     const options = { month: "2-digit", day: "2-digit", year: "numeric" };
     return new Date(dateString).toLocaleDateString("en-US", options);
   };
 
-  // Format time
+  
   const formatTime = (start, end) => {
     const timeOptions = { hour: "2-digit", minute: "2-digit", hour12: true };
     return `${new Date(start).toLocaleTimeString([], timeOptions)} - ${new Date(
@@ -220,7 +219,7 @@ const ScheduleDetailScreen = ({ route }) => {
     CameraImagePicker(setImageData);
 };
 
-  // Add notes
+ 
   const handleAddNote = async () => {
     if (!noteContent.trim() && !imageData) {
       Alert.alert("Error", "Please enter note content or select an image.");
@@ -233,7 +232,7 @@ const ScheduleDetailScreen = ({ route }) => {
         imageData: imageData || null,
         visibility: "Private",
       };
-    //  console.log("payload", payload);
+  
 
       const response = await api.post(`/Booking/${jobId}/Notes`, payload, {
         headers: {
@@ -248,12 +247,12 @@ const ScheduleDetailScreen = ({ route }) => {
           onOk: () => {}
         })
         console.log("Note added successfully!");
-        // Close the modal and reset the note and image
+       
         setModalVisible(false);
         setNoteContent("");
         setImageData(null);
 
-        // Update the screen
+        
         fetchUpdatedJob();
       }
     } catch (error) {
@@ -261,7 +260,7 @@ const ScheduleDetailScreen = ({ route }) => {
     }
   };
 
-  //pass data to map
+ 
   const handleGetDirections = () => {
     openMapsWithDirections({
       latitude: job.latitude,
@@ -269,19 +268,14 @@ const ScheduleDetailScreen = ({ route }) => {
       address: job.address
     });
   };
-  // console.log("address: ",job.latitude)
-  // console.log("address: ",job.longitude)
-  // console.log("address: ",job.address)
 
   return (
     <SafeAreaView style={styles.viewStyle}>
-      {/* <View style={{ backgroundColor: augwaBlue, marginTop: 40 }}>
-        <Text style={styles.Title}>Job Details</Text>
-      </View> */}
+      
 
       <View style={styles.dashboardAreaStyle}>
         <ScrollView style={styles.container} contentContainerStyle = { styles.scrollContainer}>
-          {/*----- Status & Start Button -----*/}
+      
           <View style={styles.statusContainer}>
             <Text style={styles.statusText}>
               {job.status == "InProgress" ? "In Progress" : job.status}
@@ -289,18 +283,6 @@ const ScheduleDetailScreen = ({ route }) => {
             <View style={styles.buttonRow}>{renderActionButton()}</View>
           </View>
 
-          {/*----- Status & Start Button -----*/}
-          {/* <View style={styles.card}>
-            <View style={styles.row}>
-              <Ionicons name="time-outline" size={24} color="#333" />
-            </View>
-            <View style={styles.row}>
-               <Text style={styles.timeText}>{formatTime(time)}</Text>
-          <Text style={styles.dateText}>{displayDate}</Text> 
-            </View>
-          </View> */}
-
-          {/*----- Job Date and Time -----*/}
           <View style={styles.card}>
             <View style={styles.row}>
               <Text style={styles.label}>Date:</Text>
@@ -315,7 +297,7 @@ const ScheduleDetailScreen = ({ route }) => {
             </View>
           </View>
 
-          {/*----- Client Information -----*/}
+      
           <View style={styles.card}>
             <View style={styles.row}>
               <Text style={styles.label}>Client:</Text>
@@ -325,14 +307,14 @@ const ScheduleDetailScreen = ({ route }) => {
             </View>
           </View>
 
-          {/*----- Address + Map + Get Directions -----*/}
+      
           <View style={styles.card}>
             <Text style={styles.label}>Address:</Text>
             <View style={styles.addressRow}>
               <Ionicons name="location-outline" size={20} color="black" />
               <Text>{job.address}</Text>
             </View>
-            {/* <Image source={{ uri: `https://maps.googleapis.com/maps/api/staticmap?center=${job.latitude},${job.longitude}&zoom=15&size=300x150&maptype=roadmap&key=YOUR_GOOGLE_MAPS_API_KEY` }} style={styles.mapImage} /> */}
+           
             <TouchableOpacity onPress={handleGetDirections}>
               <Text style={styles.getDirections}>
                 Get Directions{" "}
@@ -341,7 +323,7 @@ const ScheduleDetailScreen = ({ route }) => {
             </TouchableOpacity>
           </View>
 
-          {/*----- Job details -----*/}
+         
           <View style={styles.card}>
             <Text style={styles.label}>Job Details:</Text>
             {job.items && job.items.length > 0 ? (
@@ -368,7 +350,7 @@ const ScheduleDetailScreen = ({ route }) => {
             )}
           </View>
 
-          {/*----- Notes Section -----*/}
+          
           <View style={styles.card}>
             <View style={styles.notesHeader}>
               <Text style={styles.label}>Notes:</Text>
@@ -391,7 +373,7 @@ const ScheduleDetailScreen = ({ route }) => {
             
           </View>
 
-          {/*----- Modal for Adding Notes -----*/}
+          
           <Modal
             animationType="slide"
             transparent={true}
@@ -447,10 +429,10 @@ const styles = StyleSheet.create({
   viewStyle: {
     flex: 1,
     backgroundColor: augwaBlue,
-  //  paddingHorizontal: 10
+ 
   },
    scrollContainer: {
-     paddingBottom: 70, // Added padding to the bottom
+     paddingBottom: 70, 
  },
   dashboardAreaStyle: {
     marginTop: 20,
@@ -567,7 +549,7 @@ const styles = StyleSheet.create({
   jobLabel: {
     fontWeight: "bold",
     fontSize: 14,
-    width: 100, // Fixed width for alignment
+    width: 100, 
   },
   jobValue: {
     fontSize: 14,
