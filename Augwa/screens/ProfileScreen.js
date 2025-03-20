@@ -34,7 +34,7 @@ export const getStaff = async (authToken, domain) => {
     });
 
     try {
-        // Get staffId from token
+      
         const payload = decodeJWT(authToken);
         const staffId = payload?.StaffId;
 

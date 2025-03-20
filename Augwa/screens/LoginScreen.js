@@ -51,7 +51,7 @@ const LoginScreen = (props) => {
     try {
       const credentials = await BiometricAuth.authenticateWithBiometric();
       if (credentials) {
-        // Use the stored credentials to login
+      
         const result = await Login.login({
           domain: credentials.domain,
           username: credentials.username,

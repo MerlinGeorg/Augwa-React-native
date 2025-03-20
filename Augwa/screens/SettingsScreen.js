@@ -47,7 +47,7 @@ const SettingsScreen = ({ navigation }) => {
               return;
             }
 
-            // Use the axios instance without duplicating the base URL
+            
             const response = await api.post("/Auth/Logout", {}, {
               headers: {
                 'Authorization': `Bearer ${token}`,
@@ -58,12 +58,12 @@ const SettingsScreen = ({ navigation }) => {
 
             console.log('Logout Response:', response.data);
 
-            // Check response and clear data
+           
             await SecureStore.deleteItemAsync('authToken');
             setAuthToken(null);
             setUserName(null);
 
-            // Navigate to login screen
+            
             navigation.reset({
               index: 0,
               routes: [{ name: 'login' }]
@@ -81,20 +81,20 @@ const SettingsScreen = ({ navigation }) => {
   return (
     <View style={styles.viewStyle}>
 
-      {/* -------Title of the page-----*/}
+      
       <View style={{ backgroundColor: augwaBlue, marginTop: 40 }}>
         <Text style={styles.Title}>Settings</Text>
       </View>
 
-      {/* ----Dashboard area---- */}
+      
       <View style={styles.dashboardAreaStyle}>
         <Text style={styles.sectionTitle}>Account Info</Text>
 
-        {/* ----Settings List---- */}
+        
         <SettingCard icon="user-circle" title="Profile" onPress={() => navigation.navigate("Profile")} />
         <SettingCard icon="bell" title="Notification Preferences" onPress={() => { }} />
 
-        {/* ----Logout Button---- */}
+        
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
