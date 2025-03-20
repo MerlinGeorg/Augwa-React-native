@@ -62,15 +62,16 @@ const ScheduleDetailScreen = ({ route }) => {
   useEffect(() => {
     fetchUpdatedJob();
   }, []);
-
+  
   const handleMotionDetected = useCallback(async () => {
     if (job?.status === "Scheduled") {
       try {
         const staffId = job.assignedStaff[0]?.staff?.id;
-        await api.post(
+    await api.post(
           `/TimeTracking`,
           {
             "staffId": `${staffId}`,
+
             "state": "TravelStart"
           },
 

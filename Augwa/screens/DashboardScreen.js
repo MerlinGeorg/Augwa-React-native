@@ -32,7 +32,7 @@ const DashboardScreen = ({ route, navigation }) => {
   const [taskLongitude, setTaskLongitude] = useState(null);
   const [onBreak, setOnBreak] = useState(false);
   const [onMealBreak, setOnMealBreak] = useState(false);
-  const [clockIn, setClockIn] = useState(false);
+  const [clockIn, setClockIn] = useState(false); // initially ClockIn is false
   const [displayTime, setDisplayTime] = useState(0);
   const workTimeRef = useRef({
     total: 0,
@@ -409,6 +409,7 @@ const DashboardScreen = ({ route, navigation }) => {
         if (response.status === 200 || response.status === 204) {
           setJobStatus("Completed");
 
+
           fetchJoblist(authToken, domain, setScheduleData, setError);
         }
       }
@@ -462,11 +463,12 @@ const DashboardScreen = ({ route, navigation }) => {
           styles.btnStyle,
           {
             backgroundColor: config.color,
-            opacity: hasValidTask ? 1 : 0.6,
+            opacity: (clockIn && hasValidTask) ? 1 : 0.6,
           },
         ]}
         onPress={hasValidTask ? changeStatus : null}
-        disabled={!hasValidTask}
+        disabled={!clockIn || !hasValidTask}
+
       >
         <Text style={styles.btnTitle}>{config.text}</Text>
       </TouchableOpacity>
@@ -486,14 +488,17 @@ const DashboardScreen = ({ route, navigation }) => {
       <TouchableOpacity
         style={[
           styles.btnStyle,
-          { backgroundColor: config.color, opacity: hasValidTask ? 1 : 0.6 },
+          {
+            backgroundColor: config.color,
+            opacity: (clockIn && hasValidTask) ? 1 : 0.6,
+          },
         ]}
         onPress={hasValidTask ? () => {
           openMap(current?.latitude,
             current?.longitude, current?.address);
           setTaskLatitude(current?.latitude); setTaskLongitude(current?.longitude)
         } : null}
-        disabled={!hasValidTask}>
+        disabled={!clockIn || !hasValidTask}>
         <View style={styles.navigateButton}>
           <Ionicons name="navigate-circle-outline" size={30} color="white" />
           <Text style={styles.btnTitle}>Travel</Text>
@@ -574,9 +579,11 @@ const DashboardScreen = ({ route, navigation }) => {
             styles.btnStyle,
             {
               backgroundColor: onBreak ? errorRed : '#4CAF50',
+              opacity: !clockIn ? 0.6 : 1,
             }
           ]}
-          onPress={() => handleBreak('break')}>
+          onPress={() => handleBreak('break')}
+          disabled={!clockIn}>
           <Text style={styles.btnTitle}>
             {onBreak ? "END BREAK" : "START BREAK"}
           </Text>
@@ -588,9 +595,11 @@ const DashboardScreen = ({ route, navigation }) => {
             styles.btnStyle,
             {
               backgroundColor: onMealBreak ? errorRed : '#4CAF50',
+              opacity: !clockIn ? 0.6 : 1,
             }
           ]}
-          onPress={() => handleBreak('meal')}>
+          onPress={() => handleBreak('meal')}
+          disabled={!clockIn}>
           <Text style={styles.btnTitle}>
             {onMealBreak ? "END MEAL" : "START MEAL"}
           </Text>
@@ -599,6 +608,62 @@ const DashboardScreen = ({ route, navigation }) => {
     );
   };
 
+  const renderClockInBtn = () => {
+    const hasValidTask = current && !isCompleted;
+    const handleClockAction = async () => {
+      try {
+        // Determine the API action based on current clockIn state
+        const action = clockIn ? "ClockOut" : "ClockIn";
+        
+        const response = await api.post('/TimeTracking', {
+          staffId: accountID,
+          state: action
+        }, {
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
+  
+        // Only update state if API call succeeds
+        if (response.status === 200 || response.status === 204) {
+          setClockIn(!clockIn); // Toggle the state
+          Alert.alert(`Successfully ${clockIn ? 'Clocked Out' : 'Clocked In'}`);
+        }
+      } catch (error) {
+        // Handle error responses
+        const errorMessage = error.response?.data?.message || error.message;
+        
+        // Sync state with server if we get specific errors
+        if (errorMessage.includes('Already clocked in')) {
+          setClockIn(true); // Force sync to clocked in state
+          Alert.alert('Info', 'You are already clocked in');
+        } else if (errorMessage.includes('Not clocked in')) {
+          setClockIn(false); // Force sync to clocked out state
+          Alert.alert('Info', 'You need to clock in first');
+        } else {
+          Alert.alert('Error', errorMessage);
+        }
+      }
+    };
+  
+    return (
+      <TouchableOpacity
+        style={[
+          styles.btnStyle,
+          {
+            backgroundColor: clockIn ? errorRed : '#4CAF50',
+            opacity: !hasValidTask ? 0.6 : 1,
+            marginHorizontal: 20,
+            marginTop: 10,
+          }
+        ]}
+        onPress={handleClockAction}
+        disabled={!hasValidTask}
+      >
+        <Text style={styles.btnTitle}>
+          {clockIn ? "Clock Out" : "Clock In"}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
   const performances = [
     { title: "Daily tasks:", count: todayTaskList.length },
     { title: "Weekly tasks:", count: weeklyTasksNumber },
@@ -689,15 +754,17 @@ const DashboardScreen = ({ route, navigation }) => {
               ))}
             </ScrollView>
 
-            {/* <TouchableOpacity style={{ marginLeft: 20, marginTop: 5, marginBottom: 20 }} >
-              <Text style={styles.bluBtntext}>Clock Out</Text>
-            </TouchableOpacity> */}
+            <View style={{ marginTop: 20 }}>
+              {renderClockInBtn()}
+            </View>
+
             <View style={{ flex: 1 }} />
           </View>
         </ScrollView>
 
       </View>
     </SafeAreaView>
+
   )
 }
 
@@ -864,7 +931,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
-    margin: 10,
     margin: 10,
     paddingVertical: 10,
     paddingHorizontal: 20
