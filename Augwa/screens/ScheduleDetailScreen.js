@@ -432,8 +432,10 @@ const styles = StyleSheet.create({
  
   },
    scrollContainer: {
-     paddingBottom: 70, 
- },
+    paddingBottom: 70, 
+    marginLeft: 20,
+    marginRight: 20
+  },
   dashboardAreaStyle: {
     height: "110%",
     backgroundColor: dashboardArea,
@@ -451,7 +453,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F8F9FA",
     paddingBottom: 20,
-    borderRadius: 30
+    borderRadius: 30,
   },
   header: {
     backgroundColor: "#2D4059",
