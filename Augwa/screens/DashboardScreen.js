@@ -73,7 +73,7 @@ const DashboardScreen = ({ route, navigation }) => {
     if (authToken) {
       fetchJoblist(authToken, domain, setScheduleData, setError);
     }
-  }, [authToken]); 
+  }, [authToken]);
   console.log(authToken)
   useEffect(() => {
     if (scheduleData && userTasks) {
@@ -88,29 +88,30 @@ const DashboardScreen = ({ route, navigation }) => {
       setJobStatus(current?.status || "");
     }
   }, [current]);
-  useEffect(()=>{
-    const scheduleDailyReset = ()=>{
+  useEffect(() => {
+    const scheduleDailyReset = () => {
       const now = new Date();
       const midNight = new Date(now);
       midNight.setDate(now.getDate() + 1);
       midNight.setHours(0, 0, 0, 0);
-    
 
-    const timeOutId = setTimeout(()=>{
-      workTimeRef.current.total = 0;
-      setDisplayTime(0);
-      scheduleDailyReset(); 
-    }, midNight - now);
-    workTimeRef.current.dailyReset = timeOutId;
-  };
+
+      const timeOutId = setTimeout(() => {
+        workTimeRef.current.total = 0;
+        setDisplayTime(0);
+        scheduleDailyReset();
+      }, midNight - now);
+      workTimeRef.current.dailyReset = timeOutId;
+    };
     scheduleDailyReset();
-  return ()=> clearTimeout(workTimeRef.current.dailyReset);}, []);
-  useEffect(()=>{
+    return () => clearTimeout(workTimeRef.current.dailyReset);
+  }, []);
+  useEffect(() => {
     let interval;
     if (workTimeRef.current.isWorking) {
-      workTimeRef.current,lastStart = Date.now();
+      workTimeRef.current, lastStart = Date.now();
 
-      interval = setInterval(()=>{
+      interval = setInterval(() => {
         const now = Date.now();
         const elapsed = now - workTimeRef.current.lastStart
         workTimeRef.current.total += elapsed;
@@ -118,22 +119,22 @@ const DashboardScreen = ({ route, navigation }) => {
         setDisplayTime(prev => prev + elapsed)
       }, 1000)
     }
-    return ()=>{
+    return () => {
       if (interval) clearInterval(interval)
-      if(workTimeRef.current.isWorking) {
+      if (workTimeRef.current.isWorking) {
         workTimeRef.current.total += Date.now() - workTimeRef.current.lastStart
       }
     }
 
   }, [workTimeRef.current.isWorking])
-  
+
   const formatTime = useCallback((milliseconds) => {
-    const totalSeconds = Math.floor(milliseconds/1000);
-    const hours = Math.floor(totalSeconds/3600);
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 360) / 60);
     const seconds = Math.floor(totalSeconds % 60);
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  },[])
+  }, [])
   const formatLocalTime = (dateString) => {
     if (!dateString) return "";
 
@@ -222,7 +223,7 @@ const DashboardScreen = ({ route, navigation }) => {
 
 
   const openMap = useCallback(async (latitude, longitude, address) => {
-    
+
     console.log("Map Opening Process Started", {
       inputLatitude: latitude,
       inputLongitude: longitude,
@@ -230,11 +231,11 @@ const DashboardScreen = ({ route, navigation }) => {
       platform: Platform.OS,
     });
 
-   
+
     const parsedLat = parseFloat(latitude);
     const parsedLong = parseFloat(longitude);
 
-    
+
     if (isNaN(parsedLat) || isNaN(parsedLong)) {
       console.error("Invalid coordinates:", { latitude, longitude });
       Alert.alert("Navigation Error", "Invalid location coordinates", [
@@ -307,7 +308,7 @@ const DashboardScreen = ({ route, navigation }) => {
       ]);
     }
   }, []);
-  
+
   console.log(`current id: ${current?.id}`)
 
   const changeStatus = async () => {
@@ -318,7 +319,7 @@ const DashboardScreen = ({ route, navigation }) => {
       }
 
       if (current.status === "Scheduled") {
-        if(!workTimeRef.current.isWorking){
+        if (!workTimeRef.current.isWorking) {
           workTimeRef.current.isWorking = true;
           workTimeRef.current.lastStart = Date.now()
         }
@@ -342,7 +343,7 @@ const DashboardScreen = ({ route, navigation }) => {
         }
       } else if (current.status === "InProgress") {
         const remainingTask = todayTaskList.filter(
-          task =>(task.status !== 'Completed'))
+          task => (task.status !== 'Completed'))
         if (remainingTask.length <= 0) {
           workTimeRef.current.isWorking = false
         }
@@ -458,16 +459,16 @@ const DashboardScreen = ({ route, navigation }) => {
     const handleBreak = async (type) => {
       try {
         const isStarting = type === 'break' ? !onBreak : !onMealBreak;
-        const state = type === 'break' 
+        const state = type === 'break'
           ? (isStarting ? "BreakStart" : "BreakEnd")
           : (isStarting ? "MealBreakStart" : "MealBreakEnd");
-  
+
         if (type === 'break') {
           setOnBreak(isStarting);
         } else {
           setOnMealBreak(isStarting);
         }
-  
+
         if (isStarting) {
           if (workTimeRef.current.isWorking) {
             const currentTime = Date.now();
@@ -501,7 +502,7 @@ const DashboardScreen = ({ route, navigation }) => {
           }
           Alert.alert('Error', 'Failed to update break status');
         }
-  
+
       } catch (error) {
         if (type === 'break') {
           setOnBreak(!isStarting);
@@ -511,21 +512,21 @@ const DashboardScreen = ({ route, navigation }) => {
         Alert.alert('Error', error.message);
       }
     };
-  
+
     return (
-      <View style={{ 
-        flexDirection: "row", 
+      <View style={{
+        flexDirection: "row",
         justifyContent: 'space-between',
         marginStart: 20,
         marginEnd: 20,
-        marginTop: 20,     
+        marginTop: 20,
       }}>
-    
+
         <TouchableOpacity
           style={[
             styles.btnStyle,
             {
-              backgroundColor: onBreak ? errorRed : '#4CAF50', 
+              backgroundColor: onBreak ? errorRed : '#4CAF50',
             }
           ]}
           onPress={() => handleBreak('break')}>
@@ -533,8 +534,8 @@ const DashboardScreen = ({ route, navigation }) => {
             {onBreak ? "END BREAK" : "START BREAK"}
           </Text>
         </TouchableOpacity>
-  
-    
+
+
         <TouchableOpacity
           style={[
             styles.btnStyle,
@@ -561,20 +562,24 @@ const DashboardScreen = ({ route, navigation }) => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: augwaBlue }}>
-      <View style={{flex: 1}} >
-          <View style={{marginStart: 20, marginEnd: 20}}>
-            <View style={styles.greetingArea}>
-              <Text style={styles.greetings}>Welcome, </Text>
-              <TouchableOpacity> <BellIcon /> </TouchableOpacity>
-            </View>
-            <Text style={styles.usernameStyle}> {userName}!</Text>
+      <View style={{ flex: 1 }} >
+        <View style={{ marginStart: 20, marginEnd: 20 }}>
+          <View style={styles.greetingArea}>
+            <Text style={styles.greetings}>Welcome, </Text>
+            <TouchableOpacity>
+              <View>
+                <BellIcon />
+              </View>
+            </TouchableOpacity>
           </View>
-        
+          <Text style={styles.usernameStyle}> {userName}!</Text>
+        </View>
+
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           <View style={styles.dashboardAreaStyle}>
             <View style={styles.sectionHeading}>
               <Text style={styles.sectionTitle}>Current Job</Text>
-                <Text style={styles.timeTitle}>{current ? formatLocalTime(current.startDate) : ''}</Text>
+              <Text style={styles.timeTitle}>{current ? formatLocalTime(current.startDate) : ''}</Text>
             </View>
 
             <View style={styles.jobCards}>
@@ -587,29 +592,27 @@ const DashboardScreen = ({ route, navigation }) => {
                   <Text style={styles.jobDescribtionText}>No task today!</Text>
                 )}
               </View>
-              <View style={{flexDirection: 'column', gap: 12}}>
+              <View style={{ flexDirection: 'column', gap: 12 }}>
                 {renderActionButton()}
                 {renderNavigateButton()}
               </View>
             </View>
 
-            <View style={styles.statusBtnView}>
-              {renderBreakBtn()}
-            </View>
+            {renderBreakBtn()}
 
             <GeofencingComponent destination={destination} radius={50} />
 
             <View style={styles.sectionHeading}>
               <Text style={styles.sectionTitle}>Upcoming Jobs</Text>
               <TouchableOpacity onPress={gotoSchedule}>
-                  <Text style={styles.bluBtntext}>View all</Text>
+                <Text style={styles.bluBtntext}>View all</Text>
               </TouchableOpacity>
             </View>
-          
+
             {matchedSchedules.length === 0 ? (
               <Text style={styles.noJobsText}>No jobs available</Text>
             ) : (
-              <ScrollView 
+              <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContainer}>
@@ -622,12 +625,12 @@ const DashboardScreen = ({ route, navigation }) => {
                 ))}
               </ScrollView>
             )}
-        
+
             <View style={styles.sectionHeading}>
               <Text style={styles.sectionTitle}>Performance Overview</Text>
             </View>
 
-            <ScrollView 
+            <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.scrollContainer}>
@@ -642,7 +645,7 @@ const DashboardScreen = ({ route, navigation }) => {
             <TouchableOpacity style={{ marginLeft: 20, marginTop: 5, marginBottom: 20 }} >
               <Text style={styles.bluBtntext}>Clock Out</Text>
             </TouchableOpacity>
-            <View style={{flex: 1}}/>
+            <View style={{ flex: 1 }} />
           </View>
         </ScrollView>
 
@@ -764,8 +767,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 3, 
-    shadowColor: '#000', 
+    elevation: 3,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
@@ -779,7 +782,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: 'center',
     justifyContent: 'center',
-   
+
   },
   performanceNumStyle: {
     fontSize: 16,
