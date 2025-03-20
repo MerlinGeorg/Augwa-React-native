@@ -617,10 +617,15 @@ const formatTime = useCallback((milliseconds) => {
             </View>
             <Text style={styles.usernameStyle}> {userName}!</Text>
           </View>
-        
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-          <View style={styles.dashboardAreaStyle}>
-            <View style={styles.sectionHeading}>
+
+          <Text style={styles.usernameStyle}> {userName} !</Text>
+        </View>
+
+
+        <View style={styles.dashboardAreaStyle}>
+
+          <View style={{ flexDirection: 'row', marginTop: 20, }}>
+            <View style={[{ flexDirection: 'row' }]}>
               <Text style={styles.sectionTitle}>Current Job</Text>
                 <Text style={styles.timeTitle}>{current ? formatLocalTime(current.startDate) : ''}</Text>
             </View>
@@ -641,9 +646,9 @@ const formatTime = useCallback((milliseconds) => {
               </View>
             </View>
 
-          
-              {renderBreakBtn()}
-            
+          <View style={styles.statusBtnView}>
+            {renderBreakBtn()}
+          </View>
 
             <GeofencingComponent destination={destination} radius={50} />
 
@@ -692,7 +697,6 @@ const formatTime = useCallback((milliseconds) => {
             </TouchableOpacity> */}
             <View style={{flex: 1}}/>
           </View>
-        </ScrollView>
 
       </View>
     </SafeAreaView>
@@ -732,12 +736,10 @@ const styles = StyleSheet.create({
   },
   dashboardAreaStyle: {
     marginTop: 20,
-    height: "100%",
-    flex: 1,
+    height: "85%",
     backgroundColor: dashboardArea,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    //paddingBottom: 60
   },
   sectionHeading: {
     marginStart: 20,
@@ -768,8 +770,8 @@ const styles = StyleSheet.create({
   },
   jobDescribtionStyle: {
     backgroundColor: "#fff",
-    width: 210,
-    minHeight: 80,
+    width: 200,
+    height: 120,
     borderRadius: 20,
     flexGrow: 1,
     padding: 10
@@ -862,7 +864,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
-    margin: 10,
     margin: 10,
     paddingVertical: 10,
     paddingHorizontal: 20
