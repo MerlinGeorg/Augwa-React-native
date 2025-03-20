@@ -617,15 +617,10 @@ const formatTime = useCallback((milliseconds) => {
             </View>
             <Text style={styles.usernameStyle}> {userName}!</Text>
           </View>
-
-          <Text style={styles.usernameStyle}> {userName} !</Text>
-        </View>
-
-
-        <View style={styles.dashboardAreaStyle}>
-
-          <View style={{ flexDirection: 'row', marginTop: 20, }}>
-            <View style={[{ flexDirection: 'row' }]}>
+        
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <View style={styles.dashboardAreaStyle}>
+            <View style={styles.sectionHeading}>
               <Text style={styles.sectionTitle}>Current Job</Text>
                 <Text style={styles.timeTitle}>{current ? formatLocalTime(current.startDate) : ''}</Text>
             </View>
@@ -692,14 +687,15 @@ const formatTime = useCallback((milliseconds) => {
               ))}
             </ScrollView>
 
-            {/* <TouchableOpacity style={{ marginLeft: 20, marginTop: 5, marginBottom: 20 }} >
+            <TouchableOpacity style={{ marginLeft: 20, marginTop: 5, marginBottom: 20 }} >
               <Text style={styles.bluBtntext}>Clock Out</Text>
-            </TouchableOpacity> */}
-            <View style={{flex: 1}}/>
-          </View>
+            </TouchableOpacity>
 
+          </View>
+        </ScrollView>
       </View>
     </SafeAreaView>
+   
   )
 }
 
@@ -736,10 +732,12 @@ const styles = StyleSheet.create({
   },
   dashboardAreaStyle: {
     marginTop: 20,
-    height: "85%",
+    height: "100%",
+    flex: 1,
     backgroundColor: dashboardArea,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
+    //paddingBottom: 60
   },
   sectionHeading: {
     marginStart: 20,
@@ -770,8 +768,8 @@ const styles = StyleSheet.create({
   },
   jobDescribtionStyle: {
     backgroundColor: "#fff",
-    width: 200,
-    height: 120,
+    width: 210,
+    minHeight: 80,
     borderRadius: 20,
     flexGrow: 1,
     padding: 10
