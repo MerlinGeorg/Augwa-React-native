@@ -32,7 +32,7 @@ export const CameraImagePicker = async (setImageData) => {
       const result = await ImagePicker.launchCameraAsync({
         mediaTypes: 'images', // Use 'images' or 'videos'
         aspect: [4, 3],
-        quality: 0.5,
+        quality: 0.3,
         allowsEditing: true, 
         base64: true
       });
