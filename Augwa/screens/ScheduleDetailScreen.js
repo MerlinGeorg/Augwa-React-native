@@ -62,14 +62,14 @@ const ScheduleDetailScreen = ({ route }) => {
   useEffect(() => {
     fetchUpdatedJob();
   }, []);
-
+  
   const handleMotionDetected = useCallback(async () => {
     if (job?.status === "Scheduled") {
       try {
         await api.post(
           `/TimeTracking`,
           {
-            "staffId": `${job.assignedStaff.staff.id}`,
+            "staffId": `${job?.assignedStaff[0].staff.id}`,
             "state": "TravelStart"
           },
 
@@ -81,7 +81,6 @@ const ScheduleDetailScreen = ({ route }) => {
       }
     }
   }, [job, jobId, authToken, fetchUpdatedJob]);
-
   MotionDetection(handleMotionDetected);
 
   if (loading) {
@@ -109,7 +108,8 @@ const ScheduleDetailScreen = ({ route }) => {
     return new Date(dateString).toLocaleDateString("en-US", options);
   };
 
-  
+  console.log(job?.assignedStaff.staff.id)
+
   const formatTime = (start, end) => {
     const timeOptions = { hour: "2-digit", minute: "2-digit", hour12: true };
     return `${new Date(start).toLocaleTimeString([], timeOptions)} - ${new Date(
@@ -122,7 +122,7 @@ const ScheduleDetailScreen = ({ route }) => {
       return <ActivityIndicator size="small" color="#E9BB55" />;
     }
 
-    if (job.status === "Scheduled") {
+    if (job?.status === "Scheduled") {
       return (
         <TouchableOpacity
           style={styles.startButton}
@@ -165,7 +165,7 @@ const ScheduleDetailScreen = ({ route }) => {
           onPress: async () => {
             try {
               const response = await api.post(
-                `/Booking/${job.id}/Stop`,
+                `/Booking/${job?.id}/Stop`,
                 {},
                 {
                   headers: {
@@ -191,7 +191,21 @@ const ScheduleDetailScreen = ({ route }) => {
       let endpoint = "";
 
       if (actionType === "start") {
-        endpoint = `/Booking/${job.id}/Start`;
+        endpoint = `/TimeTracking`;
+        const response = await api.post(
+          endpoint,
+          {
+            // "staffId": `${accountID}`,
+            // "state": "BookingStart",
+            // "bookingId": `${current.id}`
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+
       } else if (actionType === "complete") {
         endpoint = `/Booking/${job.id}/Complete`;
       }
