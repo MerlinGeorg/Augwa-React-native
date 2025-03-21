@@ -6,6 +6,8 @@ import { augwaBlue, dashboardArea } from "../assets/styles/color";
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../src/context/AuthContext';
 import { Calendar } from "react-native-calendars";
+import axios from "axios";
+import { API_BASEPATH_DEV } from "@env";
 
 const ScheduleScreen = ({ navigation }) => {
   const [schedule, setSchedule] = useState([]);
@@ -15,6 +17,14 @@ const ScheduleScreen = ({ navigation }) => {
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [markedDates, setMarkedDates] = useState({});
   const { authToken, user, domain } = useContext(AuthContext);
+  const baseURL = API_BASEPATH_DEV;
+  const api = axios.create({
+    baseURL: baseURL,
+    headers: {
+      "Content-Type": "application/json",
+      "X-Domain": domain,
+    },
+  });
 
   useFocusEffect(
     React.useCallback(() => {
@@ -26,6 +36,34 @@ const ScheduleScreen = ({ navigation }) => {
     filterJobsByDate(selectedDate);
   }, [selectedDate, schedule]);
 
+  const handleStartJob = async (booking) => {
+    try {
+      const staffId = booking.assignedStaff[0]?.staff?.id;
+      console.log(`booking: `, booking);
+      console.log(`staffId: ${staffId}`);
+      console.log(`bookingId: ${booking.id}`);
+      const response = await api.post(
+        `/TimeTracking`, 
+        {
+          "staffId": `${staffId}`,
+          "state": "BookingStart",
+          "bookingId": `${booking.id}`
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+  
+      if (response.status === 204) {
+        console.log("Job started successfully");
+        fetchBookings();
+      }
+    } catch (error) {
+      console.error(`Failed to update job status via ${actionType}:`, error);
+    }
+  };
  
   const fetchBookings = async () => {
     setLoading(true);
@@ -74,7 +112,7 @@ const ScheduleScreen = ({ navigation }) => {
   };
 
   const isJobEnabled = (startDate, status) => {
-    if (status === 'cancelled' || status === 'completed') return false;
+    if (status === 'InProgress' || status === 'Completed') return false;
 
     const now = new Date();
     const jobStart = new Date(startDate);
@@ -117,6 +155,7 @@ const ScheduleScreen = ({ navigation }) => {
           <TouchableOpacity 
             style={[styles.startButton, !enabled && styles.startButtonDisabled]}
             disabled={!enabled}
+            onPress={() => handleStartJob(item)}
           >
             <Text style={[styles.startButtonText, !enabled && styles.startButtonDisabled]}>
               START
@@ -250,9 +289,12 @@ const styles = StyleSheet.create({
   },
   dashboardAreaStyle: {
     marginTop: 20,
-    height: '100%',
+    flex: 1,
     backgroundColor: dashboardArea,
-    borderRadius: 30,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30, 
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0, 
     padding: 15,
   },
   Title: {
