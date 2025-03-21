@@ -35,8 +35,9 @@ const ScheduleDetailScreen = ({ route }) => {
   const [imageData, setImageData] = useState(null);
   const [timeTrackingState, setTimeTrackingState] = useState(null);
   const [isTravelLoading, setIsTravelLoading] = useState(false);
+  const baseURL = API_BASEPATH_DEV;
   const api = axios.create({
-    baseURL: API_BASEPATH_DEV,
+    baseURL: baseURL,
     headers: {
       "Content-Type": "application/json",
       "X-Domain": domain,
@@ -317,9 +318,17 @@ const ScheduleDetailScreen = ({ route }) => {
         <ScrollView style={styles.container} contentContainerStyle={styles.scrollContainer}>
 
           <View style={styles.statusContainer}>
-            <Text style={styles.statusText}>
-              {timeTrackingState === "TravelStart" ? "En Route" : job.status == "InProgress" ? "In Progress" : job.status}
-            </Text>
+            {isTravelLoading ? (
+              <ActivityIndicator size="small" color="#177de1" />
+            ) : (
+              <Text style={styles.statusText}>
+                {timeTrackingState === "TravelStart"
+                  ? "En Route"
+                  : job.status === "InProgress"
+                  ? "In Progress"
+                  : job.status}
+              </Text>
+            )}
             <View style={styles.buttonRow}>
               {timeTrackingState === "TravelStart" ? (
                 <TouchableOpacity
