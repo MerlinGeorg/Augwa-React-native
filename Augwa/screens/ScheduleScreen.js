@@ -6,6 +6,9 @@ import { augwaBlue, dashboardArea } from "../assets/styles/color";
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../src/context/AuthContext';
 import { Calendar } from "react-native-calendars";
+import { OfflineStorage } from "../utils/services/offlineStorageService";
+import { SyncService } from "../utils/services/dataSyncService";
+import { useNetworkStatus, ConnectivityBanner } from "../utils/services/networkConnectivity";
 
 const ScheduleScreen = ({ navigation }) => {
   const [schedule, setSchedule] = useState([]);
@@ -15,6 +18,13 @@ const ScheduleScreen = ({ navigation }) => {
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [markedDates, setMarkedDates] = useState({});
   const { authToken, user, domain } = useContext(AuthContext);
+  const { isConnected, isInternetReachable } = useNetworkStatus();
+ // const isOnline = isConnected && isInternetReachable;
+  const isOnline = isConnected !== null && isConnected && isInternetReachable !== null && isInternetReachable;
+
+  useEffect(() => {
+    console.log("Network status changed. isOnline:", isOnline);
+  }, [isOnline]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -30,7 +40,8 @@ const ScheduleScreen = ({ navigation }) => {
   // Function to fetch booking
   const fetchBookings = async () => {
     setLoading(true);
-
+    if(isOnline){
+      console.log("online: ", isOnline)
     const result = await getBooking(authToken, domain);
 
     if (result.success) {
@@ -38,10 +49,19 @@ const ScheduleScreen = ({ navigation }) => {
       setSchedule(assignedBookings);
       filterJobsByDate(selectedDate);
       generateMarkedDates(assignedBookings);
+       await OfflineStorage.saveSchedules(assignedBookings);
       //AllBookings(assignedBookings, selectedDate); 
     } else {
       console.error("Error fetching bookings:", result.error);
     }
+  } else {
+    // Offline mode: use cached data
+    console.log("online: ", isOnline)
+    const cachedSchedules = await OfflineStorage.getSchedules();
+    setSchedule(cachedSchedules || []);
+    filterJobsByDate(selectedDate);
+    generateMarkedDates(cachedSchedules || []);
+  }
 
     setLoading(false);
   };
@@ -187,6 +207,13 @@ const ScheduleScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
+        {!isOnline && (
+  <View style={styles.offlineIndicator}>
+    <Ionicons name="cloud-offline-outline" size={16} color="#FF9800" />
+    <Text style={styles.offlineText}>Offline Mode</Text>
+  </View>
+)}
+
         {loading ? (
           <View style={styles.loadingContainer}>
             <Text style={styles.msgText}>Loading jobs...</Text>
@@ -259,6 +286,19 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     padding: 15,
   },
+  offlineIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF3E0',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  offlineText: {
+    marginLeft: 5,
+    color: '#FF9800',
+    fontWeight: 'bold',
+  },  
   Title: {
     fontSize: 20,
     color: '#fff',
