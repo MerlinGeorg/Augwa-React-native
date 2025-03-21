@@ -36,9 +36,9 @@ const ScheduleStack = () => {
       }}
     >
       <Stack.Screen 
-        name="ScheduleMain" 
+        name="Schedule" 
         component={ScheduleScreen} 
-        options={{ headerShown: false }}
+        options={{ headerBackTitleVisible: false, headerBackTitle: '', title: '', headerShown: false }}
       />
       <Stack.Screen 
         name="ScheduleDetail" 
