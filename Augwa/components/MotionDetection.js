@@ -3,8 +3,10 @@ import { Accelerometer } from "expo-sensors";
 
 const THRESHOLD = 1.0;
 
-const MotionDetection = (onMotionDetected) => {
+const MotionDetection = (enabled,onMotionDetected) => {
   useEffect(() => {
+    if (!enabled) return;
+    
     const handleMotion = (data) => {
       const { x, y, z } = data;
       const magnitude = Math.sqrt(x * x + y * y + z * z);
