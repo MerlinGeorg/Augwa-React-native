@@ -3,6 +3,7 @@ import {
     Platform
 } from 'react-native';
 import * as ImagePicker from "expo-image-picker";
+import * as ImageManipulator from "expo-image-manipulator";
 
 export const CameraImagePicker = async (setImageData) => {
 
@@ -38,8 +39,13 @@ export const CameraImagePicker = async (setImageData) => {
       });
     
       if (!result.canceled) {
-       // console.log(result.assets[0].uri); // New way to access the selected file
-        setImageData(result.assets[0].base64);
+        const manipulated = await ImageManipulator.manipulateAsync(
+          result.assets[0].uri,
+          [{ resize: { width: 1024 } }],
+          { compress: 0.3, format: ImageManipulator.SaveFormat.JPEG, base64: true }
+        );
+        // console.log(result.assets[0].uri); // New way to access the selected file
+        setImageData(manipulated.base64);
       }
     } catch (error) {
       console.error("Failed to launch camera:", error);
