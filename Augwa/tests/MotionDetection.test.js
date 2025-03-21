@@ -16,12 +16,10 @@ const MotionDetection = (onMotionDetected) => {
       }
     };
 
-    // Add listener
     Accelerometer.setUpdateInterval(1000);
     subscriptionRef.current = Accelerometer.addListener(handleMotion);
 
     return () => {
-      // Remove the listener
       if (subscriptionRef.current) {
         subscriptionRef.current.remove();
       }

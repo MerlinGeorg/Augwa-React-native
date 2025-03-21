@@ -51,7 +51,7 @@ const LoginScreen = (props) => {
     try {
       const credentials = await BiometricAuth.authenticateWithBiometric();
       if (credentials) {
-        // Use the stored credentials to login
+      
         const result = await Login.login({
           domain: credentials.domain,
           username: credentials.username,
@@ -171,10 +171,6 @@ const LoginScreen = (props) => {
               />
             </View>
 
-            <TouchableOpacity style={styles.btnPsw}>
-              <Text style={styles.bluBtntext}>Forgot Password?</Text>
-            </TouchableOpacity>
-
             <TouchableOpacity
               onPress={handleLogin}
               style={styles.signInButton}
@@ -286,6 +282,7 @@ const styles = StyleSheet.create({
     width: 340,
     height: 45,
     borderRadius: 8,
+    marginTop: 20,
     alignSelf: "center",
     backgroundColor: augwaBlue,
     justifyContent: "center",

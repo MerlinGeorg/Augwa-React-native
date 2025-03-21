@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  // TextInput,
   TouchableOpacity,
   View,
   StyleSheet,
@@ -8,7 +7,6 @@ import {
   SafeAreaView,
   KeyboardAvoidingView,
   Platform,
-  // Alert,
   Modal,
 } from "react-native";
 import {
@@ -55,7 +53,7 @@ export default function SignupScreen({ navigation }) {
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [biometricVisible, setBiometricVisible] = useState(false);
   const [biometricType, setBiometricType] = useState(null);
-  // const [successMessage, setSuccessMessage] = useState(null);
+  
 
   useEffect(() => {
     checkBiometricSupport();
@@ -75,13 +73,13 @@ export default function SignupScreen({ navigation }) {
     }
   };
 
-  // Username validation
+  
   const usernameValidation = {
     length: userName.length >= 6 && userName.length <= 32,
     validChars: /^[a-zA-Z0-9]+$/.test(userName),
   };
 
-  // Password validation checks
+  
   const validations = {
     length: password.length >= 8,
     uppercase: /[A-Z]/.test(password),
@@ -125,7 +123,6 @@ export default function SignupScreen({ navigation }) {
         setBiometricVisible(false);
         navigation.replace('biometrysuccess', { biometricType });
       } else {
-        // Alert.alert("Error", "Failed to enable biometric authentication. Please try again.");
         setErrors({ biometric: "Failed to enable biometric authentication. Please try again." })
       }
     } catch (error) {
@@ -151,7 +148,7 @@ export default function SignupScreen({ navigation }) {
         CustomAlert({
           title: "Success",
           message: "Account created successfully!",
-          onOk: () => { setBiometricVisible(true) } // Set biometricVisible to true when OK is pressed
+          onOk: () => { setBiometricVisible(true) } 
         });
 
       } else {
@@ -167,10 +164,10 @@ export default function SignupScreen({ navigation }) {
 
   const handleNotNow = () => {
     setBiometricVisible(false);
-    navigation.replace('login'); // Navigate to the Login screen
+    navigation.replace('login'); 
   };
 
-  const passwordRequirementsMet = Object.values(validations).every(Boolean); //to display password requirements Only requirements when they are not met
+  const passwordRequirementsMet = Object.values(validations).every(Boolean); 
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -296,8 +293,6 @@ export default function SignupScreen({ navigation }) {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {/* Biometric Authentication Modal */}
-
       <CustomModal
         visible={biometricVisible}
         onClose={() => setBiometricVisible(false)}
@@ -313,7 +308,7 @@ export default function SignupScreen({ navigation }) {
             style: { backgroundColor: errorGrey },
           },
         ]}
-        biometricType={biometricType} // Pass the biometricType here
+        biometricType={biometricType} 
       >
         <Text style={styles.modalText}>
           Would you like to enable {biometricType === 'faceId' ? 'Face ID' : 'fingerprint'} authentication?
@@ -384,11 +379,6 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(12),
     marginBottom: scaleSize(5),
   },
-  // eyeIcon: {
-  //   position: "absolute",
-  //   right: scaleSize(15),
-  //   padding: scaleSize(10),
-  // },
 
   biometricIcon: {
     marginBottom: scaleSize(20),

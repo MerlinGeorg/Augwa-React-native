@@ -11,7 +11,7 @@ jest.mock('../components/BiometricAuth', () => ({
     }
   }));
 
-  // Mock the LogoImage component
+ 
 jest.mock('../components/LogoImage', () => 'SvgMock');
 
   jest.mock('../components/Signup', () => ({
@@ -35,7 +35,7 @@ jest.mock('../components/CustomInput', () => {
     };
   });
 
-  // Mock the CustomAlert component
+ 
 jest.mock('../components/CustomAlert', () => {
 
     const { View, Text } = require('react-native');
@@ -52,7 +52,7 @@ jest.mock('../components/CustomAlert', () => {
   });
 
 
-// Mock the CustomModal component
+
 jest.mock('../components/CustomModal', () => {
 
     const { View, Text } = require('react-native');
@@ -81,7 +81,7 @@ describe('Signup screen with biometrics', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockNavigate = { replace: jest.fn() };
-        // Mock biometric support check
+       
         const BiometricAuth = require('../components/BiometricAuth').BiometricAuth;
         BiometricAuth.checkBiometricSupport.mockResolvedValue({
           supported: true,
@@ -89,7 +89,7 @@ describe('Signup screen with biometrics', () => {
         });
     });
 
-    // Checking if all the fields are rendered correctly
+    
     it('All fields are rendered successfully', () => {
         const { getByText, getByTestId } = render(<SignupScreen />);
 
@@ -100,7 +100,7 @@ describe('Signup screen with biometrics', () => {
         expect(getByText('SIGNUP')).toBeTruthy();
     });
     
-    // Testing for missing fields
+    
     it('shows validation error for input fields', async() => {
         const { getByText, getByTestId } = render(<SignupScreen />)
 
@@ -118,7 +118,7 @@ describe('Signup screen with biometrics', () => {
         });
     });
 
-    // Testing validation for username field
+    
     it('shows an error if username is not valid', async() => {
         const { getByTestId, getByText } = render(<SignupScreen />)
 
@@ -130,7 +130,7 @@ describe('Signup screen with biometrics', () => {
         });
     });
 
-    // Testing validation for password field
+   
     it('shows an error for password requirements', async() => {
         const { getByText, getByTestId } = render(<SignupScreen />)
         const passwordInput = getByTestId('input-Password');
@@ -146,7 +146,7 @@ describe('Signup screen with biometrics', () => {
         });
     });
 
-    // Testing for confirming matching passwords
+    
     it('validating matching passwords', async() => {
         const { getByText, getByTestId } = render(<SignupScreen />)
 
