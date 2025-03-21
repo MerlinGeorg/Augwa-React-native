@@ -615,14 +615,14 @@ const DashboardScreen = ({ route, navigation }) => {
       try {
         // Determine the API action based on current clockIn state
         const action = clockIn ? "ClockOut" : "ClockIn";
-        
+
         const response = await api.post('/TimeTracking', {
           staffId: accountID,
           state: action
         }, {
           headers: { Authorization: `Bearer ${authToken}` }
         });
-  
+
         // Only update state if API call succeeds
         if (response.status === 200 || response.status === 204) {
           setClockIn(!clockIn); // Toggle the state
@@ -631,7 +631,7 @@ const DashboardScreen = ({ route, navigation }) => {
       } catch (error) {
         // Handle error responses
         const errorMessage = error.response?.data?.message || error.message;
-        
+
         // Sync state with server if we get specific errors
         if (errorMessage.includes('Already clocked in')) {
           setClockIn(true); // Force sync to clocked in state
@@ -644,7 +644,7 @@ const DashboardScreen = ({ route, navigation }) => {
         }
       }
     };
-  
+
     return (
       <TouchableOpacity
         style={[
