@@ -33,6 +33,8 @@ const ScheduleDetailScreen = ({ route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [noteContent, setNoteContent] = useState("");
   const [imageData, setImageData] = useState(null);
+  const [timeTrackingState, setTimeTrackingState] = useState(null);
+  const [isTravelLoading, setIsTravelLoading] = useState(false);
   const api = axios.create({
     baseURL: API_BASEPATH_DEV,
     headers: {
@@ -40,6 +42,36 @@ const ScheduleDetailScreen = ({ route }) => {
       "X-Domain": domain,
     },
   });
+
+  const fetchTimeTrackingState = async () => {
+    if (!job?.assignedStaff?.length) return;
+  
+    try {
+      setIsTravelLoading(true);
+      const staffId = job.assignedStaff[0]?.staff?.id;
+      const response = await api.get(
+        `/TimeTracking?staffId=${staffId}&page=1&pageSize=10`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+  
+      const latestState = response.data?.results?.[0]?.state;
+      setTimeTrackingState(latestState);
+    } catch (error) {
+      console.error("Failed to fetch time tracking state:", error);
+    } finally {
+      setIsTravelLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (job) {
+      fetchTimeTrackingState();
+    }
+  }, [job]);
 
   const fetchUpdatedJob = async () => {
     try {
@@ -62,28 +94,44 @@ const ScheduleDetailScreen = ({ route }) => {
   useEffect(() => {
     fetchUpdatedJob();
   }, []);
-  
+
   const handleMotionDetected = useCallback(async () => {
     if (job?.status === "Scheduled") {
       try {
+        console.log("Travel start......");
         const staffId = job.assignedStaff[0]?.staff?.id;
-    await api.post(
+
+        const response = await api.post(
           `/TimeTracking`,
           {
-            "staffId": `${staffId}`,
-
-            "state": "TravelStart"
+            "staffId": `${staffId}`, 
+            "state": "TravelStart",
           },
-
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
         );
-        fetchUpdatedJob();
-        console.log("Job marked as En Route");
+
+        if (response.status === 204) {
+          fetchUpdatedJob();
+          console.log("Job marked as En Route");
+        }
       } catch (error) {
-        console.error("Failed to update job status:", error);
+        console.log(`error.response?.status: ${error.response?.status}`);
+        if (error.response?.status === 401) {
+          console.error("Authentication failed. Please try logging in again.");
+        } else {
+          console.error(`Failed to update status: ${error.message}`);
+        }
       }
     }
   }, [job, jobId, authToken, fetchUpdatedJob]);
-  MotionDetection(handleMotionDetected);
+  
+  const motionDetectionEnabled = job && timeTrackingState !== null && timeTrackingState !== "TravelStart";
+
+  MotionDetection(motionDetectionEnabled, handleMotionDetected);
 
   if (loading) {
     return (
@@ -94,7 +142,6 @@ const ScheduleDetailScreen = ({ route }) => {
       />
     );
   }
-
 
   if (!job) {
     return (
@@ -125,14 +172,14 @@ const ScheduleDetailScreen = ({ route }) => {
     if (job?.status === "Scheduled") {
       return (
         <TouchableOpacity
-          style={styles.startButton}
+          style={[styles.startButton, timeTrackingState === "TravelStart" && { backgroundColor: "#ccc" }]}
           onPress={() => handleAction("start")}
+          disabled={timeTrackingState === "TravelStart"}
         >
           <Text style={styles.startButtonText}>Start</Text>
         </TouchableOpacity>
       );
     } else if (job.status === "InProgress") {
-      //  console.log("job: ", job.items);
 
       return (
         <>
@@ -142,12 +189,6 @@ const ScheduleDetailScreen = ({ route }) => {
           >
             <Text style={styles.completeButtonText}>Complete</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.cancelButton}
-            onPress={() => handleAction("cancel")}
-          >
-            <Text style={styles.cancelButtonText}>Cancel</Text>
-          </TouchableOpacity>
         </>
       );
     }
@@ -155,64 +196,54 @@ const ScheduleDetailScreen = ({ route }) => {
     return null;
   };
 
-  const handleAction = async (actionType) => {
-    if (actionType === "cancel") {
-      Alert.alert("Cancel Job", "Are you sure you want to cancel this job?", [
-        { text: "No", style: "cancel" },
-        {
-          text: "Yes, Cancel",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              const response = await api.post(
-                `/Booking/${job?.id}/Stop`,
-                {},
-                {
-                  headers: {
-                    Authorization: `Bearer ${authToken}`,
-                  },
-                }
-              );
-
-              if (response.status === 204) {
-                console.log("Job successfully canceled");
-                fetchUpdatedJob();
-              }
-            } catch (error) {
-              console.error("Failed to cancel job:", error);
-            }
-          },
-        },
-      ]);
-      return;
-    }
-
+  const handleTravelEnd = async () => {
+    if (!job?.assignedStaff?.length) return;
+  
     try {
-      let endpoint = "";
+      const staffId = job.assignedStaff[0]?.staff?.id;
+  
+      const payload = {
+        staffId: staffId,
+        state: "TravelEnd"
+      };
+  
+      const response = await api.post("/TimeTracking", payload, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+  
+      if (response.status === 204) {
+        console.log("Travel End successfully recorded");
+        setTimeTrackingState("TravelEnd");
+        fetchUpdatedJob();
+      }
+    } catch (error) {
+      console.error("Failed to record Travel End:", error);
+    }
+  };
+  
+
+  const handleAction = async (actionType) => {
+    try {
+      const staffId = job.assignedStaff[0]?.staff?.id;
+      let payload = {};
 
       if (actionType === "start") {
-        endpoint = `/TimeTracking`;
-        const response = await api.post(
-          endpoint,
-          {
-            // "staffId": `${accountID}`,
-            // "state": "BookingStart",
-            // "bookingId": `${current.id}`
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-            },
-          }
-        );
-
+        payload = {
+          "staffId": `${staffId}`,
+          "state": "BookingStart",
+          "bookingId": `${jobId}`
+        };
       } else if (actionType === "complete") {
-        endpoint = `/Booking/${job.id}/Complete`;
+        payload = {
+          "staffId": `${staffId}`,
+          "state": "BookingEnd"
+        };
       }
 
       const response = await api.post(
-        endpoint,
-        {},
+        `/TimeTracking`, payload,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -233,7 +264,6 @@ const ScheduleDetailScreen = ({ route }) => {
     CameraImagePicker(setImageData);
   };
 
-
   const handleAddNote = async () => {
     if (!noteContent.trim() && !imageData) {
       Alert.alert("Error", "Please enter note content or select an image.");
@@ -246,7 +276,6 @@ const ScheduleDetailScreen = ({ route }) => {
         imageData: imageData || null,
         visibility: "Private",
       };
-
 
       const response = await api.post(`/Booking/${jobId}/Notes`, payload, {
         headers: {
@@ -274,7 +303,6 @@ const ScheduleDetailScreen = ({ route }) => {
     }
   };
 
-
   const handleGetDirections = () => {
     openMapsWithDirections({
       latitude: job.latitude,
@@ -285,16 +313,25 @@ const ScheduleDetailScreen = ({ route }) => {
 
   return (
     <SafeAreaView style={styles.viewStyle}>
-
-
       <View style={styles.dashboardAreaStyle}>
         <ScrollView style={styles.container} contentContainerStyle={styles.scrollContainer}>
 
           <View style={styles.statusContainer}>
             <Text style={styles.statusText}>
-              {job.status == "InProgress" ? "In Progress" : job.status}
+              {timeTrackingState === "TravelStart" ? "En Route" : job.status == "InProgress" ? "In Progress" : job.status}
             </Text>
-            <View style={styles.buttonRow}>{renderActionButton()}</View>
+            <View style={styles.buttonRow}>
+              {timeTrackingState === "TravelStart" ? (
+                <TouchableOpacity
+                  style={styles.completeButton}
+                  onPress={handleTravelEnd}
+                >
+                  <Text style={styles.completeButtonText}>Travel End</Text>
+                </TouchableOpacity>
+              ) : (
+                renderActionButton()
+              )}
+            </View>
           </View>
 
           <View style={styles.card}>
@@ -311,7 +348,6 @@ const ScheduleDetailScreen = ({ route }) => {
             </View>
           </View>
 
-
           <View style={styles.card}>
             <View style={styles.row}>
               <Text style={styles.label}>Client:</Text>
@@ -320,7 +356,6 @@ const ScheduleDetailScreen = ({ route }) => {
               </Text>
             </View>
           </View>
-
 
           <View style={styles.card}>
             <Text style={styles.label}>Address:</Text>
@@ -336,7 +371,6 @@ const ScheduleDetailScreen = ({ route }) => {
               </Text>
             </TouchableOpacity>
           </View>
-
 
           <View style={styles.card}>
             <Text style={styles.label}>Job Details:</Text>
@@ -364,7 +398,6 @@ const ScheduleDetailScreen = ({ route }) => {
             )}
           </View>
 
-
           <View style={styles.card}>
             <View style={styles.notesHeader}>
               <Text style={styles.label}>Notes:</Text>
@@ -383,10 +416,7 @@ const ScheduleDetailScreen = ({ route }) => {
             ) : (
               <Text>No notes available</Text>
             )}
-
-
           </View>
-
 
           <Modal
             animationType="slide"
